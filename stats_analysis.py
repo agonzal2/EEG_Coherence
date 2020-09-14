@@ -38,9 +38,9 @@ class MyForm(QMainWindow):
     self.ui.ButSelectFile.clicked.connect(self.selectFile)
     self.ui.ButDelFile.clicked.connect(self.delFile)
     self.ui.ButtonRunAll.clicked.connect(self.runAll)
-    #self.ui.ButtonClearFigures.clicked.connect(self.closeFigures)
-    #self.ui.Button2PDF.clicked.connect(self.print2pdf)
-    #self.ui.Button2PNG.clicked.connect(self.print2png)
+    self.ui.ButtonClearFigures.clicked.connect(self.closeFigures)
+    self.ui.Button2PDF.clicked.connect(self.print2pdf)
+    self.ui.Button2PNG.clicked.connect(self.print2png)
 
     self.freq_list_results = []
 
@@ -214,6 +214,31 @@ class MyForm(QMainWindow):
 
     for n, freq_interval_results in enumerate(self.freq_list_results):
       self.ui.tableFrequencies.setItem(n+1, position, QTableWidgetItem(str(freq_interval_results)))
+
+  def closeFigures(self):
+       plt.close('all')
+
+  def print2pdf(self):
+       figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+       if figFolder:
+            filename = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
+            pdf = matplotlib.backends.backend_pdf.PdfPages(figFolder + filename)
+            figs = [plt.figure(n) for n in plt.get_fignums()]
+            for fig in figs:
+                 fig.savefig(pdf, format='pdf')
+            pdf.close()
+       else:
+            self.error_msg.showMessage("It is necessary to select a folder")
+
+  def print2png(self):
+       figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+       if figFolder:
+            prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
+            for i in plt.get_fignums():
+                 plt.figure(i)
+                 plt.savefig(figFolder + prefix +'figure%d.png' % i)
+       else:
+            self.error_msg.showMessage("It is necessary to select a folder")
 
 
 

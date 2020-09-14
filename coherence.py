@@ -73,9 +73,9 @@ class MyForm(QMainWindow):
     # Recordings scroll
     self.ui.ScrollBarCurrentRecord.valueChanged.connect(self.changeRecording)
     # Variables
-    self.recordings = [] # list of recordings that we could scroll down. 
+    self.recordings = [] # list of recordings that we could scroll down.
     self.currentRecording = 0
-    
+
     # Error message (it is necessary to initialize it too)
     self.error_msg = QErrorMessage()
     self.error_msg.setWindowTitle("Error")
@@ -101,26 +101,26 @@ class MyForm(QMainWindow):
       for j, folder in enumerate(recording_folders):
         new_recording = indiv_tests(root_dir + "/" + folder, i+j)
         new_recording.load_recordings(montage_name, self.ui.spinBoxDownsampling_2.value())
-        ind_calc.append(new_recording)      
-        self.recordings.append(root_dir + "/" + folder)        
-    
+        ind_calc.append(new_recording)
+        self.recordings.append(root_dir + "/" + folder)
+
     self.changeRecording()
     self.ui.ScrollBarCurrentRecord.setMaximum(len(self.recordings)-1)
-  
+
   def changeRecording(self):
     self.currentRecording = self.ui.ScrollBarCurrentRecord.value()
     self.ui.labelCurrentRecording.setText(self.recordings[self.currentRecording])
     self.ui.label_Tmax.setText("(" + str(ind_calc[self.currentRecording].raw_data.n_times//1000) + " s)")
-    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].raw_data.n_times//1000) 
+    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].raw_data.n_times//1000)
 
   def plotRawData(self):
     self.checkElectrodes()
     ind_calc[self.currentRecording].plotRawData(self.ui.BoxBinSize.value(), self.ui.BoxTmin.value(), self.electrodes)
-  
+
   def plotPS(self):
     self.checkElectrodes()
     ind_calc[self.currentRecording].plotPS(self.ui.BoxTmin.value(), self.ui.BoxTmax.value(), self.electrodes)
-    
+
   def checkElectrodes(self):
     self.electrodes = []
     if self.ui.e_0.isChecked(): self.electrodes.append(0)
@@ -158,16 +158,16 @@ class MyForm(QMainWindow):
 
   def selectAllElectrodes(self):
     if self.ui.radioSelectAll.isChecked(): self.changeElectrodeValue(True, True)
-  
+
   def selectNoElectrodes(self):
     if self.ui.radioSelectNone.isChecked(): self.changeElectrodeValue(False, False)
-  
+
   def selectLeftHem(self):
     if self.ui.radioSelectLeftHem.isChecked: self.changeElectrodeValue(True, False)
-  
+
   def selectRightHem(self):
     if self.ui.radioSelectRightHem.isChecked: self.changeElectrodeValue(False, True)
-  
+
   def changeElectrodeValue(self, LeftHem = True, RightHem = True):
     self.ui.e_0.setChecked(LeftHem)
     self.ui.e_1.setChecked(LeftHem)
@@ -286,7 +286,7 @@ class MyForm(QMainWindow):
 
     # And now the rest of the analysis
     self.runNewBrainState()
-    #Once it finished the load of data, allow to repeat analysis without loading it again. 
+    #Once it finished the load of data, allow to repeat analysis without loading it again.
     self.ui.ButtonRunNewBS.setEnabled(True)
     self.ui.ButtonRunNewFreqs.setEnabled(True)
     self.ui.ButtonRunAll.setDisabled(True)
@@ -309,13 +309,18 @@ class MyForm(QMainWindow):
                       + self.ui.radioButtonSleeping.text()*self.ui.radioButtonSleeping.isChecked() \
                       + self.ui.radioButtonConvulsion.text()*self.ui.radioButtonConvulsion.isChecked() \
                       + self.ui.radioButtonNonConvulsive.text()*self.ui.radioButtonNonConvulsive.isChecked()
-    
+
     frequency_list = []
     frequency_list = self.get_frequency_bands()
 
+    if self.ui.rbcohabs.isChecked():
+      coh_type = 'abs'
+    else:
+      coh_type = 'imag'
+
     my_coherence.calc_z_coh(frequency_list, brain_state_name, brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
-                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value(), self.ui.spinFilterAmplitude.value()) 
-    
+                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value(), self.ui.spinFilterAmplitude.value(), coh_type)
+
     self.freq_list_results = my_coherence.return_freq_results()
     self.write_table_results()
 
@@ -353,7 +358,7 @@ class MyForm(QMainWindow):
                  plt.savefig(my_coherence.figFolder + prefix +'figure%d.png' % i)
        else:
             self.error_msg.showMessage("It is necessary to select a folder")
-  
+
   def get_frequency_bands(self):
     nrows = self.ui.tableFrequencies.rowCount()
     freq_list = [] # list of 6 element tuples, frequency bands and the results for those bands
@@ -361,16 +366,16 @@ class MyForm(QMainWindow):
     for row in range(1, nrows):
       band_name = self.ui.tableFrequencies.item(row, 0).text()
 
-      if band_name == "": 
-        print (row - 1), 'frequency bands' 
+      if band_name == "":
+        print (row - 1), 'frequency bands'
         break
 
       band_freq_from = self.ui.tableFrequencies.item(row, 1).text()
       band_freq_to = self.ui.tableFrequencies.item(row, 2).text()
       freq_list.append((band_name, int(band_freq_from), int(band_freq_to))) # double (()) is necessary
-    
+
     return freq_list
-  
+
   def write_table_results(self):
 
     for n, freq_interval_results in enumerate(self.freq_list_results):
@@ -520,33 +525,33 @@ class coherence_32 ():
     self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance)
 
   # It gives the chance to change the brain state every time it is called.
-  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300):
+  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300, ch_type='abs'):
     self.brain_state = brain_state
     self.brain_state_name = brain_state_name
     self.freq_list = f_l
     for n, Cxy in enumerate(self.all_KO_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a)      
+      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, ch_type)
+      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, ch_type)
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a)
-     
-    self.calc_zcoh_freq_bands(f_l)   
-    
-  
-  # Once the coherence is calculated, we split the spectrum in frequency bands. 
+      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, ch_type)
+      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, ch_type)
+
+    self.calc_zcoh_freq_bands(f_l)
+
+
+  # Once the coherence is calculated, we split the spectrum in frequency bands.
   def calc_zcoh_freq_bands(self, f_l):
     self.freq_list = f_l
     for n, Cxy in enumerate(self.all_KO_coh_data):
       Cxy.calc_zcoh_long(self.freq_list)
       Cxy.calc_zcoh_short(self.freq_list)
-    
+
     for n, Cxy in enumerate(self.all_WT_coh_data):
       Cxy.calc_zcoh_long(self.freq_list)
       Cxy.calc_zcoh_short(self.freq_list)
       if len(Cxy.f_w > 0) : self.f_array = Cxy.f_w
-    
+
     self.f_ratio = Cxy.f_ratio
     self.calc_mean_coh()
 
@@ -591,14 +596,14 @@ class coherence_32 ():
           anova_lst_short.append([Cxy.time_state*Cxy.short_1rec_m[n], freq_band[0], 'KO'])
           anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'KO'])
           anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'KO'])
-      
+
       KO_all_short_bands_m_t.append(KO_short_bands_m)
       KO_all_long_bands_m_t.append(KO_long_bands_m)
-    
-    # Lists of lists need to be transposed so in each list there are the values of a single freq band 
+
+    # Lists of lists need to be transposed so in each list there are the values of a single freq band
     KO_all_short_bands_m = np.array(KO_all_short_bands_m_t).T.tolist()
-    KO_all_long_bands_m = np.array(KO_all_long_bands_m_t).T.tolist()    
-      
+    KO_all_long_bands_m = np.array(KO_all_long_bands_m_t).T.tolist()
+
     total_time = np.sum(np.array(KO_times))
     KO_weights = (n+1)*np.array(KO_times)/total_time
 
@@ -663,13 +668,13 @@ class coherence_32 ():
           anova_lst_short.append([Cxy.time_state*Cxy.short_1rec_m[n], freq_band[0], 'WT'])
           anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'WT'])
           anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'WT'])
-      
+
       WT_all_short_bands_m_t.append(WT_short_bands_m)
       WT_all_long_bands_m_t.append(WT_long_bands_m)
-    
+
     WT_all_short_bands_m = np.array(WT_all_short_bands_m_t).T.tolist()
     WT_all_long_bands_m = np.array(WT_all_long_bands_m_t).T.tolist()
-      
+
     total_time = np.sum(np.array(WT_times))
     WT_weights = (n+1)*np.array(WT_times)/total_time
 
@@ -702,7 +707,7 @@ class coherence_32 ():
       mean_WT_ratio_lon_sho, sem_WT_ratio_lon_sho = weighted_avg_sem(
                   np.divide(WT_all_long_bands_m[n], WT_all_short_bands_m[n]), WT_weights, "ratio")
       self.mean_ratio_WT.append(mean_WT_ratio_lon_sho)
-      self.sem_ratio_WT.append(sem_WT_ratio_lon_sho)  
+      self.sem_ratio_WT.append(sem_WT_ratio_lon_sho)
 
     ######################
     # Anova calculations #
@@ -742,7 +747,7 @@ class coherence_32 ():
     # Loop over every frequency band, short, long and range ratio
     self.list_freq_results = []
     for n, freq_band in enumerate(self.freq_list):
-      band_results = []      
+      band_results = []
       stat, p, dgf = wttest(np.array(KO_all_short_bands_m[n]),
                                 np.array(WT_all_short_bands_m[n]), alternative='two-sided',
                                 usevar='pooled', weights=(KO_w, WT_w), value=0)
@@ -753,13 +758,13 @@ class coherence_32 ():
                                 usevar='pooled', weights=(KO_w, WT_w), value=0)
       print('T-test %s Long-Range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
       band_results.append(p)
-      stat, p, dgf = wttest(np.array(np.divide(KO_all_long_bands_m[n], KO_all_short_bands_m[n])), 
+      stat, p, dgf = wttest(np.array(np.divide(KO_all_long_bands_m[n], KO_all_short_bands_m[n])),
                               np.array(np.divide(WT_all_long_bands_m[n], WT_all_short_bands_m[n])),
                               alternative='two-sided', usevar='pooled', weights=(KO_w, WT_w), value=0)
       print('T-test %s Ratio Long/Short range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
       band_results.append(p)
       self.list_freq_results.append(band_results)
-    
+
     self.plot_mean_short_distance()
     self.plot_mean_long_distance()
     self.plot_bars()
@@ -770,7 +775,7 @@ class coherence_32 ():
     #self.workbook = xlsxwriter.Workbook(excel_name)
     self.plot_individual_zCoh_short_WT()
     self.plot_individual_zCoh_long_KO()
-    self.plot_individual_zCoh_short_KO()    
+    self.plot_individual_zCoh_short_KO()
     self.plot_individual_zCoh_long_WT()
     #self.workbook.close()
     #self.plot_WT_average_KO_indiv_short()
@@ -822,7 +827,7 @@ class coherence_32 ():
 
     #labels = []
     for n, freq_band in enumerate(self.freq_list):
-      if n>0: 
+      if n>0:
         position = int(freq_band[1]+ 0.4*(freq_band[2]-freq_band[1]))
         plt.text(position, min_z1, freq_band[0], family='arial', fontsize=18)
       #labels.append(freq_band[0]) #'Overall',  'low freqs', 'low ' r'$\gamma$', 'high ' r'$\gamma$'] # r'$\delta$', r'$\theta$', r'$\sigma$', r'$\beta$
@@ -874,13 +879,13 @@ class coherence_32 ():
 
     plt.show()
 
-  
+
   def bar_plot_ratio_long_short(self):
 
     labels = []
     for freq_band in self.freq_list:
       labels.append(freq_band[0]) #'Overall',  'low freqs', 'low ' r'$\gamma$', 'high ' r'$\gamma$'] # r'$\delta$', r'$\theta$', r'$\sigma$', r'$\beta$
-    
+
     x = np.arange(len(labels))  # the label locations
     width = 0.35  # the width of the bars
 
@@ -897,20 +902,20 @@ class coherence_32 ():
     fig.tight_layout()
 
     plt.show()
-  
+
   #def new_excel_sheet(self, sh_name):
   #  worksheet_ti= self.workbook.add_worksheet(sh_name)
   #  worksheet_ti.write(0, 0, 'Freq (Hz)')
   #  for n, freq in enumerate(self.f_array):
-  #    worksheet_ti.write(n+1, 0, freq)   
-  #  
+  #    worksheet_ti.write(n+1, 0, freq)
+  #
   #  return worksheet_ti
 
   def plot_individual_zCoh_short_WT(self):
 
     ax = self.indiv_fig()
-    #worksheet_ti = self.new_excel_sheet('shortWt')  
-    data_f = pd.DataFrame({'Freqs': self.f_array})   
+    #worksheet_ti = self.new_excel_sheet('shortWt')
+    data_f = pd.DataFrame({'Freqs': self.f_array})
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
       if len(Cxy.short_line_plot_1rec_m) > 0:
@@ -918,13 +923,13 @@ class coherence_32 ():
         #worksheet_ti.write(0, n+1, 'n: ' + str(n+1))
         data_f['n' + str(n+1)]= Cxy.short_line_plot_1rec_m
         #worksheet_ti.write(i+1, n+1, cohe)
-    
+
     title_plot = 'Short-range WT ' + self.brain_state_name
     self.indiv_plots_common(ax, title_plot)
     print('Individual Coherences ShortWT')
     print(data_f.to_string())
     print('')
-    data_f.to_csv('Short_range_WT.csv')    
+    data_f.to_csv('Short_range_WT.csv')
 
 
   def plot_individual_zCoh_short_KO(self):
@@ -936,13 +941,13 @@ class coherence_32 ():
       if len(Cxy.short_line_plot_1rec_m) > 0:
         ax.plot(self.f_array, Cxy.short_line_plot_1rec_m, label = str(n), linewidth=0.5)
         data_f['n' + str(n+1)]= Cxy.short_line_plot_1rec_m
-    
+
     title_plot = 'Short-range KO ' + self.brain_state_name
     self.indiv_plots_common(ax, title_plot)
     print('Individual Coherences ShortKO')
     print(data_f.to_string())
     print('')
-    data_f.to_csv('Short_range_KO.csv')    
+    data_f.to_csv('Short_range_KO.csv')
 
 
   def plot_individual_zCoh_long_KO(self):
@@ -954,16 +959,16 @@ class coherence_32 ():
       if len(Cxy.long_line_plot_1rec_m) > 0:
         ax.plot(self.f_array, Cxy.long_line_plot_1rec_m, label = str(n), linewidth=0.5)
         data_f['n' + str(n+1)]= Cxy.long_line_plot_1rec_m
-    
+
     title_plot = 'Long-range KO ' + self.brain_state_name
     self.indiv_plots_common(ax, title_plot)
     print('Individual Coherences LongKO')
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
       print(data_f)
     print('')
-    data_f.to_csv('Long_range_KO.csv')    
+    data_f.to_csv('Long_range_KO.csv')
 
-    
+
   def plot_individual_zCoh_long_WT(self):
 
     ax = self.indiv_fig()
@@ -980,9 +985,9 @@ class coherence_32 ():
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
       print(data_f)
     print('')
-    data_f.to_csv('Long_range_WT.csv')    
-  
-  
+    data_f.to_csv('Long_range_WT.csv')
+
+
   #def plot_WT_average_KO_indiv_short(self):
 
   def plot_corr_convulsions_coh(self):
@@ -994,12 +999,12 @@ class coherence_32 ():
         convulsion_time = 100*(Cxy.time_convulsion/(Cxy.time_convulsion + Cxy.time_non_convulsion))
 
         ax.plot(convulsion_time, coherences, 'o', label = str(n))
-    
+
     ax.set_xlim([0,100])
     ax.set_ylim([0,1])
 
     title_plot = 'Coherence Vs Convulsion Time (%) ' + self.brain_state_name
-    self.indiv_plots_common(ax, title_plot, x_label='Convulsion time (%)') 
+    self.indiv_plots_common(ax, title_plot, x_label='Convulsion time (%)')
 
 
   def plot_WT_average_KO_indiv_long(self):
@@ -1008,17 +1013,17 @@ class coherence_32 ():
     for n, Cxy in enumerate(self.all_KO_coh_data):
       if len(Cxy.long_line_plot_1rec_m) > 0:
         ax.plot(self.f_array, Cxy.long_line_plot_1rec_m, label = str(n), linewidth=0.5)
-    
+
     ax.plot(self.f_array, self.mean_WT_lon_plot_line, label = 'long-range WT', color='black')
     ax.fill_between(self.f_array, np.array(self.mean_WT_lon_plot_line) - np.array(self.sem_WT_lon_plot_line),
                         np.array(self.mean_WT_lon_plot_line) + np.array(self.sem_WT_lon_plot_line),
                         edgecolor='#bbbbbb', facecolor= '#bbbbbb',
                         linewidth=1, linestyle='dashed', antialiased=False)
-    
+
     title_plot = 'Mean Long-range KO vs WT(i) coherences ' + self.brain_state_name
     self.indiv_plots_common(ax, title_plot)
 
-    
+
   def indiv_fig(self):
     fig = plt.figure(figsize=(20,10))
     ax = plt.subplot(111)

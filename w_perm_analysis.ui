@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>925</width>
+    <width>643</width>
     <height>564</height>
    </rect>
   </property>
@@ -72,45 +72,6 @@
        <string>Export</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_14">
-      <property name="geometry">
-       <rect>
-        <x>705</x>
-        <y>121</y>
-        <width>47</width>
-        <height>13</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Short d</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_15">
-      <property name="geometry">
-       <rect>
-        <x>836</x>
-        <y>119</y>
-        <width>41</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Lond d</string>
-      </property>
-     </widget>
-     <widget class="QSpinBox" name="spinShortChunksize">
-      <property name="geometry">
-       <rect>
-        <x>705</x>
-        <y>169</y>
-        <width>42</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>12</number>
-      </property>
-     </widget>
      <widget class="QPushButton" name="Button2PDF">
       <property name="geometry">
        <rect>
@@ -127,38 +88,12 @@
        <string>PDF</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_17">
-      <property name="geometry">
-       <rect>
-        <x>743</x>
-        <y>100</y>
-        <width>91</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>PARALLELIZATION</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_16">
-      <property name="geometry">
-       <rect>
-        <x>765</x>
-        <y>171</y>
-        <width>47</width>
-        <height>13</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>chunksize</string>
-      </property>
-     </widget>
      <widget class="QFrame" name="frame_Experimental">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>901</width>
+        <width>611</width>
         <height>71</height>
        </rect>
       </property>
@@ -171,9 +106,9 @@
       <widget class="QPushButton" name="ButSelectFile">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>9</x>
          <y>19</y>
-         <width>111</width>
+         <width>81</width>
          <height>31</height>
         </rect>
        </property>
@@ -184,9 +119,9 @@
       <widget class="QPushButton" name="ButDelFile">
        <property name="geometry">
         <rect>
-         <x>750</x>
+         <x>550</x>
          <y>20</y>
-         <width>112</width>
+         <width>51</width>
          <height>31</height>
         </rect>
        </property>
@@ -197,9 +132,9 @@
       <widget class="QLabel" name="labelFileSelected">
        <property name="geometry">
         <rect>
-         <x>190</x>
+         <x>100</x>
          <y>19</y>
-         <width>541</width>
+         <width>441</width>
          <height>31</height>
         </rect>
        </property>
@@ -222,19 +157,6 @@
       </property>
       <property name="text">
        <string>PNG</string>
-      </property>
-     </widget>
-     <widget class="QSpinBox" name="spinShortProcesses">
-      <property name="geometry">
-       <rect>
-        <x>705</x>
-        <y>139</y>
-        <width>42</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>12</number>
       </property>
      </widget>
      <widget class="QPushButton" name="ButtonClearFigures">
@@ -360,61 +282,6 @@
        <enum>QFrame::Raised</enum>
       </property>
      </widget>
-     <widget class="QSpinBox" name="spinLongChunksize">
-      <property name="geometry">
-       <rect>
-        <x>833</x>
-        <y>169</y>
-        <width>42</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>24</number>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_13">
-      <property name="geometry">
-       <rect>
-        <x>758</x>
-        <y>141</y>
-        <width>71</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string># processes</string>
-      </property>
-     </widget>
-     <widget class="QSpinBox" name="spinLongProcesses">
-      <property name="geometry">
-       <rect>
-        <x>833</x>
-        <y>139</y>
-        <width>42</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>24</number>
-      </property>
-     </widget>
-     <widget class="QFrame" name="frame_parallel">
-      <property name="geometry">
-       <rect>
-        <x>700</x>
-        <y>114</y>
-        <width>181</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_21">
       <property name="geometry">
        <rect>
@@ -433,15 +300,15 @@
        <rect>
         <x>10</x>
         <y>220</y>
-        <width>901</width>
+        <width>621</width>
         <height>281</height>
        </rect>
       </property>
       <property name="rowCount">
-       <number>10</number>
+       <number>50</number>
       </property>
       <property name="columnCount">
-       <number>8</number>
+       <number>6</number>
       </property>
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
@@ -465,8 +332,46 @@
       <row/>
       <row/>
       <row/>
-      <column/>
-      <column/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
       <column/>
       <column/>
       <column/>
@@ -557,37 +462,9 @@
         <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsUserCheckable</set>
        </property>
       </item>
-      <item row="0" column="6">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="flags">
-        <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
-      </item>
-      <item row="0" column="7">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="flags">
-        <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsUserCheckable</set>
-       </property>
-      </item>
       <item row="1" column="0">
        <property name="text">
-        <string>Delta</string>
+        <string>1</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -603,7 +480,7 @@
       </item>
       <item row="1" column="2">
        <property name="text">
-        <string>4</string>
+        <string>2</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -611,7 +488,7 @@
       </item>
       <item row="2" column="0">
        <property name="text">
-        <string>Theta</string>
+        <string>2</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -619,7 +496,7 @@
       </item>
       <item row="2" column="1">
        <property name="text">
-        <string>6</string>
+        <string>2</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -627,7 +504,7 @@
       </item>
       <item row="2" column="2">
        <property name="text">
-        <string>10</string>
+        <string>3</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -635,7 +512,7 @@
       </item>
       <item row="3" column="0">
        <property name="text">
-        <string>Sigma</string>
+        <string>3</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -643,7 +520,7 @@
       </item>
       <item row="3" column="1">
        <property name="text">
-        <string>11</string>
+        <string>3</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -651,7 +528,7 @@
       </item>
       <item row="3" column="2">
        <property name="text">
-        <string>16</string>
+        <string>4</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -659,7 +536,7 @@
       </item>
       <item row="4" column="0">
        <property name="text">
-        <string>Gamma Low</string>
+        <string>4</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -667,7 +544,7 @@
       </item>
       <item row="4" column="1">
        <property name="text">
-        <string>30</string>
+        <string>4</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -675,7 +552,7 @@
       </item>
       <item row="4" column="2">
        <property name="text">
-        <string>50</string>
+        <string>5</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -683,7 +560,7 @@
       </item>
       <item row="5" column="0">
        <property name="text">
-        <string/>
+        <string>5</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -691,7 +568,7 @@
       </item>
       <item row="5" column="1">
        <property name="text">
-        <string/>
+        <string>5</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -699,7 +576,7 @@
       </item>
       <item row="5" column="2">
        <property name="text">
-        <string/>
+        <string>6</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -707,7 +584,7 @@
       </item>
       <item row="6" column="0">
        <property name="text">
-        <string/>
+        <string>6</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -715,7 +592,7 @@
       </item>
       <item row="6" column="1">
        <property name="text">
-        <string/>
+        <string>6</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -723,7 +600,7 @@
       </item>
       <item row="6" column="2">
        <property name="text">
-        <string/>
+        <string>7</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -731,7 +608,7 @@
       </item>
       <item row="7" column="0">
        <property name="text">
-        <string/>
+        <string>7</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -739,7 +616,7 @@
       </item>
       <item row="7" column="1">
        <property name="text">
-        <string/>
+        <string>7</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -747,7 +624,7 @@
       </item>
       <item row="7" column="2">
        <property name="text">
-        <string/>
+        <string>8</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -755,7 +632,7 @@
       </item>
       <item row="8" column="0">
        <property name="text">
-        <string/>
+        <string>8</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -763,7 +640,7 @@
       </item>
       <item row="8" column="1">
        <property name="text">
-        <string/>
+        <string>8</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -771,7 +648,7 @@
       </item>
       <item row="8" column="2">
        <property name="text">
-        <string/>
+        <string>9</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -779,7 +656,7 @@
       </item>
       <item row="9" column="0">
        <property name="text">
-        <string/>
+        <string>9</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -787,7 +664,7 @@
       </item>
       <item row="9" column="1">
        <property name="text">
-        <string/>
+        <string>9</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
@@ -795,10 +672,610 @@
       </item>
       <item row="9" column="2">
        <property name="text">
-        <string/>
+        <string>10</string>
        </property>
        <property name="flags">
         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+       </property>
+      </item>
+      <item row="10" column="0">
+       <property name="text">
+        <string>10</string>
+       </property>
+      </item>
+      <item row="10" column="1">
+       <property name="text">
+        <string>10</string>
+       </property>
+      </item>
+      <item row="10" column="2">
+       <property name="text">
+        <string>11</string>
+       </property>
+      </item>
+      <item row="11" column="0">
+       <property name="text">
+        <string>11</string>
+       </property>
+      </item>
+      <item row="11" column="1">
+       <property name="text">
+        <string>11</string>
+       </property>
+      </item>
+      <item row="11" column="2">
+       <property name="text">
+        <string>12</string>
+       </property>
+      </item>
+      <item row="12" column="0">
+       <property name="text">
+        <string>12</string>
+       </property>
+      </item>
+      <item row="12" column="1">
+       <property name="text">
+        <string>12</string>
+       </property>
+      </item>
+      <item row="12" column="2">
+       <property name="text">
+        <string>13</string>
+       </property>
+      </item>
+      <item row="13" column="0">
+       <property name="text">
+        <string>13</string>
+       </property>
+      </item>
+      <item row="13" column="1">
+       <property name="text">
+        <string>13</string>
+       </property>
+      </item>
+      <item row="13" column="2">
+       <property name="text">
+        <string>14</string>
+       </property>
+      </item>
+      <item row="14" column="0">
+       <property name="text">
+        <string>14</string>
+       </property>
+      </item>
+      <item row="14" column="1">
+       <property name="text">
+        <string>14</string>
+       </property>
+      </item>
+      <item row="14" column="2">
+       <property name="text">
+        <string>15</string>
+       </property>
+      </item>
+      <item row="15" column="0">
+       <property name="text">
+        <string>15</string>
+       </property>
+      </item>
+      <item row="15" column="1">
+       <property name="text">
+        <string>15</string>
+       </property>
+      </item>
+      <item row="15" column="2">
+       <property name="text">
+        <string>16</string>
+       </property>
+      </item>
+      <item row="16" column="0">
+       <property name="text">
+        <string>16</string>
+       </property>
+      </item>
+      <item row="16" column="1">
+       <property name="text">
+        <string>16</string>
+       </property>
+      </item>
+      <item row="16" column="2">
+       <property name="text">
+        <string>17</string>
+       </property>
+      </item>
+      <item row="17" column="0">
+       <property name="text">
+        <string>17</string>
+       </property>
+      </item>
+      <item row="17" column="1">
+       <property name="text">
+        <string>17</string>
+       </property>
+      </item>
+      <item row="17" column="2">
+       <property name="text">
+        <string>18</string>
+       </property>
+      </item>
+      <item row="18" column="0">
+       <property name="text">
+        <string>18</string>
+       </property>
+      </item>
+      <item row="18" column="1">
+       <property name="text">
+        <string>18</string>
+       </property>
+      </item>
+      <item row="18" column="2">
+       <property name="text">
+        <string>19</string>
+       </property>
+      </item>
+      <item row="19" column="0">
+       <property name="text">
+        <string>19</string>
+       </property>
+      </item>
+      <item row="19" column="1">
+       <property name="text">
+        <string>19</string>
+       </property>
+      </item>
+      <item row="19" column="2">
+       <property name="text">
+        <string>20</string>
+       </property>
+      </item>
+      <item row="20" column="0">
+       <property name="text">
+        <string>20</string>
+       </property>
+      </item>
+      <item row="20" column="1">
+       <property name="text">
+        <string>20</string>
+       </property>
+      </item>
+      <item row="20" column="2">
+       <property name="text">
+        <string>21</string>
+       </property>
+      </item>
+      <item row="21" column="0">
+       <property name="text">
+        <string>21</string>
+       </property>
+      </item>
+      <item row="21" column="1">
+       <property name="text">
+        <string>21</string>
+       </property>
+      </item>
+      <item row="21" column="2">
+       <property name="text">
+        <string>22</string>
+       </property>
+      </item>
+      <item row="22" column="0">
+       <property name="text">
+        <string>22</string>
+       </property>
+      </item>
+      <item row="22" column="1">
+       <property name="text">
+        <string>22</string>
+       </property>
+      </item>
+      <item row="22" column="2">
+       <property name="text">
+        <string>23</string>
+       </property>
+      </item>
+      <item row="23" column="0">
+       <property name="text">
+        <string>23</string>
+       </property>
+      </item>
+      <item row="23" column="1">
+       <property name="text">
+        <string>23</string>
+       </property>
+      </item>
+      <item row="23" column="2">
+       <property name="text">
+        <string>24</string>
+       </property>
+      </item>
+      <item row="24" column="0">
+       <property name="text">
+        <string>24</string>
+       </property>
+      </item>
+      <item row="24" column="1">
+       <property name="text">
+        <string>24</string>
+       </property>
+      </item>
+      <item row="24" column="2">
+       <property name="text">
+        <string>25</string>
+       </property>
+      </item>
+      <item row="25" column="0">
+       <property name="text">
+        <string>25</string>
+       </property>
+      </item>
+      <item row="25" column="1">
+       <property name="text">
+        <string>25</string>
+       </property>
+      </item>
+      <item row="25" column="2">
+       <property name="text">
+        <string>26</string>
+       </property>
+      </item>
+      <item row="26" column="0">
+       <property name="text">
+        <string>26</string>
+       </property>
+      </item>
+      <item row="26" column="1">
+       <property name="text">
+        <string>26</string>
+       </property>
+      </item>
+      <item row="26" column="2">
+       <property name="text">
+        <string>27</string>
+       </property>
+      </item>
+      <item row="27" column="0">
+       <property name="text">
+        <string>27</string>
+       </property>
+      </item>
+      <item row="27" column="1">
+       <property name="text">
+        <string>27</string>
+       </property>
+      </item>
+      <item row="27" column="2">
+       <property name="text">
+        <string>28</string>
+       </property>
+      </item>
+      <item row="28" column="0">
+       <property name="text">
+        <string>28</string>
+       </property>
+      </item>
+      <item row="28" column="1">
+       <property name="text">
+        <string>28</string>
+       </property>
+      </item>
+      <item row="28" column="2">
+       <property name="text">
+        <string>29</string>
+       </property>
+      </item>
+      <item row="29" column="0">
+       <property name="text">
+        <string>29</string>
+       </property>
+      </item>
+      <item row="29" column="1">
+       <property name="text">
+        <string>29</string>
+       </property>
+      </item>
+      <item row="29" column="2">
+       <property name="text">
+        <string>30</string>
+       </property>
+      </item>
+      <item row="30" column="0">
+       <property name="text">
+        <string>30</string>
+       </property>
+      </item>
+      <item row="30" column="1">
+       <property name="text">
+        <string>30</string>
+       </property>
+      </item>
+      <item row="30" column="2">
+       <property name="text">
+        <string>31</string>
+       </property>
+      </item>
+      <item row="31" column="0">
+       <property name="text">
+        <string>31</string>
+       </property>
+      </item>
+      <item row="31" column="1">
+       <property name="text">
+        <string>31</string>
+       </property>
+      </item>
+      <item row="31" column="2">
+       <property name="text">
+        <string>32</string>
+       </property>
+      </item>
+      <item row="32" column="0">
+       <property name="text">
+        <string>32</string>
+       </property>
+      </item>
+      <item row="32" column="1">
+       <property name="text">
+        <string>32</string>
+       </property>
+      </item>
+      <item row="32" column="2">
+       <property name="text">
+        <string>33</string>
+       </property>
+      </item>
+      <item row="33" column="0">
+       <property name="text">
+        <string>33</string>
+       </property>
+      </item>
+      <item row="33" column="1">
+       <property name="text">
+        <string>33</string>
+       </property>
+      </item>
+      <item row="33" column="2">
+       <property name="text">
+        <string>34</string>
+       </property>
+      </item>
+      <item row="34" column="0">
+       <property name="text">
+        <string>34</string>
+       </property>
+      </item>
+      <item row="34" column="1">
+       <property name="text">
+        <string>34</string>
+       </property>
+      </item>
+      <item row="34" column="2">
+       <property name="text">
+        <string>35</string>
+       </property>
+      </item>
+      <item row="35" column="0">
+       <property name="text">
+        <string>35</string>
+       </property>
+      </item>
+      <item row="35" column="1">
+       <property name="text">
+        <string>35</string>
+       </property>
+      </item>
+      <item row="35" column="2">
+       <property name="text">
+        <string>36</string>
+       </property>
+      </item>
+      <item row="36" column="0">
+       <property name="text">
+        <string>36</string>
+       </property>
+      </item>
+      <item row="36" column="1">
+       <property name="text">
+        <string>36</string>
+       </property>
+      </item>
+      <item row="36" column="2">
+       <property name="text">
+        <string>37</string>
+       </property>
+      </item>
+      <item row="37" column="0">
+       <property name="text">
+        <string>37</string>
+       </property>
+      </item>
+      <item row="37" column="1">
+       <property name="text">
+        <string>37</string>
+       </property>
+      </item>
+      <item row="37" column="2">
+       <property name="text">
+        <string>38</string>
+       </property>
+      </item>
+      <item row="38" column="0">
+       <property name="text">
+        <string>38</string>
+       </property>
+      </item>
+      <item row="38" column="1">
+       <property name="text">
+        <string>38</string>
+       </property>
+      </item>
+      <item row="38" column="2">
+       <property name="text">
+        <string>39</string>
+       </property>
+      </item>
+      <item row="39" column="0">
+       <property name="text">
+        <string>39</string>
+       </property>
+      </item>
+      <item row="39" column="1">
+       <property name="text">
+        <string>39</string>
+       </property>
+      </item>
+      <item row="39" column="2">
+       <property name="text">
+        <string>40</string>
+       </property>
+      </item>
+      <item row="40" column="0">
+       <property name="text">
+        <string>40</string>
+       </property>
+      </item>
+      <item row="40" column="1">
+       <property name="text">
+        <string>40</string>
+       </property>
+      </item>
+      <item row="40" column="2">
+       <property name="text">
+        <string>41</string>
+       </property>
+      </item>
+      <item row="41" column="0">
+       <property name="text">
+        <string>41</string>
+       </property>
+      </item>
+      <item row="41" column="1">
+       <property name="text">
+        <string>41</string>
+       </property>
+      </item>
+      <item row="41" column="2">
+       <property name="text">
+        <string>42</string>
+       </property>
+      </item>
+      <item row="42" column="0">
+       <property name="text">
+        <string>42</string>
+       </property>
+      </item>
+      <item row="42" column="1">
+       <property name="text">
+        <string>42</string>
+       </property>
+      </item>
+      <item row="42" column="2">
+       <property name="text">
+        <string>43</string>
+       </property>
+      </item>
+      <item row="43" column="0">
+       <property name="text">
+        <string>43</string>
+       </property>
+      </item>
+      <item row="43" column="1">
+       <property name="text">
+        <string>43</string>
+       </property>
+      </item>
+      <item row="43" column="2">
+       <property name="text">
+        <string>44</string>
+       </property>
+      </item>
+      <item row="44" column="0">
+       <property name="text">
+        <string>44</string>
+       </property>
+      </item>
+      <item row="44" column="1">
+       <property name="text">
+        <string>44</string>
+       </property>
+      </item>
+      <item row="44" column="2">
+       <property name="text">
+        <string>45</string>
+       </property>
+      </item>
+      <item row="45" column="0">
+       <property name="text">
+        <string>45</string>
+       </property>
+      </item>
+      <item row="45" column="1">
+       <property name="text">
+        <string>45</string>
+       </property>
+      </item>
+      <item row="45" column="2">
+       <property name="text">
+        <string>46</string>
+       </property>
+      </item>
+      <item row="46" column="0">
+       <property name="text">
+        <string>46</string>
+       </property>
+      </item>
+      <item row="46" column="1">
+       <property name="text">
+        <string>46</string>
+       </property>
+      </item>
+      <item row="46" column="2">
+       <property name="text">
+        <string>47</string>
+       </property>
+      </item>
+      <item row="47" column="0">
+       <property name="text">
+        <string>47</string>
+       </property>
+      </item>
+      <item row="47" column="1">
+       <property name="text">
+        <string>47</string>
+       </property>
+      </item>
+      <item row="47" column="2">
+       <property name="text">
+        <string>48</string>
+       </property>
+      </item>
+      <item row="48" column="0">
+       <property name="text">
+        <string>48</string>
+       </property>
+      </item>
+      <item row="48" column="1">
+       <property name="text">
+        <string>48</string>
+       </property>
+      </item>
+      <item row="48" column="2">
+       <property name="text">
+        <string>49</string>
+       </property>
+      </item>
+      <item row="49" column="0">
+       <property name="text">
+        <string>49</string>
+       </property>
+      </item>
+      <item row="49" column="1">
+       <property name="text">
+        <string>49</string>
+       </property>
+      </item>
+      <item row="49" column="2">
+       <property name="text">
+        <string>50</string>
        </property>
       </item>
      </widget>
@@ -834,24 +1311,14 @@
        <number>5000</number>
       </property>
      </widget>
-     <zorder>frame_parallel</zorder>
      <zorder>frame_2</zorder>
      <zorder>label_24</zorder>
      <zorder>ButtonRunAll</zorder>
      <zorder>label_18</zorder>
-     <zorder>label_14</zorder>
-     <zorder>label_15</zorder>
-     <zorder>spinShortChunksize</zorder>
      <zorder>Button2PDF</zorder>
-     <zorder>label_17</zorder>
-     <zorder>label_16</zorder>
      <zorder>frame_Experimental</zorder>
      <zorder>Button2PNG</zorder>
-     <zorder>spinShortProcesses</zorder>
      <zorder>ButtonClearFigures</zorder>
-     <zorder>spinLongChunksize</zorder>
-     <zorder>label_13</zorder>
-     <zorder>spinLongProcesses</zorder>
      <zorder>label_21</zorder>
      <zorder>tableFrequencies</zorder>
      <zorder>label_2</zorder>
@@ -864,7 +1331,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>925</width>
+     <width>643</width>
      <height>21</height>
     </rect>
    </property>

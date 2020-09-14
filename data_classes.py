@@ -1,11 +1,52 @@
-from scipy.signal import coherence, decimate, lfilter
+from scipy.signal import coherence, welch, csd, decimate, lfilter
 import numpy as np
 import multiprocessing as mp
 import time
 
+def imag_coherence(x, y, fs=1.0, window='hann', nperseg=None, noverlap=None,
+              nfft=None, detrend='constant', axis=-1):
+    r"""
+    Copied from signal.coherence to calculate the imaginary part
+    Examples
+    --------
+    >>> from scipy import signal
+    >>> import matplotlib.pyplot as plt
+    Generate two test signals with some common features.
+    >>> fs = 10e3
+    >>> N = 1e5
+    >>> amp = 20
+    >>> freq = 1234.0
+    >>> noise_power = 0.001 * fs / 2
+    >>> time = np.arange(N) / fs
+    >>> b, a = signal.butter(2, 0.25, 'low')
+    >>> x = np.random.normal(scale=np.sqrt(noise_power), size=time.shape)
+    >>> y = signal.lfilter(b, a, x)
+    >>> x += amp*np.sin(2*np.pi*freq*time)
+    >>> y += np.random.normal(scale=0.1*np.sqrt(noise_power), size=time.shape)
+    Compute and plot the coherence.
+    >>> f, Cxy = signal.img_coherence(x, y, fs, nperseg=1024)
+    >>> plt.semilogy(f, Cxy)
+    >>> plt.xlabel('frequency [Hz]')
+    >>> plt.ylabel('Imaginary Coherence')
+    >>> plt.show()
+    """
+
+    freqs, Pxx = welch(x, fs=fs, window=window, nperseg=nperseg,
+                       noverlap=noverlap, nfft=nfft, detrend=detrend,
+                       axis=axis)
+    _, Pyy = welch(y, fs=fs, window=window, nperseg=nperseg, noverlap=noverlap,
+                   nfft=nfft, detrend=detrend, axis=axis)
+    _, Pxy = csd(x, y, fs=fs, window=window, nperseg=nperseg,
+                 noverlap=noverlap, nfft=nfft, detrend=detrend, axis=axis)
+
+    Cxy = np.imag(Pxy)**2 / Pxx / Pyy
+
+    return freqs, Cxy
+
+
 class parallel_coh():
 
-  def __init__(self, voltage_state, sampling_r, frequency_r, b, a, max_amplitude):
+  def __init__(self, voltage_state, sampling_r, frequency_r, b, a, max_amplitude, coh_type):
     self.volt_state = voltage_state
     self.sampling_r = sampling_r
     self.frequency_r = frequency_r
@@ -13,14 +54,18 @@ class parallel_coh():
     self.b = b
     self.a = a
     self.max_amp = max_amplitude
+    self.coh_type = coh_type # absolute or imaginary part of the coherence
 
   def calculate(self, first_elect, sec_elect):
     first_voltages = self.volt_state[:, first_elect + 2]
     second_voltages =  self.volt_state[:, sec_elect + 2]
-   
+
     filtered_first = lfilter(self.b, self.a, first_voltages) # filtering power notch at 50 Hz
     filtered_second = lfilter(self.b, self.a, second_voltages)
-    f_loop, Cxy_loop = coherence(filtered_first, filtered_second, self.sampling_r, nperseg=self.frequency_r)
+    if self.coh_type == 'abs':
+      f_loop, Cxy_loop = coherence(filtered_first, filtered_second, self.sampling_r, nperseg=self.frequency_r)
+    else:
+      f_loop, Cxy_loop = imag_coherence(filtered_first, filtered_second, self.sampling_r, nperseg=self.frequency_r)
     return f_loop, Cxy_loop
 
 
@@ -97,39 +142,39 @@ class session_coherence():
     #del volt_sleeping
 
   # It will be different depending on the brain state
-  def calc_cohe_short(self, comb_short_distance, max_ampl = 300, brain_state=0, s_processes=34, s_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0])):
+  def calc_cohe_short(self, comb_short_distance, max_ampl = 300, brain_state=0, s_processes=34, s_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
     self.choose_voltage_state(brain_state) # it defines which is going to be the current volt_state
 
     ### PARALLEL ###
     start_time = time.time()
-    coh_short = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl)
+    coh_short = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl, ch_type)
     pool = mp.Pool(s_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_short_parallel = pool.starmap(coh_short.calculate, comb_short_distance, chunksize=s_chunk)
     pool.close()
     self.f_short = np.asarray(coherence_short_parallel[0][0]) # just need a frequency array. They are all the same
     coherences = []
-    for t in list(coherence_short_parallel):
-      coherences.append(coherence_short_parallel[0][1])
+    for ind_coh in list(coherence_short_parallel):
+      coherences.append(ind_coh[1]) # first element is the list of frequencies, the second are the coherences
     self.coherence_short = np.asarray(coherences)
     print(f'--- The SHORT distance coherence took {(time.time() - start_time)} seconds ---')
 
 
-  def calc_cohe_long(self, comb_long_distance, max_ampl = 300, brain_state=0, l_processes=48, l_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0])):
+  def calc_cohe_long(self, comb_long_distance, max_ampl = 300, brain_state=0, l_processes=48, l_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
 
     self.choose_voltage_state(brain_state) # it defines which is going to be the current volt_state
 
     ### PARALLEL ###
     start_time = time.time()
-    coh_long = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl)
+    coh_long = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl, ch_type)
     pool = mp.Pool(l_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_long_parallel = pool.starmap(coh_long.calculate, comb_long_distance, chunksize=l_chunk)
     pool.close()
     self.f_long = np.asarray(coherence_long_parallel[0][0]) # just need a frequency array. They are all the same
     coherences = []
-    for t in list(coherence_long_parallel):
-      coherences.append(coherence_long_parallel[0][1])
+    for ind_coh in list(coherence_long_parallel):
+      coherences.append(ind_coh[1])
     print(f'--- The LONG distance coherence took {(time.time() - start_time)} seconds ---')
     self.coherence_long = np.asarray(coherences)
 
@@ -143,15 +188,19 @@ class session_coherence():
     # Then average in z
     # For line plotting (array of numbers, from 1.5 Hz to k_top_freq Hz bins)
     short_line_plot_m_z=np.mean(Cxy_w_short_z[:, 1*self.f_ratio : k_top_freq*self.f_ratio + 1], axis=0)
+    print("******short mean z coherences*****")
+    print(Cxy_w_short_z[:, 1*self.f_ratio : k_top_freq*self.f_ratio + 1])
+
     # Z inverse transform
     self.short_line_plot_1rec_m = np.tanh(short_line_plot_m_z)
+
 
     # Same for every freq band. Both for bar plots and significance statistics
     self.short_1rec_m = []
     for freq_band in f_list:
       short_m_z = np.mean(Cxy_w_short_z[:, freq_band[1]*self.f_ratio : freq_band[2]*self.f_ratio + 1], axis=(0,1))
-      self.short_1rec_m.append(np.tanh(short_m_z))    
-    
+      self.short_1rec_m.append(np.tanh(short_m_z))
+
 
   def calc_zcoh_long(self, f_list):
     k_top_freq = self.set_top_freq()
@@ -177,10 +226,10 @@ class session_coherence():
     elif self.downsampling_rate == 250:
       top_freq = 100
     else:
-      top_freq = 50    
+      top_freq = 50
     return top_freq
-    
-    
+
+
   def choose_voltage_state(self, brain_state = 0):
     if brain_state == 0:
       self.volt_state = self.volt_wake
