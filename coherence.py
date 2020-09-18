@@ -51,6 +51,7 @@ class MyForm(QMainWindow):
     self.ui.ButtonDeleteExpFolder.clicked.connect(self.delExpFolder)
     self.ui.ButtonAddControlFolder.clicked.connect(self.addControlFolder)
     self.ui.ButtonDeleteControlFolder.clicked.connect(self.delControlFolder)
+    self.ui.pbdestfolder.clicked.connect(self.addResultsFolder)
     self.ui.ButtonRunAll.clicked.connect(self.runAll)
     self.ui.ButtonRunNewBS.clicked.connect(self.runNewBrainState)
     self.ui.ButtonRunNewFreqs.clicked.connect(self.runNewFreqs)
@@ -209,6 +210,13 @@ class MyForm(QMainWindow):
     else:
       self.error_msg.showMessage("It is necessary to select a folder")
 
+  def addResultsFolder(self):
+    my_coherence.ResultsFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if my_coherence.ResultsFolder:
+      self.ui.listWidget_destfolder.addItem(my_coherence.ResultsFolder)
+    else:
+      self.error_msg.showMessage("It is necessary to select a folder")
+
   def delExpFolder(self):
     self.ui.listWidget_Exp.takeItem(self.ui.listWidget_Exp.currentRow())
 
@@ -229,6 +237,7 @@ class MyForm(QMainWindow):
     my_coherence.plot_mean_long_distance()
 
   def runAll(self):
+
     # dividing files by animal (KO)
     for i in range(self.ui.listWidget_Exp.count()):
       os.chdir(str(self.ui.listWidget_Exp.item(i).text()))
@@ -284,12 +293,45 @@ class MyForm(QMainWindow):
     my_coherence.downsample_data(self.ui.spinBoxDownsampling.value(), self.ui.spinBoxSamplingRate.value(),
                                   self.ui.spinFilterAmplitude.value())
 
-    # And now the rest of the analysis
-    self.runNewBrainState()
     #Once it finished the load of data, allow to repeat analysis without loading it again.
     self.ui.ButtonRunNewBS.setEnabled(True)
     self.ui.ButtonRunNewFreqs.setEnabled(True)
     self.ui.ButtonRunAll.setDisabled(True)
+    # Esploratory analysis
+    if self.ui.checkBoxExploratoryAnalysis.isChecked():
+      for coh_type in ("abs", "imag"):
+        my_coherence.coh_type = coh_type
+        for longD in np.arange(2, 5.5, 0.5):
+          self.ui.SpinBoxLongDist.setValue(longD)
+          for brain_state in ((1,"REM"), (2, "NoREM")):
+            self.brain_state = brain_state[0]
+            self.brain_state_name = brain_state[1]
+            self.runNewBrainState()
+            file_name = coh_type + '_Dist' + str(longD) + '_' + brain_state[1]
+            self.print2pdf(file_name)
+            self.closeFigures()
+    # Individual analysis
+    else:
+      self.set_brain_state()
+      if self.ui.rbcohabs.isChecked():
+        my_coherence.coh_type = 'abs'
+      else:
+        my_coherence.coh_type = 'imag'
+      self.runNewBrainState()
+
+
+  def set_brain_state(self):
+    # brain state can take autoexclusive values from 0 to 5
+    self.brain_state = 0*True + 1*self.ui.radioButtonNoREM.isChecked() + 2*self.ui.radioButtonREM.isChecked() \
+                  + 3*self.ui.radioButtonSleeping.isChecked() + 4*self.ui.radioButtonConvulsion.isChecked() \
+                  + 5*self.ui.radioButtonNonConvulsive.isChecked()
+
+    self.brain_state_name = self.ui.radioButtonWake.text()*self.ui.radioButtonWake.isChecked() \
+                      + self.ui.radioButtonNoREM.text()*self.ui.radioButtonNoREM.isChecked() \
+                      + self.ui.radioButtonREM.text()*self.ui.radioButtonREM.isChecked() \
+                      + self.ui.radioButtonSleeping.text()*self.ui.radioButtonSleeping.isChecked() \
+                      + self.ui.radioButtonConvulsion.text()*self.ui.radioButtonConvulsion.isChecked() \
+                      + self.ui.radioButtonNonConvulsive.text()*self.ui.radioButtonNonConvulsive.isChecked()
 
   def runNewBrainState(self):
     # calculate combinations depending on the short or long distance criteria
@@ -298,31 +340,15 @@ class MyForm(QMainWindow):
     # calculate coefficients of notch filter at 50 Hz
     my_coherence.calc_notch(self.ui.spinBoxNotchQ.value(), self.ui.spinBoxDownsampling.value())
 
-    # brain state can take autoexclusive values from 0 to 5
-    brain_state = 0*True + 1*self.ui.radioButtonNoREM.isChecked() + 2*self.ui.radioButtonREM.isChecked() \
-                  + 3*self.ui.radioButtonSleeping.isChecked() + 4*self.ui.radioButtonConvulsion.isChecked() \
-                  + 5*self.ui.radioButtonNonConvulsive.isChecked()
-
-    brain_state_name = self.ui.radioButtonWake.text()*self.ui.radioButtonWake.isChecked() \
-                      + self.ui.radioButtonNoREM.text()*self.ui.radioButtonNoREM.isChecked() \
-                      + self.ui.radioButtonREM.text()*self.ui.radioButtonREM.isChecked() \
-                      + self.ui.radioButtonSleeping.text()*self.ui.radioButtonSleeping.isChecked() \
-                      + self.ui.radioButtonConvulsion.text()*self.ui.radioButtonConvulsion.isChecked() \
-                      + self.ui.radioButtonNonConvulsive.text()*self.ui.radioButtonNonConvulsive.isChecked()
-
     frequency_list = []
     frequency_list = self.get_frequency_bands()
 
-    if self.ui.rbcohabs.isChecked():
-      coh_type = 'abs'
-    else:
-      coh_type = 'imag'
-
-    my_coherence.calc_z_coh(frequency_list, brain_state_name, brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
-                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value(), self.ui.spinFilterAmplitude.value(), coh_type)
+    my_coherence.calc_z_coh(frequency_list, self.brain_state_name, self.brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
+                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value(), self.ui.spinFilterAmplitude.value())
 
     self.freq_list_results = my_coherence.return_freq_results()
     self.write_table_results()
+
 
   def runNewFreqs(self):
     frequency_list = []
@@ -335,29 +361,29 @@ class MyForm(QMainWindow):
 
 
   def closeFigures(self):
-       plt.close('all')
+    plt.close('all')
 
-  def print2pdf(self):
-       my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-       if my_coherence.figFolder:
-            filename = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
-            pdf = matplotlib.backends.backend_pdf.PdfPages(my_coherence.figFolder + filename)
-            figs = [plt.figure(n) for n in plt.get_fignums()]
-            for fig in figs:
-                 fig.savefig(pdf, format='pdf')
-            pdf.close()
-       else:
-            self.error_msg.showMessage("It is necessary to select a folder")
+  def print2pdf(self, filename=""):
+
+    if filename:
+      filename2 = '/' + filename + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
+      pdf = matplotlib.backends.backend_pdf.PdfPages(my_coherence.ResultsFolder + filename2)
+      figs = [plt.figure(n) for n in plt.get_fignums()]
+      for fig in figs:
+        fig.savefig(pdf, format='pdf')
+      pdf.close()
+    else:
+      self.error_msg.showMessage("It is necessary to select a folder")
 
   def print2png(self):
-       my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-       if my_coherence.figFolder:
-            prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
-            for i in plt.get_fignums():
-                 plt.figure(i)
-                 plt.savefig(my_coherence.figFolder + prefix +'figure%d.png' % i)
-       else:
-            self.error_msg.showMessage("It is necessary to select a folder")
+    my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if my_coherence.figFolder:
+      prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
+      for i in plt.get_fignums():
+        plt.figure(i)
+        plt.savefig(my_coherence.figFolder + prefix +'figure%d.png' % i)
+    else:
+      self.error_msg.showMessage("It is necessary to select a folder")
 
   def get_frequency_bands(self):
     nrows = self.ui.tableFrequencies.rowCount()
@@ -396,6 +422,8 @@ class coherence_32 ():
   freq_array = [] #  to plot the frequency axis
   brain_state_name = ""
   f_ratio = 1
+  coh_type = 'abs'
+  ResultsFolder = ""
   b = np.array([0,0,0]) # notch filter parameter
   a = np.array([0,0,0]) # notch filter parameter
   l_prefixes_KO = []
@@ -525,17 +553,17 @@ class coherence_32 ():
     self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance)
 
   # It gives the chance to change the brain state every time it is called.
-  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300, ch_type='abs'):
+  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300):
     self.brain_state = brain_state
     self.brain_state_name = brain_state_name
     self.freq_list = f_l
     for n, Cxy in enumerate(self.all_KO_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, ch_type)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, ch_type)
+      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, self.coh_type)
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, ch_type)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, ch_type)
+      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, self.coh_type)
 
     self.calc_zcoh_freq_bands(f_l)
 
@@ -770,14 +798,21 @@ class coherence_32 ():
     self.plot_bars()
     self.bar_plot_ratio_long_short()
 
-    # Printing and exporting to excel individual coherences
-    #excel_name = 'z_Individual_Coh_' + self.brain_state_name + '_' + str(self.long_distance) + '.xlsx'
-    #self.workbook = xlsxwriter.Workbook(excel_name)
+    # Plotting individual coherences
     self.plot_individual_zCoh_short_WT()
     self.plot_individual_zCoh_long_KO()
     self.plot_individual_zCoh_short_KO()
     self.plot_individual_zCoh_long_WT()
-    #self.workbook.close()
+
+    # Exporting individual coherences to excel
+    line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + str(self.long_distance) + "_"
+    line2 = str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + "_" + self.coh_type + ".xlsx"
+    excel_name = line1 + line2
+    df_to_excel(excel_name, self.df_shortwt, "ShortWT")
+    df_to_excel(excel_name, self.df_longwt, "LongWT")
+    df_to_excel(excel_name, self.df_shortko, "ShortKO")
+    df_to_excel(excel_name, self.df_longko, "LongKO")
+
     #self.plot_WT_average_KO_indiv_short()
     self.plot_WT_average_KO_indiv_long()
     self.plot_corr_convulsions_coh()
@@ -821,8 +856,10 @@ class coherence_32 ():
     self.rest_of_the_plot()
 
   def rest_of_the_plot(self):
-    # draw vertical lines for the limits between frequencies (70,100) to (70, 250)
-    max_z1 = 1 #np.max(Cxy_mean_short_rem_13)
+    if self.coh_type == 'abs':
+      max_z1 = 1 #np.max(Cxy_mean_short_rem_13)
+    else:
+      max_z1 = 0.1
     min_z1 = 0 #np.min(Cxy_mean_short_rem_13)
 
     #labels = []
@@ -928,8 +965,9 @@ class coherence_32 ():
     self.indiv_plots_common(ax, title_plot)
     print('Individual Coherences ShortWT')
     print(data_f.to_string())
+    self.df_shortwt = data_f
     print('')
-    data_f.to_csv('Short_range_WT.csv')
+
 
 
   def plot_individual_zCoh_short_KO(self):
@@ -946,8 +984,9 @@ class coherence_32 ():
     self.indiv_plots_common(ax, title_plot)
     print('Individual Coherences ShortKO')
     print(data_f.to_string())
+    self.df_shortko = data_f
     print('')
-    data_f.to_csv('Short_range_KO.csv')
+
 
 
   def plot_individual_zCoh_long_KO(self):
@@ -966,7 +1005,8 @@ class coherence_32 ():
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
       print(data_f)
     print('')
-    data_f.to_csv('Long_range_KO.csv')
+    self.df_longko = data_f
+
 
 
   def plot_individual_zCoh_long_WT(self):
@@ -985,7 +1025,8 @@ class coherence_32 ():
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
       print(data_f)
     print('')
-    data_f.to_csv('Long_range_WT.csv')
+    self.df_longwt = data_f
+
 
 
   #def plot_WT_average_KO_indiv_short(self):

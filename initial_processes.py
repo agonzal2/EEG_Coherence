@@ -6,6 +6,7 @@ Created on Wed Nov 22 16:17:18 2017
 email: agonzal2@staffmail.ed.ac.uk
 """
 from numpy import *
+import pandas as pd
 from scipy import spatial
 from itertools import combinations
 import parameters
@@ -14,6 +15,9 @@ prm = parameters.Parameters()
 from OpenEphys import *
 import mne
 import xlrd
+import xlsxwriter
+from openpyxl import load_workbook
+import pathlib
 
 
 def load_file(file):  #Opens text files.
@@ -551,6 +555,28 @@ def plot_all(data, sampling_rate, color):  #This allows for an initial plot of a
 
     return
 
+
+# Printing and exporting to excel individual coherences
+def df_to_excel(filename, data_frame, sheet_n):
+  """
+    Write a dataframe in a particular sheet of a chosen excel file.
+
+    If the file does not exist, it is created
+    If the file already exists, it is not overwritten
+
+    """
+  file = pathlib.Path(filename)
+  if file.exists ():
+    book = load_workbook(filename)
+    # xlsxwrite does not allow to open an excel file -> openpyxl
+    writer = pd.ExcelWriter(filename, engine = 'openpyxl')
+    writer.book = book
+  else:
+    writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+
+  data_frame.to_excel(writer, sheet_name=sheet_n)
+  writer.save()
+  writer.close()
 
 
 

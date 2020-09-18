@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>929</width>
-    <height>799</height>
+    <width>933</width>
+    <height>845</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>931</width>
-      <height>761</height>
+      <height>821</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -909,7 +909,7 @@
       <property name="geometry">
        <rect>
         <x>12</x>
-        <y>410</y>
+        <y>460</y>
         <width>171</width>
         <height>16</height>
        </rect>
@@ -922,7 +922,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>430</y>
+        <y>480</y>
         <width>901</width>
         <height>301</height>
        </rect>
@@ -1369,6 +1369,42 @@
        </property>
       </widget>
      </widget>
+     <widget class="QCheckBox" name="checkBoxExploratoryAnalysis">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>420</y>
+        <width>131</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Exploratory analysis</string>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="listWidget_destfolder">
+      <property name="geometry">
+       <rect>
+        <x>337</x>
+        <y>416</y>
+        <width>561</width>
+        <height>31</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pbdestfolder">
+      <property name="geometry">
+       <rect>
+        <x>178</x>
+        <y>416</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Choose results folder</string>
+      </property>
+     </widget>
      <zorder>frame_coherence</zorder>
      <zorder>frame_parallel</zorder>
      <zorder>frame_2</zorder>
@@ -1408,6 +1444,9 @@
      <zorder>label_21</zorder>
      <zorder>tableFrequencies</zorder>
      <zorder>ButtonRunNewFreqs</zorder>
+     <zorder>checkBoxExploratoryAnalysis</zorder>
+     <zorder>listWidget_destfolder</zorder>
+     <zorder>pbdestfolder</zorder>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -2493,7 +2532,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>929</width>
+     <width>933</width>
      <height>21</height>
     </rect>
    </property>
