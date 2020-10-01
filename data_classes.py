@@ -57,8 +57,8 @@ class parallel_coh():
     self.coh_type = coh_type # absolute or imaginary part of the coherence
 
   def calculate(self, first_elect, sec_elect):
-    first_voltages = self.volt_state[:, first_elect + 2]
-    second_voltages =  self.volt_state[:, sec_elect + 2]
+    first_voltages = self.volt_state[:, first_elect]
+    second_voltages =  self.volt_state[:, sec_elect]
 
     filtered_first = lfilter(self.b, self.a, first_voltages) # filtering power notch at 50 Hz
     filtered_second = lfilter(self.b, self.a, second_voltages)
@@ -98,6 +98,13 @@ class session_coherence():
 
   # returns the downsampling data for the chosen brain state (wake, rem, nrem or convulsion)
   def downsample_data(self, amp_filter=300):
+
+    # When there is a state transition, it does not take into account the bin where it changes
+    places = np.where(self.brain_states[:-1] != self.brain_states[1:])[0]
+    for position in places:
+      self.brain_states[position + 1] = 15 # not determined state
+
+    # Oversamples the brain state (one per 5 seconds) to match the sampling rate of the signal
     repetitions = int(5000/self.k_down)
     brain_states_ms = np.repeat(self.brain_states, repetitions)
     raw_times = self.raw_times[0::self.k_down]
@@ -113,24 +120,22 @@ class session_coherence():
     for i in np.arange(32):
         state_voltage_list.append(raw_data_downsampled[i][0:size_brain_states])
 
+    # 34d array. First for states, Second for time, next 32 for 32 electrodes.
     state_voltage_array = np.transpose(np.stack(state_voltage_list))
-    # removing glitches
-    state_voltage_array = state_voltage_array[abs(state_voltage_array[:,0]) < amp_filter, :]
+    # removing glitches, applying the filter looking at the first electrode, in the second position of the 34d array
+    state_voltage_array = state_voltage_array[abs(state_voltage_array[:,2]) < amp_filter, :]
+
     # Wake
-    self.volt_wake = state_voltage_array[state_voltage_array[:,0] == 0, :]
-    self.time_wake = np.size(self.volt_wake)
-    #Non-REM
-    self.volt_nrem = state_voltage_array[state_voltage_array[:,0] == 1, :]
-    self.time_NoREM = np.size(self.volt_nrem)
-    #REM
-    self.volt_rem = state_voltage_array[state_voltage_array[:,0] == 2, :]
-    self.time_REM = np.size(self.volt_rem)
-    #Convulsion
-    self.volt_convulsion = state_voltage_array[state_voltage_array[:,0] == 4, :]
-    self.time_convulsion = np.size(self.volt_convulsion)
-    #Non-convulsion
-    self.volt_non_convulsion = state_voltage_array[state_voltage_array[:,0] != 4, :]
-    self.time_non_convulsion = np.size(self.volt_non_convulsion)
+    #self.volt_wake = state_voltage_array[state_voltage_array[:,0] == 0, :]
+    # Non-REM
+    self.volt_nrem = state_voltage_array[state_voltage_array[:,0] == 1, 2:] # we do not care about the states or the times anymore
+    # REM
+    self.volt_rem = state_voltage_array[state_voltage_array[:,0] == 2, 2:]
+    # Convulsion
+    self.time_convulsion = np.size(state_voltage_array[state_voltage_array[:,0] == 4, :])
+    # Non-convulsion
+    self.time_non_convulsion = np.size(state_voltage_array[state_voltage_array[:,0] != 4, :])
+
     self.raw_times = []
     del brain_states_ms
     del state_voltage_list
@@ -231,24 +236,26 @@ class session_coherence():
 
 
   def choose_voltage_state(self, brain_state = 0):
-    if brain_state == 0:
-      self.volt_state = self.volt_wake
-      self.time_state = self.time_wake
-    elif brain_state == 1:
+    #if brain_state == 0:
+      #self.volt_state = self.volt_wake
+      #self.time_state = np.size(self.volt_state) # it is generated on the fly
+    if brain_state == 1:
       self.volt_state = self.volt_nrem
-      self.time_state = self.time_NoREM
+      self.time_state = np.size(self.volt_state[0,:])
+      a = 1
     elif brain_state == 2:
       self.volt_state = self.volt_rem
-      self.time_state = self.time_REM
+      self.time_state = np.size(self.volt_state)
+      a = 1
     #elif brain_state == 3:
     #  self.volt_state = self.volt_sleeping
     #  self.time_state = self.time_sleeping
-    elif brain_state == 4:
-      self.volt_state = self.volt_convulsion
-      self.time_state = self.time_convulsion
-    elif brain_state == 5:
-      self.volt_state = self.volt_non_convulsion
-      self.time_state = self.time_non_convulsion
+    #elif brain_state == 4:
+    #  self.volt_state = self.volt_convulsion
+    #  self.time_state = np.size(self.volt_state)
+    #elif brain_state == 5:
+    #  self.volt_state = self.volt_non_convulsion
+    #  self.time_state = np.size(self.volt_state)
     else:
       print (f'Error with the brain state: {brain_state}')
 

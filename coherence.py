@@ -817,8 +817,30 @@ class coherence_32 ():
     self.plot_WT_average_KO_indiv_long()
     self.plot_corr_convulsions_coh()
 
+    # Plotting Power Spectrum of the first channel of every rat recording (per brain state)
+    self.plot_power_spectrums()
+
   def return_freq_results(self):
     return self.list_freq_results
+
+  def plot_power_spectrums(self):
+    ax = self.indiv_fig()
+    for Cxy in self.all_WT_coh_data:
+      ax.psd(Cxy.volt_state[:,0], 256, Cxy.downsampling_rate)
+
+    plt.title('PSD %s WT' %self.brain_state_name, fontsize=18)
+    ax.set_xlim([0,Cxy.set_top_freq()])
+    ax.legend()
+    plt.show()
+
+    bx = self.indiv_fig()
+    for Cxy in self.all_KO_coh_data:
+      bx.psd(Cxy.volt_state[:,0], 256, Cxy.downsampling_rate)
+
+    plt.title('PSD %s KO' %self.brain_state_name, fontsize=18)
+    bx.set_xlim([0,Cxy.set_top_freq()])
+    bx.legend()
+    plt.show()
 
   def plot_mean_short_distance(self):
     f = self.f_array
@@ -835,7 +857,9 @@ class coherence_32 ():
                         linewidth=1, antialiased=False) # linestyle='dashed',
 
     plt.title('Coherence Short-range %s' %self.brain_state_name, fontsize=18)
-    self.rest_of_the_plot()
+    max_value = max(max(self.mean_KO_sho_plot_line), max(self.mean_WT_sho_plot_line)) \
+                + max(max(self.sem_KO_sho_plot_line), max(self.sem_WT_sho_plot_line))
+    self.rest_of_the_plot(max_value)
 
   def plot_mean_long_distance(self):
     f = self.f_array
@@ -853,13 +877,15 @@ class coherence_32 ():
 
 
     plt.title('Coherence Long-range %s' %self.brain_state_name, fontsize=18)
-    self.rest_of_the_plot()
+    max_value = max(max(self.mean_KO_lon_plot_line), max(self.mean_WT_lon_plot_line)) \
+                + max(max(self.sem_KO_lon_plot_line), max(self.sem_WT_lon_plot_line))
+    self.rest_of_the_plot(max_value)
 
-  def rest_of_the_plot(self):
+  def rest_of_the_plot(self, max_value):
     if self.coh_type == 'abs':
       max_z1 = 1 #np.max(Cxy_mean_short_rem_13)
     else:
-      max_z1 = 0.1
+      max_z1 = max_value
     min_z1 = 0 #np.min(Cxy_mean_short_rem_13)
 
     #labels = []
@@ -1033,16 +1059,20 @@ class coherence_32 ():
 
   def plot_corr_convulsions_coh(self):
     ax = self.indiv_fig()
-
+    coh_l = []
+    times_l = []
     for n, Cxy in enumerate(self.all_KO_coh_data):
       if len(Cxy.long_line_plot_1rec_m) > 0:
         coherences = np.average(Cxy.long_line_plot_1rec_m)
         convulsion_time = 100*(Cxy.time_convulsion/(Cxy.time_convulsion + Cxy.time_non_convulsion))
-
+        coh_l.append(coherences)
+        times_l.append(convulsion_time)
         ax.plot(convulsion_time, coherences, 'o', label = str(n))
 
-    ax.set_xlim([0,100])
-    ax.set_ylim([0,1])
+    max_time = max(times_l)*1.1
+    max_coh = max(coh_l)*1.1
+    ax.set_xlim([0,max_time])
+    ax.set_ylim([0,max_coh])
 
     title_plot = 'Coherence Vs Convulsion Time (%) ' + self.brain_state_name
     self.indiv_plots_common(ax, title_plot, x_label='Convulsion time (%)')
