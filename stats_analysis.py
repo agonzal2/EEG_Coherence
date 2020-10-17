@@ -22,6 +22,7 @@ import matplotlib.backends.backend_pdf
 
 from datetime import datetime
 
+
 def calc_perm_test(perm_averages):
     half_len = int(len(perm_averages)/2)
     avg_sec = []
@@ -109,10 +110,8 @@ class MyForm(QMainWindow):
       self.dfs = pd.read_excel(file_route, sheet_name=None)
       self.sheet_name = sheet_n + "Short"
       self.compareGroups('ShortKO', 'ShortWT')
-      self.write_table_results(3)
       self.sheet_name = sheet_n + "Long"
       self.compareGroups('LongKO', 'LongWT')
-      self.write_table_results(4)
       self.print2pdf(file_name)
       self.closeFigures()
 
@@ -126,6 +125,7 @@ class MyForm(QMainWindow):
 
     df_g1.reset_index(inplace=True) # the pandas has a multiindex, including the Freqs column.
     df_g2.reset_index(inplace=True)
+    freq_samples = df_g1['Freqs'].to_numpy()
     # Deleting all that information that we do not need
     df_g1.drop(['index', 'Unnamed: 0', 'Freqs'], axis=1, inplace=True)
     df_g2.drop(['index', 'Unnamed: 0', 'Freqs'], axis=1, inplace=True)
@@ -133,7 +133,6 @@ class MyForm(QMainWindow):
     freq_l =  df_g1.index.values # df_g2[0].tolist()
     df_means = pd.DataFrame(freq_l)
     df_means.columns = ['Frequency (Hz)']
-    #df_g2.drop(df_g2.columns[0], axis=1, inplace=True)
     new_cols = []
     for i in np.arange(len(df_g1.columns)):
       new_cols.append("n"+str(i + 1 + len(df_g2.columns)))
@@ -143,94 +142,86 @@ class MyForm(QMainWindow):
     df_to_suff = df_g2.join(df_g1) # dataframe with all the coherence to shuffle
 
     # plotting the means along frequency
-    column1 = '$Syngap^{+/-\u0394 GAP}$'
-    column2 = '$Syngap^{+/+}$'
-    df_means[column1] = df_g1.mean(axis=1)
-    df_means[column2] = df_g2.mean(axis=1)
-    colors = ['black', '#0836a9']
+    mean_ko = df_g1.mean(axis=1).to_numpy()
+    mean_wt = df_g2.mean(axis=1).to_numpy()
+    fig0 = plt.figure()
+    dx = fig0.add_subplot(111)
+    dx.plot(freq_samples, mean_ko, color = 'black', label = '$Syngap^{+/-\u0394 GAP}$')
+    dx.plot(freq_samples, mean_wt, color = '#0836a9', label = '$Syngap^{+/+}$')
     if 'abs' in self.coh_type:
-      dx = df_means.plot(x='Frequency (Hz)', y =[column2, column1], ylim = (0,1), color = colors)
+      dx.set_ylim(0,1)
     else:
-      dx = df_means.plot(x='Frequency (Hz)', y =[column2, column1], color = colors)
+      maxko = np.amax(mean_ko)
+      maxwt = np.amax(mean_wt)
+      dx.set_ylim(0,max(maxko, maxwt))
+    dx.set_xlabel('Frequency (Hz)')
     dx.set_ylabel('Mean $z^{-1}$ Coherence')
+    dx.legend()
+    plt.title(self.sheet_name)
     plt.show()
+
+    # permutation analysis
+    matrix_coh = df_to_suff.to_numpy() # dataframe to numpy to make it faster
+    matrix_coh_t = np.transpose(matrix_coh) # traspose to average per frequencies
+    n, frequencies = np.shape(matrix_coh_t) # nxm matrix. n = number of animals
+
+    averages_1 = np.mean(matrix_coh_t[:int(n/2),:], axis = 0) # averages for every 0.5Hz for the first animals
+    averages_2 = np.mean(matrix_coh_t[int(n/2):,:], axis = 0) # averages for every 0.5Hz for the second animals
+    real_diferences = averages_1 - averages_2 # these are the differences we will need to compare to the permutations
+
+    anim = int(n/2)
+    pvalues = np.zeros(np.size(averages_1)).astype(int) # where we are gonna sum the pvalues
+    shuffled_coh = matrix_coh_t
+    # loop over the total number of permutations
+    for i in np.arange(self.ui.BoxNumberShuffles.value()):
+      np.random.shuffle(shuffled_coh) # stores the shuffled data in the same nd array
+      shuf_aver_1 = np.mean(shuffled_coh[:anim,:], axis = 0) # averages for every 0.5Hz for the first animals
+      shuf_aver_2 = np.mean(shuffled_coh[anim:,:], axis = 0) # averages for every 0.5Hz for the second animals
+      perm_diffs = shuf_aver_1 - shuf_aver_2
+      pvalues = pvalues + np.ceil(real_diferences - perm_diffs)
+
+    pvalues = pvalues/self.ui.BoxNumberShuffles.value() # final pvalues for that comparison
+
+    # plotting permutation pvalues
+    fig1 = plt.figure()
+
+    bx = fig1.add_subplot(111)
+    bx.set_ylabel('pvalue')
+    bx.set_xlabel('frequency (Hz)')
+    title = "pvalues " + self.sheet_name
+    thresh_min = 0.025*np.ones(len(freq_samples))
+    thresh_max = 0.975*np.ones(len(freq_samples))
+    bx.plot(freq_samples, thresh_min, color = 'red', linewidth=1, linestyle='dashed')
+    bx.plot(freq_samples, thresh_max, color = 'red', linewidth=1, linestyle='dashed')
+    bx.plot(freq_samples,pvalues)
+    bx.set_ylim(0,1)
+    plt.title(title)
+    plt.show
 
     self.freq_list_results = []
     self.get_frequency_bands()
 
+    # Calculating pvalues, without correction and exporting to excel
+    worksheet_ti= self.workbook.add_worksheet(self.sheet_name)
+    worksheet_ti.write(1, 0, "Frequency")
+    worksheet_ti.write(1, 1, "Freq_1")
+    worksheet_ti.write(1, 2, "Freq_2")
+    worksheet_ti.write(1, 3, "p_value")
+    worksheet_ti.write(1, 4, "difference")
+    for n_band, freq_band in enumerate(freq_samples):
+      worksheet_ti.write(n_band + 2, 0, freq_band)
+      worksheet_ti.write(n_band + 2, 3, pvalues[n_band])
+
+    # plotting bars graph
     labels = []
     mean_KO_l = []
     mean_WT_l = []
     sem_WT_l = []
     sem_KO_l = []
-
-    num_bands = len(self.freq_list)
-    pvalues = np.zeros(num_bands)
-
-    # creating a list with the real differences for each freq band
-    real_diff = []
-    l_df_freqs = []
-    for freq_band in self.freq_list:
-        f_1, f_2 = self.obtainfreqs(freq_band)
-        df_freqs = df_to_suff.iloc[f_1:f_2]
-
-        real_averages = list(df_freqs.mean(axis=0))
-        l_df_freqs.append(df_freqs)
-        real_diff.append(calc_perm_test(real_averages))
-
-    # Looping over all the permutations.
-    max_distribution = [] # list of the most extreme diff value of each iteration
-    for i in range(self.ui.BoxNumberShuffles.value()):
-      # For each permutation, we choose the most extreme result among all the bands
-      # to build the multiple comparison distribution
-      max_candidates = []
-      for n_band, freq_band in enumerate(self.freq_list):
-
-          cols = list(l_df_freqs[n_band].columns)
-          cols_s = random.sample(cols, len(cols))
-          df2 = l_df_freqs[n_band][cols_s]
-          df2.columns = list(df_freqs.columns)
-          averages = list(df2.mean(axis=0))
-          diff_perm = calc_perm_test(averages) # returns difference between the permutated groups
-          if diff_perm > real_diff[n_band]:
-              pvalues[n_band] = pvalues[n_band] + 1
-          max_candidates.append(diff_perm)
-
-      max_distribution.append(max(max_candidates))
-
-    # plotting max distribution
-    fig1 = plt.figure()
-    bx = fig1.add_subplot(111)
-    a_threshold_dist = np.asarray(max_distribution)
-    perc95 = np.percentile(a_threshold_dist, 95)
-    n, bins, patches = bx.hist(a_threshold_dist, bins=20, alpha = 0.05, color='black')
-    hist_heights = []
-    for p in patches:
-      hist_heights.append(p._height)
-    max_height = max(hist_heights)
-    bx.plot([perc95, perc95], [0,max_height], color = '#888888', linestyle='dashed', lw=1)
-    plt.show
-
-    # Calculating pvalues, without correction and exporting to excel
-    worksheet_ti= self.workbook.add_worksheet(self.sheet_name)
-    header = 'Correction for multiple comparisons: if the difference is bigger than the 95 percentile threshold ('+ str(perc95) +') then there is significance'
-    worksheet_ti.write(0,0,header)
-    worksheet_ti.write(1, 0, "freq band")
-    worksheet_ti.write(1, 1, "Freq_1")
-    worksheet_ti.write(1, 2, "Freq_2")
-    worksheet_ti.write(1, 3, "p_value")
-    worksheet_ti.write(1, 4, "difference")
-    for n_band, freq_band in enumerate(self.freq_list):
-      p_val = pvalues[n_band] / self.ui.BoxNumberShuffles.value()
-      self.freq_list_results.append(p_val)
-      #print('The p-value for freqs between ', freq_1, ' and ', freq_2, 'Hz is: ', p_val)
-      worksheet_ti.write(n_band + 2, 0, freq_band[0])
-      worksheet_ti.write(n_band + 2, 1, freq_band[1])
-      worksheet_ti.write(n_band + 2, 2, freq_band[2])
-      worksheet_ti.write(n_band + 2, 3, p_val)
-      worksheet_ti.write(n_band + 2, 4, real_diff[n_band])
-
-    # plotting bars graph
+    column1 = '$Syngap^{+/-\u0394 GAP}$'
+    column2 = '$Syngap^{+/+}$'
+    df_means[column1] = df_g1.mean(axis=1)
+    df_means[column2] = df_g2.mean(axis=1)
     for freq_band in self.freq_list:
       f_1, f_2 = self.obtainfreqs(freq_band)
 
@@ -256,7 +247,7 @@ class MyForm(QMainWindow):
     plt.show()
 
     # Once the figures are plotted, include them in the excel sheet
-    cell_positions = ('G3', 'O3', 'W3','G30', 'O30', 'W30')
+    cell_positions = ('G3', 'Q3', 'AA3','G30', 'Q30', 'AA30')
     figFolder = os.getcwd()
     if figFolder:
         prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
