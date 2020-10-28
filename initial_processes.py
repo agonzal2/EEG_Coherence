@@ -306,15 +306,66 @@ def load_32_EEG(foldername, montage_name, source_number):
     del datatp
     return custom_raw
 
+def parse_dat(fn, number_of_channels = 16, sample_rate = 1000):
+      '''Load a .dat file by interpreting it as int16 and then de-interlacing the 16 channels'''
+      sample_datatype = 'int16'
+      display_decimation = 10
 
-def electrode_combinations(montage_name, neighbors_dist, long_distance):
+      # Load the raw (1-D) data
+      dat_raw = np.fromfile(fn, dtype=sample_datatype)
+
+      # Reshape the (2-D) per channel data
+      step = number_of_channels * display_decimation
+      dat_chans = [dat_raw[c::step] for c in range(number_of_channels)]
+
+      # Build the time array
+      t = np.arange(len(dat_chans[0]), dtype=float) / sample_rate
+
+      return dat_chans, t
+
+def load_16_EEG(foldername, montage_name, source_number):
+  sample_rate = 1000
+  n_channels=16
+
+  #"Specifiy the start time and end times here!!!!"
+  start_time=600
+  end_time=900
+
+  fn="E:\\OneDrive - University of Edinburgh\\S7063 - Het BL1 and BL2\\TAINI_1033_S7063_Baseline1-2020_01_27-0000.dat"
+  dat_chans, t = parse_dat(fn, n_channels, sample_rate)
+  data=np.array(dat_chans)
+  del(dat_chans)
+  datatp=data.transpose()
+  del(data)
+  time_axis, sub_data = sub_time_data(datatp, start_time, end_time, sample_rate)
+  sub_datatp=sub_data.transpose()
+
+
+  if isinstance('montage_name', str):
+    montage = mne.channels.read_montage(montage_name)
+  else:
+    print("The montage name is not valid")
+
+  # 14 eeg channels, 2 emg, and 3 that are required for mne compatibility
+  channel_types=['eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                   ,'eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg', 'emg', 'emg']
+
+  'This creates the info that goes with the channels, which is names, sampling rate, and channel types.'
+  info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types,
+                           montage=montage)
+
+  custom_raw = mne.io.RawArray(sub_datatp, info)
+
+
+
+def electrode_combinations(montage_name, neighbors_dist, long_distance, n_elect = 32):
   montage = mne.channels.read_montage(montage_name)
-  electrode_names = montage.ch_names[0:32]
-  electrode_pos = 1000*montage.pos[0:32,0:2] # in mm
+  electrode_names = montage.ch_names[0:n_elect]
+  electrode_pos = 1000*montage.pos[0:n_elect,0:2] # in mm
 
   distances_btw_electrodes = spatial.distance.pdist(electrode_pos, 'euclidean')
 
-  nums = np.linspace(0, 31, 32, dtype = int)
+  nums = np.linspace(0, n_elect-1, n_elect, dtype = int)
 
   comb = combinations(nums, 2)
   # working with the combination element is difficult and it can only be assigned once -> it is transformed into a list

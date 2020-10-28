@@ -114,13 +114,13 @@ class session_coherence():
     state_voltage_list = [brain_states_ms, raw_times[0:size_brain_states]]
 
     raw_data_downsampled = []
-    for i in np.arange(32):
+    for i in np.arange(self.n_electrodes):
         raw_data_downsampled.append(decimate(self.raw_data[i,:], self.k_down))
 
-    for i in np.arange(32):
+    for i in np.arange(self.n_electrodes):
         state_voltage_list.append(raw_data_downsampled[i][0:size_brain_states])
 
-    # 34d array. First for states, Second for time, next 32 for 32 electrodes.
+    # 34d array. First for states, Second for time, next n times for self.n_electrodes.
     state_voltage_array = np.transpose(np.stack(state_voltage_list))
     # removing glitches, applying the filter looking at the first electrode, in the second position of the 34d array
     state_voltage_array = state_voltage_array[abs(state_voltage_array[:,2]) < amp_filter, :]
@@ -242,11 +242,9 @@ class session_coherence():
     if brain_state == 1:
       self.volt_state = self.volt_nrem
       self.time_state = np.size(self.volt_state[0,:])
-      a = 1
     elif brain_state == 2:
       self.volt_state = self.volt_rem
       self.time_state = np.size(self.volt_state)
-      a = 1
     #elif brain_state == 3:
     #  self.volt_state = self.volt_sleeping
     #  self.time_state = self.time_sleeping
