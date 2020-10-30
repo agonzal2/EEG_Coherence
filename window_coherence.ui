@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>933</width>
-    <height>845</height>
+    <height>903</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>931</width>
-      <height>821</height>
+      <height>871</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -774,7 +774,7 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>374</y>
+        <y>386</y>
         <width>241</width>
         <height>21</height>
        </rect>
@@ -909,7 +909,7 @@
       <property name="geometry">
        <rect>
         <x>12</x>
-        <y>460</y>
+        <y>510</y>
         <width>171</width>
         <height>16</height>
        </rect>
@@ -922,7 +922,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>480</y>
+        <y>536</y>
         <width>901</width>
         <height>301</height>
        </rect>
@@ -1373,7 +1373,7 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>420</y>
+        <y>469</y>
         <width>131</width>
         <height>17</height>
        </rect>
@@ -1386,7 +1386,7 @@
       <property name="geometry">
        <rect>
         <x>337</x>
-        <y>416</y>
+        <y>465</y>
         <width>561</width>
         <height>31</height>
        </rect>
@@ -1396,7 +1396,7 @@
       <property name="geometry">
        <rect>
         <x>178</x>
-        <y>416</y>
+        <y>465</y>
         <width>161</width>
         <height>31</height>
        </rect>
@@ -1404,6 +1404,64 @@
       <property name="text">
        <string>Choose results folder</string>
       </property>
+     </widget>
+     <widget class="QFrame" name="frame_montage_2">
+      <property name="geometry">
+       <rect>
+        <x>29</x>
+        <y>417</y>
+        <width>281</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QRadioButton" name="radioButtonOpenEphys">
+       <property name="geometry">
+        <rect>
+         <x>106</x>
+         <y>0</y>
+         <width>90</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Oephys 32</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_28">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>71</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Recordings</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButtonTaini">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>0</y>
+         <width>61</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Taini 14</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <zorder>frame_coherence</zorder>
      <zorder>frame_parallel</zorder>
@@ -1447,6 +1505,7 @@
      <zorder>checkBoxExploratoryAnalysis</zorder>
      <zorder>listWidget_destfolder</zorder>
      <zorder>pbdestfolder</zorder>
+     <zorder>frame_montage_2</zorder>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">

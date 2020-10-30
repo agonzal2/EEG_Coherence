@@ -5,6 +5,7 @@ Created on Wed Nov 22 16:17:18 2017
 @author: Alfredo Gonzalez-Sulser, University of Edinburgh
 email: agonzal2@staffmail.ed.ac.uk
 """
+import glob
 from numpy import *
 import pandas as pd
 from scipy import spatial
@@ -323,38 +324,44 @@ def parse_dat(fn, number_of_channels = 16, sample_rate = 1000):
 
       return dat_chans, t
 
-def load_16_EEG(foldername, montage_name, source_number):
+def load_16_EEG_taini(file_route, montage_name):
+  n_channels = 16
   sample_rate = 1000
-  n_channels=16
 
-  #"Specifiy the start time and end times here!!!!"
-  start_time=600
-  end_time=900
+  os.chdir(file_route)
+  d = os.getcwd() + "\\"
+  file_name = glob.glob(r'*dat')
 
-  fn="E:\\OneDrive - University of Edinburgh\\S7063 - Het BL1 and BL2\\TAINI_1033_S7063_Baseline1-2020_01_27-0000.dat"
-  dat_chans, t = parse_dat(fn, n_channels, sample_rate)
+  dat_chans, t = parse_dat(file_name[0], n_channels, sample_rate)
+
   data=np.array(dat_chans)
+  # The emg electrodes are in the positions 1 and 14, we put them at the end
+  # to make the code easier later
+  # we also create extra emg channels to follow mne montage requirements
+  (original_elect, n_samples) = data.shape
+  final_data = np.zeros((19, n_samples))
+  final_data[0:14, :] = data[[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15],:]
+  final_data[14:16, :] = data[[1,14],:]
+
   del(dat_chans)
-  datatp=data.transpose()
   del(data)
-  time_axis, sub_data = sub_time_data(datatp, start_time, end_time, sample_rate)
-  sub_datatp=sub_data.transpose()
 
-
-  if isinstance('montage_name', str):
-    montage = mne.channels.read_montage(montage_name)
+  if isinstance(montage_name, str):
+      montage = mne.channels.read_montage(montage_name)
   else:
-    print("The montage name is not valid")
+      print("The montage name is not valid")
 
   # 14 eeg channels, 2 emg, and 3 that are required for mne compatibility
   channel_types=['eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                   ,'eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg', 'emg', 'emg']
+                     ,'eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg', 'emg', 'emg']
 
   'This creates the info that goes with the channels, which is names, sampling rate, and channel types.'
   info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types,
-                           montage=montage)
+                             montage=montage)
 
-  custom_raw = mne.io.RawArray(sub_datatp, info)
+  custom_raw = mne.io.RawArray(final_data, info)
+
+  return custom_raw
 
 
 

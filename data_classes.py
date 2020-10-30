@@ -111,6 +111,7 @@ class session_coherence():
 
     # If custom_raw.times is bigger than brain_states_ms, we truncate custom_raw.times when we create a 2d array with both
     size_brain_states = np.size(brain_states_ms)
+    # with taini, it creates too many brain states!!! <---- I'd need more examples.
     state_voltage_list = [brain_states_ms, raw_times[0:size_brain_states]]
 
     raw_data_downsampled = []
