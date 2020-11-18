@@ -5,7 +5,7 @@ import re as re
 import numpy as np
 import random
 import pandas as pd
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, sem
 from statistics import mean
 import matplotlib.pyplot as plt
 import xlsxwriter
@@ -109,8 +109,10 @@ class MyForm(QMainWindow):
 
       self.dfs = pd.read_excel(file_route, sheet_name=None)
       self.sheet_name = sheet_n + "Short"
+      self.pvalue_position = 3
       self.compareGroups('ShortKO', 'ShortWT')
       self.sheet_name = sheet_n + "Long"
+      self.pvalue_position = 4
       self.compareGroups('LongKO', 'LongWT')
       self.print2pdf(file_name)
       self.closeFigures()
@@ -144,18 +146,25 @@ class MyForm(QMainWindow):
     # plotting the means along frequency
     mean_ko = df_g1.mean(axis=1).to_numpy()
     mean_wt = df_g2.mean(axis=1).to_numpy()
+    sem_ko = sem(df_g1, axis=1)
+    sem_wt = sem(df_g2, axis=1)
     fig0 = plt.figure()
     dx = fig0.add_subplot(111)
-    dx.plot(freq_samples, mean_ko, color = 'black', label = '$Syngap^{+/-\u0394 GAP}$')
-    dx.plot(freq_samples, mean_wt, color = '#0836a9', label = '$Syngap^{+/+}$')
+    dx.plot(freq_samples, mean_ko, color = '#0836a9', label = '$Syngap^{+/-\u0394 GAP}$')
+    dx.plot(freq_samples, mean_wt, color = 'black', label = '$Syngap^{+/+}$')
+    dx.fill_between(freq_samples, np.array(mean_ko) - np.array(sem_ko), np.array(mean_ko) + np.array(sem_ko),
+                        edgecolor='#b4cdec', facecolor= '#b4cdec', linewidth=1, antialiased=False) #linestyle='dashed',
+    dx.fill_between(freq_samples, np.array(mean_wt) - np.array(sem_wt), np.array(mean_wt) + np.array(sem_wt),
+                        edgecolor='#bbbbbb', facecolor= '#bbbbbb', linewidth=1, antialiased=False)
+
     if 'abs' in self.coh_type:
       dx.set_ylim(0,1)
     else:
-      maxko = np.amax(mean_ko)
-      maxwt = np.amax(mean_wt)
+      maxko = np.amax(mean_ko + sem_ko)
+      maxwt = np.amax(mean_wt + sem_wt)
       dx.set_ylim(0,max(maxko, maxwt))
     dx.set_xlabel('Frequency (Hz)')
-    dx.set_ylabel('Mean $z^{-1}$ Coherence')
+    dx.set_ylabel('Mean $z^{-1}$ ' + self.coh_type + ' Coherence')
     dx.legend()
     plt.title(self.sheet_name)
     plt.show()
@@ -212,6 +221,33 @@ class MyForm(QMainWindow):
       worksheet_ti.write(n_band + 2, 0, freq_band)
       worksheet_ti.write(n_band + 2, 3, pvalues[n_band])
 
+
+    # pvalues for the bar graph
+    for freq_band in self.freq_list:
+      f_1, f_2 = self.obtainfreqs(freq_band)
+      pvalue = 0 # where we are gonna sum the pvalues
+      df_bands = df_g2.join(df_g1) # needs to do it every time, if not the shuffling affects future iterations
+      matrix_band_coh = df_bands.to_numpy() # dataframe to numpy to make it faster
+      matrix_band_coh_t = np.transpose(matrix_band_coh) # traspose to average per frequencies
+      shuffled_band_coh = matrix_band_coh_t[:, f_1:f_2] # np.mean(matrix_coh_t[:, f_1:f_2], axis=1)
+      first_animals = shuffled_band_coh[:anim, :]
+      average_1 = np.mean(shuffled_band_coh[:anim, :])
+      average_2 = np.mean(shuffled_band_coh[anim:, :])
+      real_diference = average_1 - average_2
+      # loop over the total number of permutations
+      for i in np.arange(self.ui.BoxNumberShuffles.value()):
+        np.random.shuffle(shuffled_band_coh) # stores the shuffled data in the same nd array
+        shuf_aver_1 = np.mean(shuffled_band_coh[:anim, :])
+        shuf_aver_2 = np.mean(shuffled_band_coh[anim:, :])
+        perm_diff = shuf_aver_1 - shuf_aver_2
+        pvalue = pvalue + np.ceil(real_diference - perm_diff)
+
+      pvalue = pvalue/self.ui.BoxNumberShuffles.value() # final pvalues for that comparison
+      self.freq_list_results.append(pvalue)
+
+    self.write_table_results()
+
+
     # plotting bars graph
     labels = []
     mean_KO_l = []
@@ -236,7 +272,7 @@ class MyForm(QMainWindow):
     fig, ax = plt.subplots()
     rects1 = ax.bar(x - width/2, mean_WT_l, width, yerr=sem_WT_l, capsize = 3, label='$Syngap^{+/+}$', color='black')
     rects2 = ax.bar(x + width/2, mean_KO_l, width, yerr=sem_KO_l, capsize = 3, label='$Syngap^{+/-\u0394 GAP}$', color= '#0836a9')
-    ax.set_ylabel('Mean $z^{-1}$ Coherence')
+    ax.set_ylabel('Mean $z^{-1}$ ' + self.coh_type + ' Coherence')
     if 'abs' in self.coh_type:
       ax.set_ylim([0,1])
     ax.set_xticks(x)
@@ -283,10 +319,10 @@ class MyForm(QMainWindow):
       band_freq_to = self.ui.tableFrequencies.item(row, 2).text()
       self.freq_list.append((band_name, int(band_freq_from), int(band_freq_to))) # double (()) is necessary
 
-  def write_table_results(self, position):
+  def write_table_results(self):
 
     for n, freq_interval_results in enumerate(self.freq_list_results):
-      self.ui.tableFrequencies.setItem(n+1, position, QTableWidgetItem(str(freq_interval_results)))
+      self.ui.tableFrequencies.setItem(n+1, self.pvalue_position, QTableWidgetItem(str(freq_interval_results)))
 
   def closeFigures(self):
        plt.close('all')
