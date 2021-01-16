@@ -246,7 +246,7 @@ class MyForm(QMainWindow):
     # dividing files by animal (KO)
     for i in range(self.ui.listWidget_Exp.count()):
       os.chdir(str(self.ui.listWidget_Exp.item(i).text()))
-      d = os.getcwd() + "\\"
+      d = os.getcwd() + "/" # "\\" for Windows
       matching_files = glob.glob(r'*xls')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_KO:
@@ -269,7 +269,7 @@ class MyForm(QMainWindow):
     # dividing files by animal (WT)
     for i in range(self.ui.listWidget_Control.count()):
       os.chdir(str(self.ui.listWidget_Control.item(i).text()))
-      d = os.getcwd() + "\\"
+      d = os.getcwd() + "/" # "\\"
       matching_files = glob.glob(r'*xls')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_WT:
