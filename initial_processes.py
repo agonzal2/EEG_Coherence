@@ -5,9 +5,11 @@ Created on Wed Nov 22 16:17:18 2017
 @author: Alfredo Gonzalez-Sulser, University of Edinburgh
 email: agonzal2@staffmail.ed.ac.uk
 """
+import glob
 from numpy import *
 import pandas as pd
 from scipy import spatial
+from scipy.signal import decimate
 from itertools import combinations
 import parameters
 import matplotlib.pyplot as plt
@@ -261,6 +263,110 @@ def load_16_channel_opto_mne(headstage_number):
     return custom_raw
 
 
+def load_32_EEG_downsampled_bystate(foldername, montage_name, source_number, brain_states, downsampling):
+    """
+    Load open ephys 32 electrode data to a numpy array
+    after downsampling it. 
+    then it creates numpy arrays for the brain states
+
+    foldername: folder where the recordings are
+    montage_name: name of the montage that contains the electrode coordinates
+    source number: prefix of the electrode recordings files
+    downsampling: integer with the number the sampling is going to be reduced by
+    
+    """
+
+    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
+    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+
+    #data=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = '101')
+    #data_aux=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = '101')
+
+    'Below we append a line to the data array and add the accelrometer data. We transpose to fit the MNE data format.'
+    #data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
+    data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
+    #data[:,32]=data_aux[:,0]*800 # zeros
+
+    # Downsampling
+    raw_data_downsampled = []
+    for i in np.arange(33):
+        raw_data_downsampled.append(decimate(data[:,i], downsampling))    
+    
+    # As the bins are for every 5 seconds, we need to create an array repeating those states per each ms*downsampling
+    brain_states_ms = np.repeat(brain_states, 5000/downsampling)
+
+    # 34d array. First for states, then for the electrodes
+    state_voltage_list = [brain_states_ms]
+    size_brain_states = np.size(brain_states_ms)
+    for i in np.arange(33):
+        state_voltage_list.append(raw_data_downsampled[i][0:size_brain_states])
+    
+    state_voltage_array = np.stack(state_voltage_list)
+
+    # voltage arrays for the different brain states
+    volt_wake = state_voltage_array[1:, state_voltage_array[0,:] == 0] # :1 because we do not want the brain_states raw anymore
+    volt_NoREM = state_voltage_array[1:, state_voltage_array[0,:] == 1]
+    volt_REM = state_voltage_array[1:, state_voltage_array[0,:] == 2]
+    volt_convuls = state_voltage_array[1:, state_voltage_array[0,:] == 4]
+    
+    del data
+    
+    return state_voltage_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
+
+def load_32_EEG_downsampled(foldername, montage_name, source_number, downsampling):
+    """
+    Load open ephys 32 electrode data in mne format
+    after downsampling it. 
+
+    foldername: folder where the recordings are
+    montage_name: name of the montage that contains the electrode coordinates
+    source number: prefix of the electrode recordings files
+    downsampling: integer with the number the sampling is going to be reduced by
+    
+    """
+
+    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
+    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+
+    #data=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = '101')
+    #data_aux=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = '101')
+
+    'Below we append a line to the data array and add the accelrometer data. We transpose to fit the MNE data format.'
+    #data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
+    data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
+    #data[:,32]=data_aux[:,0]*800 # zeros
+
+    # Downsampling
+    raw_data_downsampled = []
+    for i in np.arange(33):
+        raw_data_downsampled.append(decimate(data[:,i], downsampling))    
+    
+    state_voltage_array = np.stack(raw_data_downsampled)
+    
+    del data
+    
+    if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
+    else:
+        print("The montage name is not valid")
+
+    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg', 'eeg', 'eeg',
+                   'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg', 'emg'] # not necessario in new version, 'emg', 'emg', 'emg']
+
+    info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types)
+
+    'This makes the object that contains all the data and info about the channels.'
+    'Computations like plotting, averaging, power spectrums can be performed on this object'
+
+    custom_raw = mne.io.RawArray(state_voltage_array, info)
+    del state_voltage_array
+    return custom_raw
+
+
 'The function below loads individual 32 channel probe recordings'
 def load_32_EEG(foldername, montage_name, source_number):
 
@@ -306,15 +412,72 @@ def load_32_EEG(foldername, montage_name, source_number):
     del datatp
     return custom_raw
 
+def parse_dat(fn, number_of_channels = 16, sample_rate = 1000):
+      '''Load a .dat file by interpreting it as int16 and then de-interlacing the 16 channels'''
+      sample_datatype = 'int16'
+      display_decimation = 10
 
-def electrode_combinations(montage_name, neighbors_dist, long_distance):
+      # Load the raw (1-D) data
+      dat_raw = np.fromfile(fn, dtype=sample_datatype)
+
+      # Reshape the (2-D) per channel data
+      step = number_of_channels * display_decimation
+      dat_chans = [dat_raw[c::step] for c in range(number_of_channels)]
+
+      # Build the time array
+      t = np.arange(len(dat_chans[0]), dtype=float) / sample_rate
+
+      return dat_chans, t
+
+def load_16_EEG_taini(file_route, montage_name):
+  n_channels = 16
+  sample_rate = 1000
+
+  os.chdir(file_route)
+  d = os.getcwd() + '/' #"\\"
+  file_name = glob.glob(r'*dat')
+
+  dat_chans, t = parse_dat(file_name[0], n_channels, sample_rate)
+
+  data=np.array(dat_chans)
+  # The emg electrodes are in the positions 1 and 14, we put them at the end
+  # to make the code easier later
+  # we also create extra emg channels to follow mne montage requirements
+  (original_elect, n_samples) = data.shape
+  final_data = np.zeros((19, n_samples))
+  final_data[0:14, :] = data[[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15],:]
+  final_data[14:16, :] = data[[1,14],:]
+
+  del(dat_chans)
+  del(data)
+
+  if isinstance(montage_name, str):
+      montage = mne.channels.read_montage(montage_name)
+  else:
+      print("The montage name is not valid")
+
+  # 14 eeg channels, 2 emg, and 3 that are required for mne compatibility
+  channel_types=['eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                     ,'eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg', 'emg', 'emg']
+
+  'This creates the info that goes with the channels, which is names, sampling rate, and channel types.'
+  info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types,
+                             montage=montage)
+
+  custom_raw = mne.io.RawArray(final_data, info)
+
+  return custom_raw
+
+
+
+def electrode_combinations(montage_name, neighbors_dist, long_distance, n_elect = 32):
   montage = mne.channels.read_montage(montage_name)
-  electrode_names = montage.ch_names[0:32]
-  electrode_pos = 1000*montage.pos[0:32,0:2] # in mm
+  electrode_names = montage.ch_names[0:n_elect]
+  electrode_pos = 1000*montage.pos[0:n_elect,0:2] # in mm
 
   distances_btw_electrodes = spatial.distance.pdist(electrode_pos, 'euclidean')
 
-  nums = np.linspace(0, 31, 32, dtype = int)
+  nums = np.linspace(0, n_elect-1, n_elect, dtype = int)
 
   comb = combinations(nums, 2)
   # working with the combination element is difficult and it can only be assigned once -> it is transformed into a list

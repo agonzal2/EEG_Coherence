@@ -38,6 +38,8 @@ from initial_processes import *
 from data_classes import session_coherence
 
 montage_name = 'standard_32grid_Alfredo'
+#montage_name = 'standard_16grid_taini1'
+#montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
 
 sampling_rate = 1000
 source_name = '100' # how do the name of the recording files begin
@@ -238,10 +240,14 @@ class MyForm(QMainWindow):
 
   def runAll(self):
 
+    # Goes through all the excel files with the brain states
+    # If an animal has more than one recording, it store them together
+    # Then it goes through all the folders for those rats with excel files
+    # with brain states
     # dividing files by animal (KO)
     for i in range(self.ui.listWidget_Exp.count()):
       os.chdir(str(self.ui.listWidget_Exp.item(i).text()))
-      d = os.getcwd() + "\\"
+      d = os.getcwd() + "/" # "\\" for Windows
       matching_files = glob.glob(r'*xls')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_KO:
@@ -264,7 +270,7 @@ class MyForm(QMainWindow):
     # dividing files by animal (WT)
     for i in range(self.ui.listWidget_Control.count()):
       os.chdir(str(self.ui.listWidget_Control.item(i).text()))
-      d = os.getcwd() + "\\"
+      d = os.getcwd() + "/" # "\\"
       matching_files = glob.glob(r'*xls')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_WT:
@@ -284,10 +290,14 @@ class MyForm(QMainWindow):
         my_coherence.l_folders_WT.append(l_animal_folders)
         my_coherence.l_xls_files_WT.append(l_animal_xls_files)
 
-    if self.ui.radioButtonGrid.isChecked():
-      my_coherence.montage_name = 'standard_32grid_Alfredo'
-    else:
-      my_coherence.montage_name = 'standard_32grid_Alfredo'
+    if self.ui.radioButtonOpenEphys.isChecked():
+      my_coherence.montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+      my_coherence.recording_type = 'openephys'
+      my_coherence.n_electrodes = 32
+    elif self.ui.radioButtonTaini.isChecked():
+      my_coherence.montage_name = 'standard_16grid_taini1'
+      my_coherence.recording_type = 'taini'
+      my_coherence.n_electrodes = 14
 
     # First it is called the downsampling
     my_coherence.downsample_data(self.ui.spinBoxDownsampling.value(), self.ui.spinBoxSamplingRate.value(),
@@ -301,9 +311,9 @@ class MyForm(QMainWindow):
     if self.ui.checkBoxExploratoryAnalysis.isChecked():
       for coh_type in ("abs", "imag"):
         my_coherence.coh_type = coh_type
-        for longD in np.arange(2, 5.5, 0.5):
+        for longD in np.arange(2, 5.5, 1):
           self.ui.SpinBoxLongDist.setValue(longD)
-          for brain_state in ((1,"REM"), (2, "NoREM")):
+          for brain_state in ((1,"NonREM"), (2, "REM")):
             self.brain_state = brain_state[0]
             self.brain_state_name = brain_state[1]
             self.runNewBrainState()
@@ -410,7 +420,7 @@ class MyForm(QMainWindow):
       self.ui.tableFrequencies.setItem(n+1, 5, QTableWidgetItem(str(freq_interval_results[2])))
 
 
-class coherence_32 ():
+class coherence_eeg ():
   folders_data_KO = []
   folders_data_WT = []
   xlsfiles_KO = []
@@ -434,6 +444,8 @@ class coherence_32 ():
   l_xls_files_WT = []
   second_parts_cntrl = [] # to join parts A and B of split recordings
   second_parts_exp = []
+  n_electrodes = 32
+  recording_type = ''
 
 
   def __init__(self, brain_state = 0, montage_name = 'standard_32grid_Alfredo'):
@@ -467,22 +479,27 @@ class coherence_32 ():
     l_raw_data = []
     l_raw_times = []
     l_raw_data = []
-    l_electrode_data = [list() for _ in range(32)]
+    l_electrode_data = [list() for _ in range(self.n_electrodes)]
     for folder_KO in animal:
       # first we join all the animal times
-      raw_list = load_32_EEG(folder_KO, self.montage_name, '100')
+      if self.recording_type == 'openephys':
+        #raw_list = load_32_EEG(folder_KO, self.montage_name, '100')
+        raw_list = load_32_EEG_downsampled(folder_KO, self.montage_name, '100', downsampling)
+      elif self.recording_type == 'taini':
+        raw_list = load_16_EEG_taini(folder_KO, self.montage_name)
+
       l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
       # and now the data, electrode by electrode
       # joining all the data across all the electrode recordings belonging to an animal
-      for elect in range(32):
+      for elect in range(self.n_electrodes):
           l_electrode_data[elect] = l_electrode_data[elect] + np.ndarray.tolist(raw_list._data[elect,:])
     # list of of the data joined electrodes of an animal
-    for elect in range(32):
+    for elect in range(self.n_electrodes):
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
     Cxy = session_coherence(join_raw_times, join_raw_data, self.brain_states_KO[i], downsampling,
-                              self.montage_name, 32, sampling_rate, self.brain_state)
+                              self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
     print('downsampling')
     Cxy.downsample_data(amp_filter)
     self.all_KO_coh_data.append(Cxy) # Appending the class instance for every KO session
@@ -497,22 +514,27 @@ class coherence_32 ():
     l_raw_data = []
     l_raw_times = []
     l_raw_data = []
-    l_electrode_data = [list() for _ in range(32)]
+    l_electrode_data = [list() for _ in range(self.n_electrodes)]
     for folder_WT in animal:
       # first we join all the animal times
-      raw_list = load_32_EEG(folder_WT, self.montage_name, '100')
+      if self.recording_type == 'openephys':
+        #raw_list = load_32_EEG(folder_WT, self.montage_name, '100')
+        raw_list = load_32_EEG_downsampled(folder_WT, self.montage_name, '100', downsampling)
+      elif self.recording_type == 'taini':
+        raw_list = load_16_EEG_taini(folder_WT, self.montage_name)
+      
       l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
       # and now the data, electrode by electrode
       # joining all the data across all the electrode recordings belonging to an animal
-      for elect in range(32):
+      for elect in range(self.n_electrodes):
           l_electrode_data[elect] = l_electrode_data[elect] + np.ndarray.tolist(raw_list._data[elect,:])
     # list of of the data joined electrodes of an animal
-    for elect in range(32):
+    for elect in range(self.n_electrodes):
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
     Cxy = session_coherence(join_raw_times, join_raw_data, self.brain_states_WT[i], downsampling,
-                              self.montage_name, 32, sampling_rate, self.brain_state)
+                              self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
     print('downsampling')
     Cxy.downsample_data(amp_filter)
     self.all_WT_coh_data.append(Cxy) # Appending the class instance for every WT session
@@ -522,6 +544,7 @@ class coherence_32 ():
     del join_raw_times
 
 
+  # loads and downsamples the brain states and the data
   def downsample_data(self, downsampling, sampling_rate, amp_filter):
     self.get_brain_states_KO()
     self.get_brain_states_WT()
@@ -550,7 +573,7 @@ class coherence_32 ():
   # calculating the different combinations between electrodes, short and long distance
   def calc_combinations(self, neighbors_dist, long_distance):
     self.long_distance = long_distance
-    self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance)
+    self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance, self.n_electrodes)
 
   # It gives the chance to change the brain state every time it is called.
   def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300):
@@ -571,11 +594,11 @@ class coherence_32 ():
   # Once the coherence is calculated, we split the spectrum in frequency bands.
   def calc_zcoh_freq_bands(self, f_l):
     self.freq_list = f_l
-    for n, Cxy in enumerate(self.all_KO_coh_data):
+    for Cxy in self.all_KO_coh_data:
       Cxy.calc_zcoh_long(self.freq_list)
       Cxy.calc_zcoh_short(self.freq_list)
 
-    for n, Cxy in enumerate(self.all_WT_coh_data):
+    for Cxy in self.all_WT_coh_data:
       Cxy.calc_zcoh_long(self.freq_list)
       Cxy.calc_zcoh_short(self.freq_list)
       if len(Cxy.f_w > 0) : self.f_array = Cxy.f_w
@@ -1112,7 +1135,7 @@ class coherence_32 ():
     plt.xlabel(x_label, fontsize=18)
     plt.show()
 
-my_coherence = coherence_32()
+my_coherence = coherence_eeg()
 ind_calc = [] # list of indiv_tests classes
 
 if __name__=="__main__":

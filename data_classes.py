@@ -107,20 +107,22 @@ class session_coherence():
     # Oversamples the brain state (one per 5 seconds) to match the sampling rate of the signal
     repetitions = int(5000/self.k_down)
     brain_states_ms = np.repeat(self.brain_states, repetitions)
-    raw_times = self.raw_times[0::self.k_down]
+    #raw_times = self.raw_times[0::self.k_down]
 
     # If custom_raw.times is bigger than brain_states_ms, we truncate custom_raw.times when we create a 2d array with both
     size_brain_states = np.size(brain_states_ms)
-    state_voltage_list = [brain_states_ms, raw_times[0:size_brain_states]]
+    # with taini, it creates too many brain states!!! <---- I'd need more examples.
+    state_voltage_list = [brain_states_ms, self.raw_times[0:size_brain_states]]
 
-    raw_data_downsampled = []
-    for i in np.arange(32):
-        raw_data_downsampled.append(decimate(self.raw_data[i,:], self.k_down))
+    # no downsampling here anymore
+    #raw_data_downsampled = []
+    #for i in np.arange(self.n_electrodes):
+    #    raw_data_downsampled.append(decimate(self.raw_data[i,:], self.k_down))
 
-    for i in np.arange(32):
-        state_voltage_list.append(raw_data_downsampled[i][0:size_brain_states])
+    for i in np.arange(self.n_electrodes):
+        state_voltage_list.append(self.raw_data[i,:][0:size_brain_states])
 
-    # 34d array. First for states, Second for time, next 32 for 32 electrodes.
+    # 34d array. First for states, Second for time, next n times for self.n_electrodes.
     state_voltage_array = np.transpose(np.stack(state_voltage_list))
     # removing glitches, applying the filter looking at the first electrode, in the second position of the 34d array
     state_voltage_array = state_voltage_array[abs(state_voltage_array[:,2]) < amp_filter, :]
@@ -140,9 +142,9 @@ class session_coherence():
     del brain_states_ms
     del state_voltage_list
     del state_voltage_array
-    del raw_data_downsampled
+    #del raw_data_downsampled
     del self.raw_times
-    del raw_times
+    #del raw_times
     #del volt_int
     #del volt_sleeping
 
@@ -242,11 +244,9 @@ class session_coherence():
     if brain_state == 1:
       self.volt_state = self.volt_nrem
       self.time_state = np.size(self.volt_state[0,:])
-      a = 1
     elif brain_state == 2:
       self.volt_state = self.volt_rem
       self.time_state = np.size(self.volt_state)
-      a = 1
     #elif brain_state == 3:
     #  self.volt_state = self.volt_sleeping
     #  self.time_state = self.time_sleeping
