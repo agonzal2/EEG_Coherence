@@ -12,6 +12,7 @@ folder = '/media/jorge/DATADRIVE0/Data/Alfredo/Syngap/KOTest/'
 
 montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
 n_electrodes = 32
+amp_filter = 750
 
 prm.set_sampling_rate(1000)
 sr=prm.get_sampling_rate()
@@ -33,7 +34,7 @@ for matching_file in matching_files:
 for i, xls_file in enumerate(l_xls_files):
     # First extract data for the whole recording but just for the NonREM state
     brain_states = import_brain_states(xls_file)
-    v_all, v_wake, v_nrem, v_rem, v_conv = load_32_EEG_downsampled_bystate(l_folders[i], montage_name, '100', brain_states, downsampling)
+    v_all, v_wake, v_nrem, v_rem, v_conv = load_32_EEG_downsampled_bystate(l_folders[i], montage_name, '100', brain_states, downsampling, amp_filter)
     f_all = l_numpy_files[i] + '.npy'
     f_wake = l_numpy_files[i] + '_wake' + '.npy'
     f_nrem = l_numpy_files[i] + '_nrem' + '.npy'
