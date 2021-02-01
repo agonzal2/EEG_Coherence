@@ -248,7 +248,7 @@ class MyForm(QMainWindow):
     for i in range(self.ui.listWidget_Exp.count()):
       os.chdir(str(self.ui.listWidget_Exp.item(i).text()))
       d = os.getcwd() + "/" # "\\" for Windows
-      matching_files = glob.glob(r'*xls')
+      matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_KO:
           my_coherence.l_prefixes_KO.append(file_m[0:5])
@@ -256,22 +256,18 @@ class MyForm(QMainWindow):
       # gathering the recordings per animal (they will be analysed together)
       for pattern in my_coherence.l_prefixes_KO:
         matching_files = glob.glob(r'*' + pattern + r'*')
-        l_animal_folders = []
-        l_animal_xls_files = []
+        l_animal_npy_files = []
         for matching_file in matching_files:
-            if 'xls' in matching_file:
-                l_animal_xls_files.append(d+matching_file)
-            else:
-                l_animal_folders.append(d+matching_file)
+            if 'npy' in matching_file:
+                l_animal_npy_files.append(d+matching_file)            
 
-        my_coherence.l_folders_KO.append(l_animal_folders)
-        my_coherence.l_xls_files_KO.append(l_animal_xls_files)
+        my_coherence.l_npy_files_KO.append(l_animal_npy_files)
 
     # dividing files by animal (WT)
     for i in range(self.ui.listWidget_Control.count()):
       os.chdir(str(self.ui.listWidget_Control.item(i).text()))
       d = os.getcwd() + "/" # "\\"
-      matching_files = glob.glob(r'*xls')
+      matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
         if file_m[0:5] not in my_coherence.l_prefixes_WT:
           my_coherence.l_prefixes_WT.append(file_m[0:5])
@@ -279,16 +275,12 @@ class MyForm(QMainWindow):
       # gathering the recordings per animal (they will be analysed together)
       for pattern in my_coherence.l_prefixes_WT:
         matching_files = glob.glob(r'*' + pattern + r'*')
-        l_animal_folders = []
-        l_animal_xls_files = []
+        l_animal_npy_files = []
         for matching_file in matching_files:
-            if 'xls' in matching_file:
-                l_animal_xls_files.append(d+matching_file)
-            else:
-                l_animal_folders.append(d+matching_file)
-
-        my_coherence.l_folders_WT.append(l_animal_folders)
-        my_coherence.l_xls_files_WT.append(l_animal_xls_files)
+            if 'npy' in matching_file:
+                l_animal_npy_files.append(d+matching_file)
+            
+        my_coherence.l_npy_files_WT.append(l_animal_npy_files)
 
     if self.ui.radioButtonOpenEphys.isChecked():
       my_coherence.montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
@@ -300,7 +292,7 @@ class MyForm(QMainWindow):
       my_coherence.n_electrodes = 14
 
     # First it is called the downsampling
-    my_coherence.downsample_data(self.ui.spinBoxDownsampling.value(), self.ui.spinBoxSamplingRate.value(),
+    my_coherence.loadnpydatatomne(self.ui.spinBoxDownsampling.value(), self.ui.spinBoxSamplingRate.value(),
                                   self.ui.spinFilterAmplitude.value())
 
     #Once it finished the load of data, allow to repeat analysis without loading it again.
@@ -437,14 +429,13 @@ class coherence_eeg ():
   b = np.array([0,0,0]) # notch filter parameter
   a = np.array([0,0,0]) # notch filter parameter
   l_prefixes_KO = []
-  l_folders_KO = []
-  l_xls_files_KO = []
+  l_npy_files_KO = []
   l_prefixes_WT = []
-  l_folders_WT = []
-  l_xls_files_WT = []
+  l_npy_files_WT = []
   second_parts_cntrl = [] # to join parts A and B of split recordings
   second_parts_exp = []
   n_electrodes = 32
+  n_aux_elec = 3
   recording_type = ''
 
 
@@ -452,27 +443,7 @@ class coherence_eeg ():
     self.brain_state = brain_state
     self.montage_name = montage_name
 
-  def get_brain_states_KO(self):
-    # List of lists to store all the sessions brain state files
-    self.brain_states_KO = [list() for _ in range(size(self.l_prefixes_KO))]
-
-    # Loading the brain states for KO
-    for i, animal in enumerate(self.l_xls_files_KO):
-      l_animal_times = []
-      for xls_file in animal:
-        l_animal_times = l_animal_times + np.ndarray.tolist(import_brain_states(xls_file))
-
-      self.brain_states_KO[i] = np.asarray(l_animal_times)
-
-  def get_brain_states_WT(self):
-    self.brain_states_WT = [list() for _ in range(size(self.l_prefixes_WT))]
-    for i, animal in enumerate(self.l_xls_files_WT):
-      l_animal_times = []
-      for xls_file in animal:
-        l_animal_times = l_animal_times + np.ndarray.tolist(import_brain_states(xls_file))
-
-      self.brain_states_WT[i] = np.asarray(l_animal_times)
-
+  
   def get_join_data_KO(self, i, animal, downsampling, amp_filter):
 
     print(f"loading recordings for the KO animal: {self.l_prefixes_KO[i]}")
@@ -480,11 +451,10 @@ class coherence_eeg ():
     l_raw_times = []
     l_raw_data = []
     l_electrode_data = [list() for _ in range(self.n_electrodes)]
-    for folder_KO in animal:
+    for npy_file in animal:
       # first we join all the animal times
       if self.recording_type == 'openephys':
-        #raw_list = load_32_EEG(folder_KO, self.montage_name, '100')
-        raw_list = load_32_EEG_downsampled(folder_KO, self.montage_name, '100', downsampling)
+        raw_list = npy32mne(npy_file, self.montage_name)
       elif self.recording_type == 'taini':
         raw_list = load_16_EEG_taini(folder_KO, self.montage_name)
 
@@ -498,12 +468,11 @@ class coherence_eeg ():
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
-    Cxy = session_coherence(join_raw_times, join_raw_data, self.brain_states_KO[i], downsampling,
+    Cxy = session_coherence(join_raw_times, join_raw_data, downsampling,
                               self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
-    print('downsampling')
-    Cxy.downsample_data(amp_filter)
+    
     self.all_KO_coh_data.append(Cxy) # Appending the class instance for every KO session
-    del raw_list # saving ~5GB of memory
+    del raw_list # saving memory
     del Cxy
     del join_raw_data
     del join_raw_times
@@ -515,11 +484,10 @@ class coherence_eeg ():
     l_raw_times = []
     l_raw_data = []
     l_electrode_data = [list() for _ in range(self.n_electrodes)]
-    for folder_WT in animal:
+    for npy_file in animal:
       # first we join all the animal times
       if self.recording_type == 'openephys':
-        #raw_list = load_32_EEG(folder_WT, self.montage_name, '100')
-        raw_list = load_32_EEG_downsampled(folder_WT, self.montage_name, '100', downsampling)
+        raw_list = npy32mne(npy_file, self.montage_name)
       elif self.recording_type == 'taini':
         raw_list = load_16_EEG_taini(folder_WT, self.montage_name)
       
@@ -533,34 +501,31 @@ class coherence_eeg ():
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
-    Cxy = session_coherence(join_raw_times, join_raw_data, self.brain_states_WT[i], downsampling,
+    Cxy = session_coherence(join_raw_times, join_raw_data, downsampling,
                               self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
-    print('downsampling')
-    Cxy.downsample_data(amp_filter)
+    
     self.all_WT_coh_data.append(Cxy) # Appending the class instance for every WT session
-    del raw_list # saving ~5GB of memory
+    del raw_list # saving memory
     del Cxy
     del join_raw_data
     del join_raw_times
 
 
   # loads and downsamples the brain states and the data
-  def downsample_data(self, downsampling, sampling_rate, amp_filter):
-    self.get_brain_states_KO()
-    self.get_brain_states_WT()
-
+  def loadnpydatatomne(self, downsampling, sampling_rate, amp_filter):
+    
     # Creating instances to analyse all the recordings per animal
     start_timeKO = time.time()
-    for i, animal in enumerate(self.l_folders_KO):
+    for i, animal in enumerate(self.l_npy_files_KO):
       self.get_join_data_KO(i, animal, downsampling, amp_filter)
 
-    print(f'KO sessions loaded and downsampled in {(time.time() - start_timeKO)} seconds ---')
+    print(f'KO sessions loaded and converted to mne format {(time.time() - start_timeKO)} seconds ---')
 
     start_timeWT = time.time()
-    for i, animal in enumerate(self.l_folders_WT):
+    for i, animal in enumerate(self.l_npy_files_WT):
       self.get_join_data_WT(i, animal, downsampling, amp_filter)
 
-    print(f'WT sessions loaded and downsampled in {(time.time() - start_timeWT)} seconds ---')
+    print(f'WT sessions loaded and converted to mne format {(time.time() - start_timeWT)} seconds ---')
     print(f'Total loading time: {(time.time() - start_timeKO)} seconds ---')
 
   # Now methods that modify the analysis once all the data is loaded and downsampled.
@@ -581,12 +546,12 @@ class coherence_eeg ():
     self.brain_state_name = brain_state_name
     self.freq_list = f_l
     for n, Cxy in enumerate(self.all_KO_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, self.coh_type)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, max_amp, self.brain_state, l_processes, l_chunk, self.b, self.a, self.coh_type)
-      Cxy.calc_cohe_short(self.short_d_comb, max_amp, self.brain_state, s_processes, s_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
+      Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
 
     self.calc_zcoh_freq_bands(f_l)
 
@@ -838,7 +803,7 @@ class coherence_eeg ():
 
     #self.plot_WT_average_KO_indiv_short()
     self.plot_WT_average_KO_indiv_long()
-    self.plot_corr_convulsions_coh()
+    #self.plot_corr_convulsions_coh()
 
     # Plotting Power Spectrum of the first channel of every rat recording (per brain state)
     self.plot_power_spectrums()

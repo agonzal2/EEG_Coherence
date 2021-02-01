@@ -46,14 +46,13 @@ def imag_coherence(x, y, fs=1.0, window='hann', nperseg=None, noverlap=None,
 
 class parallel_coh():
 
-  def __init__(self, voltage_state, sampling_r, frequency_r, b, a, max_amplitude, coh_type):
+  def __init__(self, voltage_state, sampling_r, frequency_r, b, a, coh_type):
     self.volt_state = voltage_state
     self.sampling_r = sampling_r
     self.frequency_r = frequency_r
     self.fnotch = 50 # notching filter at 50 Hz
     self.b = b
     self.a = a
-    self.max_amp = max_amplitude
     self.coh_type = coh_type # absolute or imaginary part of the coherence
 
   def calculate(self, first_elect, sec_elect):
@@ -72,11 +71,9 @@ class parallel_coh():
 
 class session_coherence():
 
-  def __init__(self, raw_times, raw_voltages, brain_states, downsampling,
+  def __init__(self, raw_times, raw_voltages, downsampling,
                 montage_name, n_electrodes, sampling_rate, brain_state):
     self.raw_times = raw_times
-    self.raw_data = raw_voltages
-    self.brain_states = brain_states
     self.k_down = downsampling
     self.montage_name = montage_name
     self.n_electrodes = n_electrodes
@@ -91,70 +88,19 @@ class session_coherence():
     self.f_short =[]
     self.z_long = []
     self.z_short = []
-    self.volt_state = []
+    self.volt_state = np.transpose(raw_voltages)
+    self.time_state = np.size(raw_voltages[0,:])
     self.time_wake = 0
     self.time_REM = 0
     self.time_NoREM = 0
 
-  # returns the downsampling data for the chosen brain state (wake, rem, nrem or convulsion)
-  def downsample_data(self, amp_filter=300):
-
-    # When there is a state transition, it does not take into account the bin where it changes
-    places = np.where(self.brain_states[:-1] != self.brain_states[1:])[0]
-    for position in places:
-      self.brain_states[position + 1] = 15 # not determined state
-
-    # Oversamples the brain state (one per 5 seconds) to match the sampling rate of the signal
-    repetitions = int(5000/self.k_down)
-    brain_states_ms = np.repeat(self.brain_states, repetitions)
-    #raw_times = self.raw_times[0::self.k_down]
-
-    # If custom_raw.times is bigger than brain_states_ms, we truncate custom_raw.times when we create a 2d array with both
-    size_brain_states = np.size(brain_states_ms)
-    # with taini, it creates too many brain states!!! <---- I'd need more examples.
-    state_voltage_list = [brain_states_ms, self.raw_times[0:size_brain_states]]
-
-    # no downsampling here anymore
-    #raw_data_downsampled = []
-    #for i in np.arange(self.n_electrodes):
-    #    raw_data_downsampled.append(decimate(self.raw_data[i,:], self.k_down))
-
-    for i in np.arange(self.n_electrodes):
-        state_voltage_list.append(self.raw_data[i,:][0:size_brain_states])
-
-    # 34d array. First for states, Second for time, next n times for self.n_electrodes.
-    state_voltage_array = np.transpose(np.stack(state_voltage_list))
-    # removing glitches, applying the filter looking at the first electrode, in the second position of the 34d array
-    state_voltage_array = state_voltage_array[abs(state_voltage_array[:,2]) < amp_filter, :]
-
-    # Wake
-    #self.volt_wake = state_voltage_array[state_voltage_array[:,0] == 0, :]
-    # Non-REM
-    self.volt_nrem = state_voltage_array[state_voltage_array[:,0] == 1, 2:] # we do not care about the states or the times anymore
-    # REM
-    self.volt_rem = state_voltage_array[state_voltage_array[:,0] == 2, 2:]
-    # Convulsion
-    self.time_convulsion = np.size(state_voltage_array[state_voltage_array[:,0] == 4, :])
-    # Non-convulsion
-    self.time_non_convulsion = np.size(state_voltage_array[state_voltage_array[:,0] != 4, :])
-
-    self.raw_times = []
-    del brain_states_ms
-    del state_voltage_list
-    del state_voltage_array
-    #del raw_data_downsampled
-    del self.raw_times
-    #del raw_times
-    #del volt_int
-    #del volt_sleeping
-
+    
   # It will be different depending on the brain state
-  def calc_cohe_short(self, comb_short_distance, max_ampl = 300, brain_state=0, s_processes=34, s_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
-    self.choose_voltage_state(brain_state) # it defines which is going to be the current volt_state
-
+  def calc_cohe_short(self, comb_short_distance, s_processes=34, s_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
+    
     ### PARALLEL ###
     start_time = time.time()
-    coh_short = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl, ch_type)
+    coh_short = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, ch_type)
     pool = mp.Pool(s_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_short_parallel = pool.starmap(coh_short.calculate, comb_short_distance, chunksize=s_chunk)
@@ -167,13 +113,11 @@ class session_coherence():
     print(f'--- The SHORT distance coherence took {(time.time() - start_time)} seconds ---')
 
 
-  def calc_cohe_long(self, comb_long_distance, max_ampl = 300, brain_state=0, l_processes=48, l_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
-
-    self.choose_voltage_state(brain_state) # it defines which is going to be the current volt_state
+  def calc_cohe_long(self, comb_long_distance, l_processes=48, l_chunk=1, b = np.array([0,0,0]), a=np.array([0,0,0]), ch_type='abs'):
 
     ### PARALLEL ###
     start_time = time.time()
-    coh_long = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, max_ampl, ch_type)
+    coh_long = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, ch_type)
     pool = mp.Pool(l_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_long_parallel = pool.starmap(coh_long.calculate, comb_long_distance, chunksize=l_chunk)
@@ -236,28 +180,6 @@ class session_coherence():
       top_freq = 50
     return top_freq
 
-
-  def choose_voltage_state(self, brain_state = 0):
-    #if brain_state == 0:
-      #self.volt_state = self.volt_wake
-      #self.time_state = np.size(self.volt_state) # it is generated on the fly
-    if brain_state == 1:
-      self.volt_state = self.volt_nrem
-      self.time_state = np.size(self.volt_state[0,:])
-    elif brain_state == 2:
-      self.volt_state = self.volt_rem
-      self.time_state = np.size(self.volt_state)
-    #elif brain_state == 3:
-    #  self.volt_state = self.volt_sleeping
-    #  self.time_state = self.time_sleeping
-    #elif brain_state == 4:
-    #  self.volt_state = self.volt_convulsion
-    #  self.time_state = np.size(self.volt_state)
-    #elif brain_state == 5:
-    #  self.volt_state = self.volt_non_convulsion
-    #  self.time_state = np.size(self.volt_state)
-    else:
-      print (f'Error with the brain state: {brain_state}')
 
 
   def parallel_coh(self, first_elect, sec_elect):
