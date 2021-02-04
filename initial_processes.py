@@ -453,63 +453,99 @@ def load_32_EEG(foldername, montage_name, source_number):
     return custom_raw
 
 def parse_dat(fn, number_of_channels = 16, sample_rate = 1000):
-      '''Load a .dat file by interpreting it as int16 and then de-interlacing the 16 channels'''
-      sample_datatype = 'int16'
-      display_decimation = 10
+  '''Load a .dat file by interpreting it as int16 and then de-interlacing the 16 channels'''
+  sample_datatype = 'int16'
+  display_decimation = 1
 
-      # Load the raw (1-D) data
-      dat_raw = np.fromfile(fn, dtype=sample_datatype)
+  # Load the raw (1-D) data
+  dat_raw = np.fromfile(fn, dtype=sample_datatype)
 
-      # Reshape the (2-D) per channel data
-      step = number_of_channels * display_decimation
-      dat_chans = [dat_raw[c::step] for c in range(number_of_channels)]
+  # Reshape the (2-D) per channel data
+  step = number_of_channels * display_decimation
+  dat_chans = [dat_raw[c::step] for c in range(number_of_channels)]
 
-      # Build the time array
-      t = np.arange(len(dat_chans[0]), dtype=float) / sample_rate
+  # Build the time array
+  t = np.arange(len(dat_chans[0]), dtype=float) / sample_rate
 
-      return dat_chans, t
+  return dat_chans, t
 
-def load_16_EEG_taini(file_route, montage_name):
+def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_filter, first_sample):
   n_channels = 16
-  sample_rate = 1000
-
+  sample_rate = 250.4
+  
   os.chdir(file_route)
-  d = os.getcwd() + '/' #"\\"
+  d = os.getcwd() + '/'
   file_name = glob.glob(r'*dat')
-
-  dat_chans, t = parse_dat(file_name[0], n_channels, sample_rate)
-
+  
+  dat_chans, t=parse_dat(file_name[0], n_channels, sample_rate) 
+  
   data=np.array(dat_chans)
-  # The emg electrodes are in the positions 1 and 14, we put them at the end
-  # to make the code easier later
-  # we also create extra emg channels to follow mne montage requirements
+  # the emg electrodes are in position 1 & 14, put them at the end. 
+  # create extra emgchannels to follow mne montage requirement
   (original_elect, n_samples) = data.shape
   final_data = np.zeros((19, n_samples))
   final_data[0:14, :] = data[[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15],:]
   final_data[14:16, :] = data[[1,14],:]
-
+  
   del(dat_chans)
   del(data)
 
+  # Add the brain states without downsampling them (but yes repeating)
+  # As the bins are for every 5 seconds, we need to create an array repeating those states per each ms*downsampling
+  brain_states_ms = np.repeat(brain_states, 5000)  
+  
+  final_data = final_data[:, first_sample:first_sample+np.size(brain_states_ms)]
+
+  # 17 rows array. First brain states row, then 14 eeg, then 2 emg electrodes
+  state_voltage_array = np.vstack([brain_states_ms, final_data])
+
+  # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
+  # gets over a threshold amplitude    
+  for i in np.arange(14):
+    state_voltage_array = state_voltage_array[:, abs(state_voltage_array[i+1,:]) < amp_filter]
+  
+  # split the recording into the different brain states
+  volt_wake = state_voltage_array[1:, state_voltage_array[0,:] == 0] # :1 because we do not want the brain_states raw anymore
+  volt_NoREM = state_voltage_array[1:, state_voltage_array[0,:] == 1]
+  volt_REM = state_voltage_array[1:, state_voltage_array[0,:] == 2]
+  volt_convuls = state_voltage_array[1:, state_voltage_array[0,:] == 4]    
+
+  # Doing the downsampling now, the decimate function filtering will smooth the edging we have
+  # produced in both the amplitude filtering and the split by brain state
+  
+  # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
+  raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1)
+
+  # And the decimated/downsampled (and filtered) arrays for every brain state
+  volt_wake = decimate(volt_wake, downsampling, axis = 1)
+  volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
+  volt_REM = decimate(volt_REM, downsampling, axis = 1)
+  volt_convuls = decimate(volt_convuls, downsampling, axis = 1)
+
+  return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
+
+
+def taininumpy2mne():
+  
   if isinstance(montage_name, str):
       montage = mne.channels.read_montage(montage_name)
   else:
-      print("The montage name is not valid")
-
-  # 14 eeg channels, 2 emg, and 3 that are required for mne compatibility
-  channel_types=['eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                     ,'eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg', 'emg', 'emg']
-
-  'This creates the info that goes with the channels, which is names, sampling rate, and channel types.'
-  info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types,
-                             montage=montage)
-
+      print("the montage name is not valid")
+      
+  #14 eeg channels, 2 emg, and 3 that are not required for mne compatability 
+  channel_types=['eeg', 'emg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg',
+                    'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'emg', 'eeg']
+  
+  'This creates the info that goes with the channels, which is names, sampling rate and channel types.'
+  info = mne.create_info(montage.ch_names, sample_rate, ch_types=channel_types, montage=montage)
+  
+  montage=mne.channels.read_montage(montage_name)
+  
   custom_raw = mne.io.RawArray(final_data, info)
+  
+  return custom_raw  
 
-  return custom_raw
-
-
-
+  
 def electrode_combinations(montage_name, neighbors_dist, long_distance, n_elect = 32):
   montage = mne.channels.read_montage(montage_name)
   electrode_names = montage.ch_names[0:n_elect]
