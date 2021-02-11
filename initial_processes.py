@@ -322,91 +322,6 @@ def load_32_EEG_downsampled_bystate(foldername, montage_name, source_number, bra
     return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
 
-def npy32mne(filename, montage_name):
-    """
-    Load numpy array file of 32 electrodes + 3 aux
-    and converts it to mne format
-
-    filename: route to the .npy file
-    montage_name: route to the mne montage file
-    
-    """
-    
-    voltage_array = np.load(filename) # load
-    
-    if isinstance('montage_name', str):
-        montage = mne.channels.read_custom_montage(montage_name)
-    else:
-        print("The montage name is not valid")
-
-    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg', 'eeg', 'eeg',
-                   'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg']
-
-    info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types)
-
-    'This makes the object that contains all the data and info about the channels.'
-    'Computations like plotting, averaging, power spectrums can be performed on this object'
-
-    custom_raw = mne.io.RawArray(voltage_array, info)
-    del voltage_array
-    return custom_raw
-
-
-def load_32_EEG_downsampled(foldername, montage_name, source_number, downsampling):
-    """
-    Load open ephys 32 electrode data in mne format
-    after downsampling it. 
-
-    foldername: folder where the recordings are
-    montage_name: name of the montage that contains the electrode coordinates
-    source number: prefix of the electrode recordings files
-    downsampling: integer with the number the sampling is going to be reduced by
-    
-    """
-
-    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
-    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
-    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
-
-    #data=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = '101')
-    #data_aux=loadFolderToArray(prm.get_filepath(), channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = '101')
-
-    'Below we append a line to the data array and add the accelrometer data. We transpose to fit the MNE data format.'
-    #data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
-    data = np.append(data, (np.zeros((data.shape[0],1), dtype=int64)), axis=1)
-    #data[:,32]=data_aux[:,0]*800 # zeros
-
-    # Downsampling
-    raw_data_downsampled = []
-    for i in np.arange(33):
-        raw_data_downsampled.append(decimate(data[:,i], downsampling))    
-    
-    state_voltage_array = np.stack(raw_data_downsampled)
-    
-    del data
-    
-    if isinstance('montage_name', str):
-        montage = mne.channels.read_custom_montage(montage_name)
-    else:
-        print("The montage name is not valid")
-
-    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg', 'eeg', 'eeg',
-                   'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
-                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg', 'emg'] # not necessario in new version, 'emg', 'emg', 'emg']
-
-    info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types)
-
-    'This makes the object that contains all the data and info about the channels.'
-    'Computations like plotting, averaging, power spectrums can be performed on this object'
-
-    custom_raw = mne.io.RawArray(state_voltage_array, info)
-    del state_voltage_array
-    return custom_raw
-
-
 'The function below loads individual 32 channel probe recordings'
 def load_32_EEG(foldername, montage_name, source_number):
 
@@ -469,21 +384,16 @@ def parse_dat(fn, number_of_channels = 16, sample_rate = 1000):
 
   return dat_chans, t
 
-def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_filter, first_sample):
+def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_filter, first_sample, sample_rate):
   n_channels = 16
-  sample_rate = 250.4
   
-  os.chdir(file_route)
-  d = os.getcwd() + '/'
-  file_name = glob.glob(r'*dat')
-  
-  dat_chans, t=parse_dat(file_name[0], n_channels, sample_rate) 
-  
+  dat_chans, t=parse_dat(file_route, n_channels, sample_rate)   
   data=np.array(dat_chans)
+
   # the emg electrodes are in position 1 & 14, put them at the end. 
   # create extra emgchannels to follow mne montage requirement
   (original_elect, n_samples) = data.shape
-  final_data = np.zeros((19, n_samples))
+  final_data = np.zeros((16, n_samples))
   final_data[0:14, :] = data[[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15],:]
   final_data[14:16, :] = data[[1,14],:]
   
@@ -492,12 +402,13 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
 
   # Add the brain states without downsampling them (but yes repeating)
   # As the bins are for every 5 seconds, we need to create an array repeating those states per each ms*downsampling
-  brain_states_ms = np.repeat(brain_states, 5000)  
+  brain_states_ms = np.repeat(brain_states, 5*sample_rate)  
   
   final_data = final_data[:, first_sample:first_sample+np.size(brain_states_ms)]
 
   # 17 rows array. First brain states row, then 14 eeg, then 2 emg electrodes
   state_voltage_array = np.vstack([brain_states_ms, final_data])
+  del final_data
 
   # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
   # gets over a threshold amplitude    
@@ -515,6 +426,7 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
   
   # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
   raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1)
+  del state_voltage_array
 
   # And the decimated/downsampled (and filtered) arrays for every brain state
   volt_wake = decimate(volt_wake, downsampling, axis = 1)
@@ -525,23 +437,61 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
   return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
 
-def taininumpy2mne():
-  
-  if isinstance(montage_name, str):
-      montage = mne.channels.read_montage(montage_name)
+def npy32mne(filename, montage_name):
+    """
+    Load numpy array file of 32 electrodes + 3 aux
+    and converts it to mne format
+
+    filename: route to the .npy file
+    montage_name: route to the mne montage file
+    
+    """
+    
+    voltage_array = np.load(filename) # load
+    
+    if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
+    else:
+        print("The montage name is not valid")
+
+    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg', 'eeg', 'eeg',
+                   'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
+                   ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg']
+
+    info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types)
+
+    'This makes the object that contains all the data and info about the channels.'
+    'Computations like plotting, averaging, power spectrums can be performed on this object'
+
+    custom_raw = mne.io.RawArray(voltage_array, info)
+    del voltage_array
+    return custom_raw
+
+
+def taininumpy2mne(npy_file, montage_name, sample_rate):
+  ''' converts a .npy files containing 16 eeg electrodes data
+      into mne format. 
+      npy_data: location of the .npy file
+      montage_name: location of the montage file
+      sample_rate: sampling rate of the recording '''
+
+  voltage_array = np.load(npy_file) 
+
+  if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
   else:
-      print("the montage name is not valid")
-      
-  #14 eeg channels, 2 emg, and 3 that are not required for mne compatability 
-  channel_types=['eeg', 'emg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg',
-                    'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'emg', 'eeg']
+        print("The montage name is not valid")
+
+  
+  # 14 eeg channels, 2 emg 
+  channel_types=['eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg',
+                    'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'emg', 'emg']
   
   'This creates the info that goes with the channels, which is names, sampling rate and channel types.'
-  info = mne.create_info(montage.ch_names, sample_rate, ch_types=channel_types, montage=montage)
+  info = mne.create_info(montage.ch_names, sample_rate, ch_types=channel_types)
   
-  montage=mne.channels.read_montage(montage_name)
-  
-  custom_raw = mne.io.RawArray(final_data, info)
+  custom_raw = mne.io.RawArray(voltage_array, info)
   
   return custom_raw  
 

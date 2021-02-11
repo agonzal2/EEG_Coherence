@@ -1,7 +1,7 @@
-# Alfredo electrode file
+# Taini EEG 16 electrode file
 ReferenceLabel	avg
 UnitPosition	mm
-NumberPositions=	19
+NumberPositions=	16
 Positions
 5	2	0
 4	5	0
@@ -19,10 +19,6 @@ Positions
 0	0	0
 1	2	0
 0	0	0
-0	0	0
--88	-40	0
-88	-40	0
-0	80	0
 Labels
 S1Tr_RIGHT
 M2_FrA_RIGHT
@@ -40,6 +36,3 @@ M2_FrA_LEFT
 S1Tr_LEFT
 EMG_RIGHT
 EMG_LEFT
-LPA
-RPA
-Nz
