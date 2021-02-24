@@ -8,30 +8,30 @@ colors=dict(mag='darkblue', grad='b', eeg='k', eog='k', ecg='m', emg='g', ref_me
 
 class indiv_tests ():
   
-  def __init__(self, recording_path, recording_index):
-    a = 0
+  def __init__(self, recording_path, recording_index, sample_rate):
     self.recording_path = recording_path
     self.recording_index = recording_index
+    self.sample_rate = sample_rate
 
-  def load_recordings(self, montage_name, k_down = 1):
+  
+  def load_npy32openephys(self, montage_name, k_down = 1):
+    self.rawdata = npy32mne(self.recording_path, montage_name)
+    self.downsample(k_down)
 
-    rawdata = load_32_EEG(self.recording_path, montage_name, '100')
+
+  def load_npy16taini(self, montage_name, k_down = 1):
+    self.rawdata = taininumpy2mne(self.recording_path, montage_name, self.sample_rate/2)
+    self.downsample(k_down)
+  
+  
+  def downsample(self, k_down = 1):
+    
     if (k_down > 1): 
       print("Downsampling")
-      self.raw_data = rawdata.copy().resample(int(1000/k_down), npad='auto')
+      self.raw_data = self.rawdata.copy().resample(int(1000/k_down), npad='auto')
     else:
-      self.raw_data = rawdata
-    del rawdata
-    #raw_times = np.ndarray.tolist(raw_data._times)
-    #self.raw_data_downsampled = []
-    #self.raw_times_downsampled = []
-
-    #for i in np.arange(32):
-    #  self.raw_data_downsampled.append(decimate(raw_data[i,:], k_down))
-    #self.raw_times_downsampled = decimate(raw_times[i,:], k_down)
-
-    #del raw_data
-    #del raw_times
+      self.raw_data = self.rawdata
+    del self.rawdata
 
   
   def plotRawData(self, binsize, tmin, electrodes):
