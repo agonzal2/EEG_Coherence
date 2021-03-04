@@ -7,7 +7,7 @@ import glob
 
 from initial_processes import *
 
-npy_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/S7062Bas1_rem.npy'
+npy_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/TAINI CDKL5 Recordings/CDKL5_1960/CDKL51960.npy'
 montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
 
 prm.set_sampling_rate(250.41) # data downsampled by 8

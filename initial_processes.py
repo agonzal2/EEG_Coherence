@@ -437,7 +437,37 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
   return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
 
-def npy32mne(filename, montage_name):
+def load_16_EEG_taini_down(file_route, downsampling, amp_filter, first_sample, sample_rate):
+  n_channels = 16
+  
+  dat_chans, t=parse_dat(file_route, n_channels, sample_rate)   
+  data=np.array(dat_chans, dtype=int16)
+
+  # the emg electrodes are in position 1 & 14, put them at the end. 
+  # create extra emgchannels to follow mne montage requirement
+  (original_elect, n_samples) = data.shape
+  final_data = np.zeros((16, n_samples), dtype=int16)
+  final_data[0:14, :] = data[[0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15],:]
+  final_data[14:16, :] = data[[1,14],:]
+  
+  del(dat_chans)
+  del(data)
+
+  # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
+  # gets over a threshold amplitude    
+  for i in np.arange(14):
+    final_data = final_data[:, abs(final_data[i+1,:]) < amp_filter]
+  
+  # Doing the downsampling now, the decimate function filtering will smooth the edging we have
+  # produced in both the amplitude filtering and the split by brain state
+  
+  # It will return the filtered and decimated whole thing
+  raw_data_array = decimate(final_data, downsampling, axis = 1).astype(int16)
+  del final_data
+
+  return raw_data_array
+
+def npy32mne(filename, montage_name, sampling_rate):
     """
     Load numpy array file of 32 electrodes + 3 aux
     and converts it to mne format
@@ -459,7 +489,7 @@ def npy32mne(filename, montage_name):
                    ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg'
                    ,'eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg', 'emg', 'emg', 'emg']
 
-    info = mne.create_info(montage.ch_names, prm.get_sampling_rate(), ch_types=channel_types)
+    info = mne.create_info(montage.ch_names, sampling_rate, ch_types=channel_types)
 
     'This makes the object that contains all the data and info about the channels.'
     'Computations like plotting, averaging, power spectrums can be performed on this object'

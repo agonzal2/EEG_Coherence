@@ -1,4 +1,3 @@
-
 import os
 import glob
 import numpy as np
@@ -58,6 +57,7 @@ class MyForm(QMainWindow):
     self.ui.radioSelectNone.clicked.connect(self.selectNoElectrodes)
     self.ui.radioSelectLeftHem.clicked.connect(self.selectLeftHem)
     self.ui.radioSelectRightHem.clicked.connect(self.selectRightHem)
+    self.ui.ButtonApplyBandFilter.clicked.connect(self.apply_band_filter)
     
     self.ui.ButtonCloseFigures.clicked.connect(self.closeFigures)
     #self.ui.ButtonExportIndPDF.clicked.connect(self.print2pdf)
@@ -90,6 +90,8 @@ class MyForm(QMainWindow):
       rec_type = 'openeph'
     elif self.ui.tabWidget.currentIndex() == 1:
       rec_type = 'taini'
+    # sampling rate of the recordings
+    self.sampling_rate = self.ui.SpinBoxSamplingRate.value()
 
     print('loading recordings')
     for i in range(self.ui.listWidget_Indiv_recordings.count()):
@@ -99,14 +101,14 @@ class MyForm(QMainWindow):
       d = os.getcwd() + '/'
       matching_files = glob.glob(r'*npy')
       for j, matching_file in enumerate(matching_files):
-        new_recording = indiv_tests(root_dir + "/" + matching_file, i+j, 125)
+        new_recording = indiv_tests(root_dir + "/" + matching_file, i+j, self.sampling_rate)
 
         if rec_type == 'openeph':
           montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-          new_recording.load_npy32openephys(montage_name, self.ui.spinBoxDownsampling_2.value())
+          new_recording.load_npy32openephys(montage_name)
         elif rec_type == 'taini':
           montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
-          new_recording.load_npy16taini(montage_name, self.ui.spinBoxDownsampling_2.value())
+          new_recording.load_npy16taini(montage_name)
         
         ind_calc.append(new_recording)
         self.recordings.append(root_dir + "/" + matching_file)
@@ -117,8 +119,20 @@ class MyForm(QMainWindow):
   def changeRecording(self):
     self.currentRecording = self.ui.ScrollBarCurrentRecord.value()
     self.ui.labelCurrentRecording.setText(self.recordings[self.currentRecording])
-    self.ui.label_Tmax.setText("(" + str(ind_calc[self.currentRecording].raw_data.n_times//1000) + " s)")
-    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].raw_data.n_times//1000)
+    self.ui.label_Tmax.setText("(" + str(ind_calc[self.currentRecording].rawdata.n_times//1000) + " s)")
+    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].rawdata.n_times//1000)
+  
+  def apply_band_filter(self):
+    if self.ui.radioUseGPUfiltering.isChecked():
+      n_jobs = 'cuda'
+    else:
+      n_jobs = self.ui.BoxFilterCores.value()
+    
+    self.checkElectrodes()
+    # calls the class method to filter
+    ind_calc[self.currentRecording].bandpass(self.ui.BoxLowFreq.value(), self.ui.BoxHighFreq.value(), 
+                                self.electrodes, n_jobs)
+    
 
   def plotRawData(self):
     self.checkElectrodes()

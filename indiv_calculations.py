@@ -14,18 +14,19 @@ class indiv_tests ():
     self.sample_rate = sample_rate
 
   
-  def load_npy32openephys(self, montage_name, k_down = 1):
-    self.rawdata = npy32mne(self.recording_path, montage_name)
-    self.downsample(k_down)
+  def load_npy32openephys(self, montage_name):
+    self.rawdata = npy32mne(self.recording_path, montage_name, self.sample_rate)    
 
 
-  def load_npy16taini(self, montage_name, k_down = 1):
-    self.rawdata = taininumpy2mne(self.recording_path, montage_name, self.sample_rate/2)
-    self.downsample(k_down)
+  def load_npy16taini(self, montage_name):
+    self.rawdata = taininumpy2mne(self.recording_path, montage_name, self.sample_rate)    
+
   
+  def apply_ica(self):
+    # https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA
+    a = 0
   
-  def downsample(self, k_down = 1):
-    
+  def downsample(self, k_down = 1):    
     if (k_down > 1): 
       print("Downsampling")
       self.raw_data = self.rawdata.copy().resample(int(1000/k_down), npad='auto')
@@ -33,6 +34,11 @@ class indiv_tests ():
       self.raw_data = self.rawdata
     del self.rawdata
 
+
+  def bandpass(self, lf, hf, electrodes, njobs):
+    filtered_data = self.rawdata.filter(lf, hf, electrodes, n_jobs = njobs)
+    filtered_data.plot(scalings = "auto", order=electrodes, show_options = "true")
+    mne.viz.plot_raw_psd(filtered_data, fmin=0, fmax=100, picks=electrodes)
   
   def plotRawData(self, binsize, tmin, electrodes):
     if len(electrodes) < 8: 
@@ -40,11 +46,11 @@ class indiv_tests ():
     else:
       plotnumber = 8
 
-    self.raw_data.plot(None, binsize, tmin, plotnumber, color = colors, scalings = "auto", order=electrodes, show_options = "true" )
+    self.rawdata.plot(None, binsize, tmin, plotnumber, color = colors, scalings = "auto", order=electrodes, show_options = "true" )
 
   def plotPS(self, tmin=0, tmax=60, electrodes=[0,1,2]):
     ## https://mne.tools/stable/generated/mne.viz.plot_raw_psd.html
-    mne.viz.plot_raw_psd(self.raw_data, fmin=0, fmax=100, tmin=tmin, tmax=tmax, picks=electrodes)
+    mne.viz.plot_raw_psd(self.rawdata, fmin=0, fmax=100, tmin=tmin, tmax=tmax, picks=electrodes)
 
   def temporal_signal(self):
     a = 1
