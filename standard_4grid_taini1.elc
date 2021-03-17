@@ -1,0 +1,14 @@
+# Taini EEG 4 electrode file for testing
+ReferenceLabel	avg
+UnitPosition	mm
+NumberPositions=	4
+Positions
+4	4	0
+2	4	0
+1	2	0
+0	0	0
+Labels
+M2_ant_RIGHT
+M2_ant_LEFT
+EMG_RIGHT
+EMG_LEFT

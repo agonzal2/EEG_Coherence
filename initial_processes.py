@@ -292,7 +292,7 @@ def load_32_EEG_downsampled_bystate(foldername, montage_name, source_number, bra
 
     # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
     # gets over a threshold amplitude    
-    for i in np.arange(33):
+    for i in np.arange(32):
       state_voltage_array = state_voltage_array[:, abs(state_voltage_array[i+1,:]) < amp_filter]
     
     # split the recording into the different brain states
@@ -321,6 +321,103 @@ def load_32_EEG_downsampled_bystate(foldername, montage_name, source_number, bra
     
     return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
+def load_32_EEG_downsampled_sleep(foldername, montage_name, source_number, brain_states, downsampling, amp_filter = 750):
+    """
+    Load open ephys 32 electrode sleep data to a numpy array
+    after downsampling it. 
+    then it creates numpy arrays for the brain states
+
+    foldername: folder where the recordings are
+    montage_name: name of the montage that contains the electrode coordinates
+    source number: prefix of the electrode recordings files
+    downsampling: integer with the number the sampling is going to be reduced by
+    amp_filter: threshold amplitude to eliminate a sample
+    
+    """
+
+    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
+    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+
+    data = np.vstack([np.transpose(data), np.transpose(data_aux)])
+
+    # Add the brain states without downsampling them (but yes repeating)
+    # As the bins are for every 5 seconds, we need to create an array repeating those states per each ms*downsampling
+    brain_states_ms = np.repeat(brain_states, 5000)
+    
+    # 36 rows array array. First brain states row, then 32 eeg, then 3 emg electrodes
+    state_voltage_array = np.vstack([brain_states_ms, data[:, 0:np.size(brain_states_ms)]])
+
+    # split the recording into the different brain states
+    volt_NoREM = state_voltage_array[1:, state_voltage_array[0,:] == 1]
+    volt_REM = state_voltage_array[1:, state_voltage_array[0,:] == 2]    
+
+    # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
+    # gets over a threshold amplitude    
+    for i in np.arange(32):
+      volt_NoREM = volt_NoREM[:, abs(volt_NoREM[i,:]) < amp_filter]
+      volt_REM = volt_REM[:, abs(volt_REM[i,:]) < amp_filter]
+    
+    # And the decimated/downsampled (and filtered) arrays for every brain state
+    volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
+    volt_REM = decimate(volt_REM, downsampling, axis = 1)
+    
+    # deleted big arrays of unused data
+    del data
+    del data_aux
+    del brain_states_ms
+    del state_voltage_array   
+    
+    return volt_NoREM, volt_REM
+
+
+def load_32_EEG_downsampled_wake_conv(foldername, montage_name, source_number, brain_states, downsampling, amp_filter = 750):
+    """
+    Load open only wake and convulsion data 
+    from ephys 32 electrode data to a numpy array
+    after downsampling it. 
+    then it creates numpy arrays for the brain states
+
+    foldername: folder where the recordings are
+    montage_name: name of the montage that contains the electrode coordinates
+    source number: prefix of the electrode recordings files
+    downsampling: integer with the number the sampling is going to be reduced by
+    amp_filter: threshold amplitude to eliminate a sample
+    
+    """
+
+    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
+    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+
+    data = np.vstack([np.transpose(data), np.transpose(data_aux)])
+
+    # Add the brain states without downsampling them (but yes repeating)
+    # As the bins are for every 5 seconds, we need to create an array repeating those states per each ms*downsampling
+    brain_states_ms = np.repeat(brain_states, 5000)
+    
+    # 36 rows array array. First brain states row, then 32 eeg, then 3 emg electrodes
+    state_voltage_array = np.vstack([brain_states_ms, data[:, 0:np.size(brain_states_ms)]])
+
+    # split the recording into the different brain states
+    volt_middle = state_voltage_array[:, state_voltage_array[0,:] != 1] # :1 because we do not want the brain_states raw anymore
+    state_voltage_array = volt_middle[:, volt_middle[0,:] != 2]
+    
+    # Amplitude filter. Delete samples in the same sample of every electrode if one sample in one electrode
+    # gets over a threshold amplitude    
+    for i in np.arange(32):
+      state_voltage_array = state_voltage_array[:, abs(state_voltage_array[i+1,:]) < amp_filter]
+
+    # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
+    raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1)
+
+    # deleted big arrays of unused data
+    del data
+    del data_aux
+    del brain_states_ms
+    del state_voltage_array   
+    
+    return raw_data_array
 
 'The function below loads individual 32 channel probe recordings'
 def load_32_EEG(foldername, montage_name, source_number):
@@ -525,7 +622,45 @@ def taininumpy2mne(npy_file, montage_name, sample_rate):
   
   return custom_raw  
 
+def taininumpy2mnechannels(npy_file, montage_name, sample_rate, channels_list):
+  ''' converts a .npy files containing 16 eeg electrodes data
+      into mne format. 
+      npy_data: location of the .npy file
+      montage_name: location of the montage file
+      sample_rate: sampling rate of the recording 
+      channels_list: list with the number positions of the channels we want '''
+
+  voltage_array = np.load(npy_file) 
+
+  # New voltage array with just the number of channels we want
+  array_size = np.shape(voltage_array)
+  shorter_array = np.zeros((len(channels_list), array_size[1]))
+
+  # 14 eeg channels, 2 emg to start with
+  channel_types=['eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg',
+                    'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'eeg', 'emg', 'emg']
+
+  shorter_channel_types = []
+  # Filling the shorter voltage array and the shorter channel list
+  for i, channel in enumerate(channels_list):
+    shorter_array[i] = voltage_array[channel]
+    shorter_channel_types.append(channel_types[channel])
+
+  # the montage will need to have only the channels passed in channel_list
+  if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
+  else:
+        print("The montage name is not valid")
+
   
+  'This creates the info that goes with the channels, which is names, sampling rate and channel types.'
+  info = mne.create_info(montage.ch_names, sample_rate, ch_types=shorter_channel_types)
+  
+  custom_raw = mne.io.RawArray(shorter_array, info)
+  
+  return custom_raw  
+
+
 def electrode_combinations(montage_name, neighbors_dist, long_distance, n_elect = 32):
   montage = mne.channels.read_montage(montage_name)
   electrode_names = montage.ch_names[0:n_elect]
