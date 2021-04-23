@@ -522,14 +522,17 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
   # produced in both the amplitude filtering and the split by brain state
   
   # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
-  raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1)
+  raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1).astype(int16)
   del state_voltage_array
 
   # And the decimated/downsampled (and filtered) arrays for every brain state
-  volt_wake = decimate(volt_wake, downsampling, axis = 1)
-  volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
-  volt_REM = decimate(volt_REM, downsampling, axis = 1)
-  volt_convuls = decimate(volt_convuls, downsampling, axis = 1)
+  volt_wake = decimate(volt_wake, downsampling, axis = 1).astype(int16)
+  volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1).astype(int16)
+  volt_REM = decimate(volt_REM, downsampling, axis = 1).astype(int16)
+  if volt_convuls.size > 27:
+    volt_convuls = decimate(volt_convuls, downsampling, axis = 1).astype(int16)
+  else: 
+    print(' Not enough convulsion time for downsampling')
 
   return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
@@ -661,10 +664,16 @@ def taininumpy2mnechannels(npy_file, montage_name, sample_rate, channels_list):
   return custom_raw  
 
 
-def electrode_combinations(montage_name, neighbors_dist, long_distance, n_elect = 32):
-  montage = mne.channels.read_montage(montage_name)
+def electrode_combinations(montage_name, neighbors_dist, long_distance, recording, n_elect = 32):
+  montage = mne.channels.read_custom_montage(montage_name)
   electrode_names = montage.ch_names[0:n_elect]
-  electrode_pos = 1000*montage.pos[0:n_elect,0:2] # in mm
+  
+  electrode_pos = np.zeros((n_elect,2))
+  for i in np.arange(n_elect):
+    if recording == 'taini':
+        electrode_pos[i] = montage.dig[i].get('r')[0:2].round(3)*50 # in mm
+    else:
+        electrode_pos[i] = montage.dig[i+3].get('r')[0:2].round(3)*50 # in mm
 
   distances_btw_electrodes = spatial.distance.pdist(electrode_pos, 'euclidean')
 
