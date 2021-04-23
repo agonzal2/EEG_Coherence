@@ -74,10 +74,9 @@ class session_coherence():
   def __init__(self, raw_times, raw_voltages, downsampling,
                 montage_name, n_electrodes, sampling_rate, brain_state):
     self.raw_times = raw_times
-    self.k_down = downsampling
     self.montage_name = montage_name
     self.n_electrodes = n_electrodes
-    self.downsampling_rate = sampling_rate/downsampling
+    self.final_srate = sampling_rate/downsampling
     self.downfreq_ratio = sampling_rate*2/downsampling
     self.f_ratio = 2 # 2 samples per Hz
     self.down_voltages = []
@@ -100,7 +99,7 @@ class session_coherence():
     
     ### PARALLEL ###
     start_time = time.time()
-    coh_short = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, ch_type)
+    coh_short = parallel_coh(self.volt_state, self.final_srate, self.downfreq_ratio, b, a, ch_type)
     pool = mp.Pool(s_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_short_parallel = pool.starmap(coh_short.calculate, comb_short_distance, chunksize=s_chunk)
@@ -117,7 +116,7 @@ class session_coherence():
 
     ### PARALLEL ###
     start_time = time.time()
-    coh_long = parallel_coh(self.volt_state, self.downsampling_rate, self.downfreq_ratio, b, a, ch_type)
+    coh_long = parallel_coh(self.volt_state, self.final_srate, self.downfreq_ratio, b, a, ch_type)
     pool = mp.Pool(l_processes)
     # starmap only returns one value, even if the function returns more than one
     coherence_long_parallel = pool.starmap(coh_long.calculate, comb_long_distance, chunksize=l_chunk)
@@ -170,11 +169,11 @@ class session_coherence():
       self.long_1rec_m.append(np.tanh(long_m_z))
 
   def set_top_freq(self):
-    if self.downsampling_rate == 1000:
+    if self.final_srate == 1000:
       top_freq = 400
-    elif self.downsampling_rate == 500:
+    elif self.final_srate == 500:
       top_freq = 200
-    elif self.downsampling_rate == 250:
+    elif self.final_srate == 250:
       top_freq = 100
     else:
       top_freq = 50
@@ -183,5 +182,5 @@ class session_coherence():
 
 
   def parallel_coh(self, first_elect, sec_elect):
-    f_loop, Cxy_loop = coherence(self.volt_state[:, first_elect + 2], self.volt_state[:, sec_elect + 2], self.downsampling_rate, nperseg=self.downfreq_ratio)
+    f_loop, Cxy_loop = coherence(self.volt_state[:, first_elect + 2], self.volt_state[:, sec_elect + 2], self.final_srate, nperseg=self.downfreq_ratio)
     return f_loop, Cxy_loop

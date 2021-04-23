@@ -95,7 +95,7 @@ class MyForm(QMainWindow):
 
   def runAll(self):
     os.chdir(str(self.ui.labelFileSelected.text()))
-    d = os.getcwd() + "\\"
+    d = os.getcwd() + "/" # "\\" for Windows
     matching_files = glob.glob(r'*xlsx')
     l_xlsx_files = []
     self.workbook = xlsxwriter.Workbook('permutation_stats.xlsx')

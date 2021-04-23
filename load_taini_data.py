@@ -7,20 +7,25 @@ import glob
 
 from initial_processes import *
 
-folder = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/TAINI CDKL5 Recordings/CDKL5_1960/' # '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/'
-npy_prefix = 'CDKL51960'
-dat_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/TAINI CDKL5 Recordings/CDKL5_1960/TAINI_1047_B_CDKL5_1960_Redo-2020_12_10-0000.dat'
+# Variables that change every recording!!!
+filename = 'TAINI_1036_S7087_Baseline1-2020_08_21-0000.dat' 
+animal_id = 'S7087' 
+baseline = 2  
+first_sample = 39723457
 
+# Variables that can change but not that often
+folder = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/TAINI_Syngap-Acute_ETX_Recordings/' # '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/'
+downsampling = 2
 montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
-#brain_states_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/S7062_BL1_States.xls'
-brain_states_file = ''
-first_sample = 1
 n_electrodes = 16
 amp_filter = 4000 # in Taini values that are 32.755 are lost samples
-
 prm.set_sampling_rate(250.41)
 sr=prm.get_sampling_rate()
-downsampling = 2
+
+npy_prefix = 'npy/' + animal_id + '_Baseline' + str(baseline) + '_' + 'Downs' + str(downsampling)
+dat_file = folder + animal_id + '/' + filename
+brain_states_file = folder + animal_id + '_BL' + str(baseline) + '_States-real_samp.xls'
+
 
 if brain_states_file == '' :
   v_all = load_16_EEG_taini_down(dat_file, downsampling, amp_filter, first_sample, sr)

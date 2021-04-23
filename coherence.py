@@ -41,7 +41,7 @@ montage_name = 'standard_32grid_Alfredo'
 #montage_name = 'standard_16grid_taini1'
 #montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
 
-sampling_rate = 1000
+#sampling_rate = 1000
 source_name = '100' # how do the name of the recording files begin
 
 class MyForm(QMainWindow):
@@ -240,6 +240,10 @@ class MyForm(QMainWindow):
 
   def runAll(self):
 
+    my_coherence.srate = self.ui.spinBoxSamplingRate.value()
+    my_coherence.downsamp = self.ui.spinBoxDownsampling.value()
+    my_coherence.final_srate = my_coherence.srate/my_coherence.downsamp
+
     # Goes through all the excel files with the brain states
     # If an animal has more than one recording, it store them together
     # Then it goes through all the folders for those rats with excel files
@@ -287,34 +291,29 @@ class MyForm(QMainWindow):
       my_coherence.recording_type = 'openephys'
       my_coherence.n_electrodes = 32
     elif self.ui.radioButtonTaini.isChecked():
-      my_coherence.montage_name = 'standard_16grid_taini1'
+      my_coherence.montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
       my_coherence.recording_type = 'taini'
       my_coherence.n_electrodes = 14
 
     # First it is called the downsampling
-    my_coherence.loadnpydatatomne(self.ui.spinBoxDownsampling.value(), self.ui.spinBoxSamplingRate.value(),
-                                  self.ui.spinFilterAmplitude.value())
+    my_coherence.loadnpydatatomne()
 
     #Once it finished the load of data, allow to repeat analysis without loading it again.
     self.ui.ButtonRunNewBS.setEnabled(True)
     self.ui.ButtonRunNewFreqs.setEnabled(True)
-    self.ui.ButtonRunAll.setDisabled(True)
+    #self.ui.ButtonRunAll.setDisabled(True)
+    self.set_brain_state()
     # Esploratory analysis
     if self.ui.checkBoxExploratoryAnalysis.isChecked():
-      for coh_type in ("abs", "imag"):
-        my_coherence.coh_type = coh_type
-        for longD in np.arange(2, 5.5, 1):
-          self.ui.SpinBoxLongDist.setValue(longD)
-          for brain_state in ((1,"NonREM"), (2, "REM")):
-            self.brain_state = brain_state[0]
-            self.brain_state_name = brain_state[1]
-            self.runNewBrainState()
-            file_name = coh_type + '_Dist' + str(longD) + '_' + brain_state[1]
-            self.print2pdf(file_name)
-            self.closeFigures()
+      my_coherence.coh_type = 'imag'
+      for longD in np.arange(2, 5.5, 1):
+        self.ui.SpinBoxLongDist.setValue(longD)
+        self.runNewBrainState()
+        file_name = my_coherence.coh_type + '_Dist' + str(longD) + '_' + self.brain_state_name
+        self.print2pdf(file_name)
+        self.closeFigures()
     # Individual analysis
-    else:
-      self.set_brain_state()
+    else:      
       if self.ui.rbcohabs.isChecked():
         my_coherence.coh_type = 'abs'
       else:
@@ -346,7 +345,7 @@ class MyForm(QMainWindow):
     frequency_list = self.get_frequency_bands()
 
     my_coherence.calc_z_coh(frequency_list, self.brain_state_name, self.brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
-                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value(), self.ui.spinFilterAmplitude.value())
+                            self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value())
 
     self.freq_list_results = my_coherence.return_freq_results()
     self.write_table_results()
@@ -437,6 +436,9 @@ class coherence_eeg ():
   n_electrodes = 32
   n_aux_elec = 3
   recording_type = ''
+  srate = 1000
+  downsamp = 1
+  final_srate = 1000
 
 
   def __init__(self, brain_state = 0, montage_name = 'standard_32grid_Alfredo'):
@@ -444,7 +446,7 @@ class coherence_eeg ():
     self.montage_name = montage_name
 
   
-  def get_join_data_KO(self, i, animal, downsampling, amp_filter):
+  def get_join_data_KO(self, i, animal):
 
     print(f"loading recordings for the KO animal: {self.l_prefixes_KO[i]}")
     l_raw_data = []
@@ -456,7 +458,7 @@ class coherence_eeg ():
       if self.recording_type == 'openephys':
         raw_list = npy32mne(npy_file, self.montage_name)
       elif self.recording_type == 'taini':
-        raw_list = load_16_EEG_taini(folder_KO, self.montage_name)
+        raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
 
       l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
       # and now the data, electrode by electrode
@@ -468,8 +470,8 @@ class coherence_eeg ():
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
-    Cxy = session_coherence(join_raw_times, join_raw_data, downsampling,
-                              self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
+    Cxy = session_coherence(join_raw_times, join_raw_data, self.downsamp,
+                              self.montage_name, self.n_electrodes, self.srate, self.brain_state)
     
     self.all_KO_coh_data.append(Cxy) # Appending the class instance for every KO session
     del raw_list # saving memory
@@ -478,7 +480,7 @@ class coherence_eeg ():
     del join_raw_times
 
 
-  def get_join_data_WT(self, i, animal, downsampling, amp_filter):
+  def get_join_data_WT(self, i, animal):
     print(f"loading recordings for the WT animal: {self.l_prefixes_WT[i]}")
     l_raw_data = []
     l_raw_times = []
@@ -489,7 +491,7 @@ class coherence_eeg ():
       if self.recording_type == 'openephys':
         raw_list = npy32mne(npy_file, self.montage_name)
       elif self.recording_type == 'taini':
-        raw_list = load_16_EEG_taini(folder_WT, self.montage_name)
+        raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
       
       l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
       # and now the data, electrode by electrode
@@ -501,8 +503,8 @@ class coherence_eeg ():
       l_raw_data.append(l_electrode_data[elect])
     join_raw_times = np.asarray(l_raw_times)
     join_raw_data = np.asarray(l_raw_data)
-    Cxy = session_coherence(join_raw_times, join_raw_data, downsampling,
-                              self.montage_name, self.n_electrodes, sampling_rate, self.brain_state)
+    Cxy = session_coherence(join_raw_times, join_raw_data, self.downsamp,
+                              self.montage_name, self.n_electrodes, self.srate, self.brain_state)
     
     self.all_WT_coh_data.append(Cxy) # Appending the class instance for every WT session
     del raw_list # saving memory
@@ -511,19 +513,19 @@ class coherence_eeg ():
     del join_raw_times
 
 
-  # loads and downsamples the brain states and the data
-  def loadnpydatatomne(self, downsampling, sampling_rate, amp_filter):
+  # loads the npy data that should be downsampled and split by brain state already
+  def loadnpydatatomne(self):
     
     # Creating instances to analyse all the recordings per animal
     start_timeKO = time.time()
     for i, animal in enumerate(self.l_npy_files_KO):
-      self.get_join_data_KO(i, animal, downsampling, amp_filter)
+      self.get_join_data_KO(i, animal)
 
     print(f'KO sessions loaded and converted to mne format {(time.time() - start_timeKO)} seconds ---')
 
     start_timeWT = time.time()
     for i, animal in enumerate(self.l_npy_files_WT):
-      self.get_join_data_WT(i, animal, downsampling, amp_filter)
+      self.get_join_data_WT(i, animal)
 
     print(f'WT sessions loaded and converted to mne format {(time.time() - start_timeWT)} seconds ---')
     print(f'Total loading time: {(time.time() - start_timeKO)} seconds ---')
@@ -532,16 +534,15 @@ class coherence_eeg ():
   # So the notch filter, the distance range or the brain state can be modified without loading
   # again all the data
   def calc_notch(self, Q, downsampling):
-    fs = sampling_rate/downsampling
-    self.b, self.a = iirnotch(50.0, Q, fs)
+    self.b, self.a = iirnotch(50.0, Q, self.final_srate)
 
   # calculating the different combinations between electrodes, short and long distance
   def calc_combinations(self, neighbors_dist, long_distance):
     self.long_distance = long_distance
-    self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance, self.n_electrodes)
+    self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance, self.recording_type, self.n_electrodes)
 
   # It gives the chance to change the brain state every time it is called.
-  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12, max_amp = 300):
+  def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12):
     self.brain_state = brain_state
     self.brain_state_name = brain_state_name
     self.freq_list = f_l
@@ -814,7 +815,7 @@ class coherence_eeg ():
   def plot_power_spectrums(self):
     ax = self.indiv_fig()
     for Cxy in self.all_WT_coh_data:
-      ax.psd(Cxy.volt_state[:,0], 256, Cxy.downsampling_rate)
+      ax.psd(Cxy.volt_state[:,0], 256, Cxy.final_srate)
 
     plt.title('PSD %s WT' %self.brain_state_name, fontsize=18)
     ax.set_xlim([0,Cxy.set_top_freq()])
@@ -823,7 +824,7 @@ class coherence_eeg ():
 
     bx = self.indiv_fig()
     for Cxy in self.all_KO_coh_data:
-      bx.psd(Cxy.volt_state[:,0], 256, Cxy.downsampling_rate)
+      bx.psd(Cxy.volt_state[:,0], 256, Cxy.final_srate)
 
     plt.title('PSD %s KO' %self.brain_state_name, fontsize=18)
     bx.set_xlim([0,Cxy.set_top_freq()])
