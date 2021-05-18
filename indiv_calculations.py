@@ -46,11 +46,19 @@ class indiv_tests ():
     else:
       plotnumber = 8
 
-    self.rawdata.plot(None, binsize, tmin, plotnumber, color = colors, scalings = "auto", order=electrodes, show_options = "true" )
+    fig = self.rawdata.plot(None, binsize, tmin, plotnumber, color = colors, scalings = "auto", order=electrodes, show_options = "true" )
+    fig(num=1, figsize=(8, 6))
 
   def plotPS(self, tmin=0, tmax=60, electrodes=[0,1,2]):
     ## https://mne.tools/stable/generated/mne.viz.plot_raw_psd.html
-    mne.viz.plot_raw_psd(self.rawdata, fmin=0, fmax=100, tmin=tmin, tmax=tmax, picks=electrodes)
+    freq = (self.sample_rate // 50)*25  # plots different frequency axis depending on the sampling rate.
+    # Makes sure that the n_fft is a power of 2 and equal or smaller than the number of samples
+    # https://stackoverflow.com/questions/29439888/what-is-nfft-used-in-fft-function-in-matlab/29440071
+    total_samples = (tmax - tmin) * self.sample_rate
+    size_fft = power_of_two(total_samples)
+    if size_fft > 2048:
+      size_fft = 2048
+    mne.viz.plot_raw_psd(self.rawdata, fmin=0, fmax = freq, tmin=tmin, tmax=tmax, n_fft = size_fft, picks=electrodes)
 
   def temporal_signal(self):
     a = 1

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>window_record_viewer</class>
- <widget class="QMainWindow" name="window_record_viewer">
+ <class>window_brain_states_maker</class>
+ <widget class="QMainWindow" name="window_brain_states_maker">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -799,6 +799,9 @@
       <property name="text">
        <string/>
       </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
       <property name="autoExclusive">
        <bool>false</bool>
       </property>
@@ -997,8 +1000,8 @@
    <widget class="QScrollBar" name="ScrollBarCurrentRecord">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>84</y>
+      <x>10</x>
+      <y>85</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -1010,9 +1013,9 @@
    <widget class="QLabel" name="labelCurrentRecording">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>100</x>
       <y>90</y>
-      <width>751</width>
+      <width>761</width>
       <height>31</height>
      </rect>
     </property>
@@ -1029,30 +1032,17 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
     <property name="maximum">
      <number>600000</number>
     </property>
     <property name="singleStep">
-     <number>30</number>
+     <number>1</number>
     </property>
     <property name="value">
-     <number>30</number>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonCoherogram">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>221</x>
-      <y>240</y>
-      <width>91</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Wavelet</string>
+     <number>5</number>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -1065,152 +1055,23 @@
      </rect>
     </property>
     <property name="text">
-     <string>Bin to plot (secs)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>98</x>
-      <y>184</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Tmin</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_22">
-    <property name="geometry">
-     <rect>
-      <x>98</x>
-      <y>216</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Tmax</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_25">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>250</y>
-      <width>211</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>If a single channel is selected</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonPlotRawData">
-    <property name="geometry">
-     <rect>
-      <x>213</x>
-      <y>140</y>
-      <width>101</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Plot RawData</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonPlotPS">
-    <property name="geometry">
-     <rect>
-      <x>212</x>
-      <y>190</y>
-      <width>101</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Plot PS</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>140</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Export Figures&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonExportIndPNG">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>170</y>
-      <width>40</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(0, 255, 0);</string>
-    </property>
-    <property name="text">
-     <string>PNG</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonExportIndPDF">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>170</y>
-      <width>40</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(0, 255, 0);</string>
-    </property>
-    <property name="text">
-     <string>PDF</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="ButtonCloseFigures">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>210</y>
-      <width>100</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 0, 0);</string>
-    </property>
-    <property name="text">
-     <string>Close Figures</string>
+     <string>Bin size to plot (secs)</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_Tmax">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>119</y>
+      <x>290</x>
+      <y>170</y>
       <width>71</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QRadioButton" name="radioSelectLeftHem">
@@ -1297,112 +1158,6 @@
      <enum>QFrame::Raised</enum>
     </property>
    </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>312</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Band Filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="BoxHighFreq">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>380</y>
-      <width>71</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>1024</number>
-    </property>
-    <property name="singleStep">
-     <number>30</number>
-    </property>
-    <property name="value">
-     <number>1024</number>
-    </property>
-   </widget>
-   <widget class="QSpinBox" name="BoxLowFreq">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>350</y>
-      <width>71</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>1024</number>
-    </property>
-    <property name="singleStep">
-     <number>60</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>350</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>low f</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>380</y>
-      <width>151</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>high f</string>
-    </property>
-   </widget>
-   <widget class="QFrame" name="frame_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>340</y>
-      <width>141</width>
-      <height>110</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <widget class="QPushButton" name="ButtonApplyBandFilter">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>70</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Apply filter</string>
-     </property>
-    </widget>
-   </widget>
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
@@ -1435,311 +1190,13 @@
      <double>125.204999999999998</double>
     </property>
    </widget>
-   <widget class="QRadioButton" name="e_32">
+   <widget class="QDoubleSpinBox" name="Box_currentTime">
     <property name="geometry">
      <rect>
-      <x>448</x>
-      <y>435</y>
-      <width>16</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="e_export_amplitude">
-    <property name="geometry">
-     <rect>
-      <x>448</x>
-      <y>384</y>
-      <width>16</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="e_export_bandpass">
-    <property name="geometry">
-     <rect>
-      <x>448</x>
-      <y>409</y>
-      <width>16</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="autoExclusive">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QFrame" name="frame_4">
-    <property name="geometry">
-     <rect>
-      <x>431</x>
-      <y>337</y>
-      <width>171</width>
-      <height>171</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <widget class="QLabel" name="label_20">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>61</x>
-       <y>12</y>
-       <width>111</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Downsampling</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="spinBoxDownsampl">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>11</x>
-       <y>12</y>
-       <width>41</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <number>128</number>
-     </property>
-     <property name="value">
-      <number>1</number>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_21">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>43</x>
-       <y>43</y>
-       <width>111</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Amplitude filter</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_23">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>43</x>
-       <y>68</y>
-       <width>111</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Band Pass filter</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="ButtonExportFile">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>130</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Export file</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label_13">
-    <property name="geometry">
-     <rect>
-      <x>167</x>
-      <y>312</y>
-      <width>131</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Amplitude Filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QFrame" name="frame_6">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>340</y>
-      <width>141</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <widget class="QPushButton" name="ButtonApplyBandFilter_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>39</y>
-       <width>101</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Apply filter</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_15">
-     <property name="geometry">
-      <rect>
-       <x>89</x>
-       <y>10</y>
-       <width>61</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>thresh</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="BoxLowFreq_2">
-     <property name="geometry">
-      <rect>
-       <x>9</x>
-       <y>10</y>
-       <width>71</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="maximum">
-      <number>1024</number>
-     </property>
-     <property name="singleStep">
-      <number>60</number>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QSpinBox" name="BoxFilterCores">
-    <property name="geometry">
-     <rect>
-      <x>463</x>
-      <y>168</y>
-      <width>40</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>48</number>
-    </property>
-    <property name="singleStep">
-     <number>60</number>
-    </property>
-    <property name="value">
-     <number>1</number>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_11">
-    <property name="geometry">
-     <rect>
-      <x>513</x>
-      <y>169</y>
-      <width>50</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>cores</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioUseGPUfiltering">
-    <property name="geometry">
-     <rect>
-      <x>461</x>
-      <y>200</y>
-      <width>82</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>use GPU</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_14">
-    <property name="geometry">
-     <rect>
-      <x>454</x>
-      <y>140</y>
-      <width>110</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Parallelization&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_16">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>311</y>
-      <width>111</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Export file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="BoxTmin">
-    <property name="geometry">
-     <rect>
-      <x>11</x>
-      <y>180</y>
+      <x>370</x>
+      <y>190</y>
       <width>81</width>
-      <height>24</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="decimals">
@@ -1748,28 +1205,196 @@
     <property name="maximum">
      <double>1000000.000000000000000</double>
     </property>
+    <property name="singleStep">
+     <double>5.000000000000000</double>
+    </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="BoxTmax">
+   <widget class="QScrollBar" name="ScrollBar_binchange">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>210</y>
-      <width>81</width>
-      <height>24</height>
+      <y>189</y>
+      <width>351</width>
+      <height>31</height>
      </rect>
     </property>
-    <property name="decimals">
-     <number>1</number>
-    </property>
     <property name="maximum">
-     <double>1000000.000000000000000</double>
+     <number>1000000</number>
     </property>
-    <property name="value">
-     <double>1.000000000000000</double>
+    <property name="singleStep">
+     <number>5</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <zorder>frame_4</zorder>
-   <zorder>frame_2</zorder>
+   <widget class="QLCDNumber" name="lcd_brain_state">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>350</y>
+      <width>51</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>1</number>
+    </property>
+    <property name="intValue" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>263</x>
+      <y>322</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>211</x>
+      <y>301</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Brain States</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_Wake">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Wake (0)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_NoREM">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>290</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>No REM (1)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_REM">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>340</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>REM (2)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_Seizure">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>440</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Seizure (4)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_other">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>390</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Other (3)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Button_ExportExcel">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>350</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Export Excel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>189</x>
+      <y>320</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Previous</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcd_brain_state_previous">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>350</y>
+      <width>51</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>1</number>
+    </property>
+    <property name="intValue" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
    <zorder>frame</zorder>
    <zorder>tabWidget</zorder>
    <zorder>frame_Experimental_2</zorder>
@@ -1777,42 +1402,28 @@
    <zorder>ScrollBarCurrentRecord</zorder>
    <zorder>labelCurrentRecording</zorder>
    <zorder>BoxBinSize</zorder>
-   <zorder>ButtonCoherogram</zorder>
    <zorder>label_5</zorder>
-   <zorder>label_8</zorder>
-   <zorder>label_22</zorder>
-   <zorder>label_25</zorder>
-   <zorder>ButtonPlotRawData</zorder>
-   <zorder>ButtonPlotPS</zorder>
-   <zorder>label_4</zorder>
-   <zorder>ButtonExportIndPNG</zorder>
-   <zorder>ButtonExportIndPDF</zorder>
-   <zorder>ButtonCloseFigures</zorder>
    <zorder>label_Tmax</zorder>
    <zorder>radioSelectLeftHem</zorder>
    <zorder>label_7</zorder>
    <zorder>radioSelectNone</zorder>
    <zorder>radioSelectAll</zorder>
    <zorder>radioSelectRightHem</zorder>
-   <zorder>label_6</zorder>
-   <zorder>BoxHighFreq</zorder>
-   <zorder>BoxLowFreq</zorder>
-   <zorder>label_9</zorder>
-   <zorder>label_10</zorder>
    <zorder>label_12</zorder>
    <zorder>SpinBoxSamplingRate</zorder>
-   <zorder>e_32</zorder>
-   <zorder>e_export_amplitude</zorder>
-   <zorder>e_export_bandpass</zorder>
-   <zorder>label_13</zorder>
-   <zorder>frame_6</zorder>
-   <zorder>BoxFilterCores</zorder>
-   <zorder>label_11</zorder>
-   <zorder>radioUseGPUfiltering</zorder>
-   <zorder>label_14</zorder>
-   <zorder>label_16</zorder>
-   <zorder>BoxTmin</zorder>
-   <zorder>BoxTmax</zorder>
+   <zorder>Box_currentTime</zorder>
+   <zorder>ScrollBar_binchange</zorder>
+   <zorder>lcd_brain_state</zorder>
+   <zorder>label</zorder>
+   <zorder>label_2</zorder>
+   <zorder>Button_Wake</zorder>
+   <zorder>Button_NoREM</zorder>
+   <zorder>Button_REM</zorder>
+   <zorder>Button_Seizure</zorder>
+   <zorder>Button_other</zorder>
+   <zorder>Button_ExportExcel</zorder>
+   <zorder>label_3</zorder>
+   <zorder>lcd_brain_state_previous</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

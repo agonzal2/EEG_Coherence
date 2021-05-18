@@ -941,5 +941,15 @@ def df_to_excel(filename, data_frame, sheet_n):
   writer.save()
   writer.close()
 
-
+# Calculates the closest below power of 2 to a target. Useful fur n_fft in Power spectrum
+def power_of_two(target):
+    x = 2
+    change = 0
+    power = 0
+    for i in range(int(target)+1):
+        number = x ** change
+        change = i
+        if number >= int(target):  # you had indentation errors here and following
+            power = int(number/2)
+            return power
 

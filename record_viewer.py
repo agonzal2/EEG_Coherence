@@ -119,8 +119,8 @@ class MyForm(QMainWindow):
   def changeRecording(self):
     self.currentRecording = self.ui.ScrollBarCurrentRecord.value()
     self.ui.labelCurrentRecording.setText(self.recordings[self.currentRecording])
-    self.ui.label_Tmax.setText("(" + str(ind_calc[self.currentRecording].rawdata.n_times//1000) + " s)")
-    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].rawdata.n_times//1000)
+    self.ui.label_Tmax.setText("(" + str(int(ind_calc[self.currentRecording].rawdata.n_times//self.sampling_rate)) + " s)")
+    self.ui.BoxTmax.setValue(int(ind_calc[self.currentRecording].rawdata.n_times//self.sampling_rate))
   
   def apply_band_filter(self):
     if self.ui.radioUseGPUfiltering.isChecked():
