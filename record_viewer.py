@@ -66,6 +66,7 @@ class MyForm(QMainWindow):
     self.ui.ScrollBarCurrentRecord.valueChanged.connect(self.changeRecording)
     # Variables
     self.recordings = [] # list of recordings that we could scroll down.
+    self.recording_files = [] # just the file names, without the folder
     self.currentRecording = 0
 
     # Error message (it is necessary to initialize it too)
@@ -104,21 +105,22 @@ class MyForm(QMainWindow):
         new_recording = indiv_tests(root_dir + "/" + matching_file, i+j, self.sampling_rate)
 
         if rec_type == 'openeph':
-          montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+          montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
           new_recording.load_npy32openephys(montage_name)
         elif rec_type == 'taini':
-          montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
+          montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
           new_recording.load_npy16taini(montage_name)
         
         ind_calc.append(new_recording)
         self.recordings.append(root_dir + "/" + matching_file)
+        self.recording_files.append(matching_file)
 
     self.changeRecording()
     self.ui.ScrollBarCurrentRecord.setMaximum(len(self.recordings)-1)
 
   def changeRecording(self):
     self.currentRecording = self.ui.ScrollBarCurrentRecord.value()
-    self.ui.labelCurrentRecording.setText(self.recordings[self.currentRecording])
+    self.ui.labelCurrentRecording.setText(self.recording_files[self.currentRecording])
     self.ui.label_Tmax.setText("(" + str(int(ind_calc[self.currentRecording].rawdata.n_times//self.sampling_rate)) + " s)")
     self.ui.BoxTmax.setValue(int(ind_calc[self.currentRecording].rawdata.n_times//self.sampling_rate))
   

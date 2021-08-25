@@ -521,20 +521,23 @@ def load_16_EEG_taini_down_by_state(file_route, brain_states, downsampling, amp_
   # Doing the downsampling now, the decimate function filtering will smooth the edging we have
   # produced in both the amplitude filtering and the split by brain state
   
-  # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
-  raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1).astype(int16)
-  del state_voltage_array
+  if downsampling == 1:
+    return state_voltage_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
+  else:
+    # It will return the filtered and decimated whole thing, but without the brain states row -> [1:, :]
+    raw_data_array = decimate(state_voltage_array[1:, :], downsampling, axis = 1).astype(int16)
+    del state_voltage_array
 
-  # And the decimated/downsampled (and filtered) arrays for every brain state
-  volt_wake = decimate(volt_wake, downsampling, axis = 1).astype(int16)
-  volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1).astype(int16)
-  volt_REM = decimate(volt_REM, downsampling, axis = 1).astype(int16)
-  if volt_convuls.size > 27:
-    volt_convuls = decimate(volt_convuls, downsampling, axis = 1).astype(int16)
-  else: 
-    print(' Not enough convulsion time for downsampling')
+    # And the decimated/downsampled (and filtered) arrays for every brain state
+    volt_wake = decimate(volt_wake, downsampling, axis = 1).astype(int16)
+    volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1).astype(int16)
+    volt_REM = decimate(volt_REM, downsampling, axis = 1).astype(int16)
+    if volt_convuls.size > 27:
+        volt_convuls = decimate(volt_convuls, downsampling, axis = 1).astype(int16)
+    else: 
+        print(' Not enough convulsion time for downsampling')
 
-  return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
+    return raw_data_array, volt_wake, volt_NoREM, volt_REM, volt_convuls
 
 
 def load_16_EEG_taini_down(file_route, downsampling, amp_filter, first_sample, sample_rate):
@@ -562,10 +565,12 @@ def load_16_EEG_taini_down(file_route, downsampling, amp_filter, first_sample, s
   # produced in both the amplitude filtering and the split by brain state
   
   # It will return the filtered and decimated whole thing
-  raw_data_array = decimate(final_data, downsampling, axis = 1).astype(int16)
-  del final_data
-
-  return raw_data_array
+  if downsampling == 1:
+    return final_data
+  else:
+    raw_data_array = decimate(final_data, downsampling, axis = 1).astype(int16)
+    del final_data
+    return raw_data_array
 
 def npy32mne(filename, montage_name, sampling_rate):
     """

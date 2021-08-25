@@ -14,11 +14,11 @@ baseline = 2
 first_sample = 39723457
 
 # Variables that can change but not that often
-folder = '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/TAINI_Syngap-Acute_ETX_Recordings/' # '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/'
-downsampling = 2
-montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
+folder = '/media/jorge/otherprojects/Data/Alfredo/Taini/TAINI_Syngap-Acute_ETX_Recordings/' # '/media/jorge/DATADRIVE0/Data/Alfredo/Taini/S7062/'
+downsampling = 1
+montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
 n_electrodes = 16
-amp_filter = 4000 # in Taini values that are 32.755 are lost samples
+amp_filter = 40000 # in Taini values that are 32.755 are lost samples
 prm.set_sampling_rate(250.41)
 sr=prm.get_sampling_rate()
 
