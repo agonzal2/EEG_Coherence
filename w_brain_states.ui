@@ -6,25 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>876</width>
-    <height>542</height>
+    <width>884</width>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Brain States Maker</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>611</x>
+      <x>530</x>
       <y>214</y>
-      <width>250</width>
+      <width>331</width>
       <height>251</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -46,7 +46,7 @@
      <widget class="QRadioButton" name="e_11">
       <property name="geometry">
        <rect>
-        <x>53</x>
+        <x>94</x>
         <y>71</y>
         <width>16</width>
         <height>17</height>
@@ -62,7 +62,7 @@
      <widget class="QRadioButton" name="e_14">
       <property name="geometry">
        <rect>
-        <x>83</x>
+        <x>124</x>
         <y>21</y>
         <width>16</width>
         <height>17</height>
@@ -84,7 +84,7 @@
      <widget class="QRadioButton" name="e_1">
       <property name="geometry">
        <rect>
-        <x>43</x>
+        <x>84</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -100,7 +100,7 @@
      <widget class="QRadioButton" name="e_12">
       <property name="geometry">
        <rect>
-        <x>73</x>
+        <x>114</x>
         <y>51</y>
         <width>16</width>
         <height>17</height>
@@ -116,7 +116,7 @@
      <widget class="QRadioButton" name="e_9">
       <property name="geometry">
        <rect>
-        <x>73</x>
+        <x>114</x>
         <y>91</y>
         <width>16</width>
         <height>17</height>
@@ -132,7 +132,7 @@
      <widget class="QRadioButton" name="e_4">
       <property name="geometry">
        <rect>
-        <x>43</x>
+        <x>84</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -148,7 +148,7 @@
      <widget class="QRadioButton" name="e_7">
       <property name="geometry">
        <rect>
-        <x>43</x>
+        <x>84</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -164,7 +164,7 @@
      <widget class="QRadioButton" name="e_0">
       <property name="geometry">
        <rect>
-        <x>73</x>
+        <x>114</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -180,7 +180,7 @@
      <widget class="QRadioButton" name="e_3">
       <property name="geometry">
        <rect>
-        <x>73</x>
+        <x>114</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -196,7 +196,7 @@
      <widget class="QRadioButton" name="e_15">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>21</y>
         <width>16</width>
         <height>17</height>
@@ -212,7 +212,7 @@
      <widget class="QRadioButton" name="e_13">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>51</y>
         <width>16</width>
         <height>17</height>
@@ -228,7 +228,7 @@
      <widget class="QRadioButton" name="e_8">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -244,7 +244,7 @@
      <widget class="QRadioButton" name="e_10">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>91</y>
         <width>16</width>
         <height>17</height>
@@ -260,7 +260,7 @@
      <widget class="QRadioButton" name="e_2">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -276,7 +276,7 @@
      <widget class="QRadioButton" name="e_6">
       <property name="geometry">
        <rect>
-        <x>73</x>
+        <x>114</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -292,7 +292,7 @@
      <widget class="QRadioButton" name="e_5">
       <property name="geometry">
        <rect>
-        <x>103</x>
+        <x>144</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -308,7 +308,7 @@
      <widget class="QRadioButton" name="e_29">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -324,7 +324,7 @@
      <widget class="QRadioButton" name="e_18">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>51</y>
         <width>16</width>
         <height>17</height>
@@ -340,7 +340,7 @@
      <widget class="QRadioButton" name="e_21">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>91</y>
         <width>16</width>
         <height>17</height>
@@ -356,7 +356,7 @@
      <widget class="QRadioButton" name="e_23">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -372,7 +372,7 @@
      <widget class="QRadioButton" name="e_16">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>21</y>
         <width>16</width>
         <height>17</height>
@@ -388,7 +388,7 @@
      <widget class="QRadioButton" name="e_26">
       <property name="geometry">
        <rect>
-        <x>133</x>
+        <x>174</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -404,7 +404,7 @@
      <widget class="QRadioButton" name="e_28">
       <property name="geometry">
        <rect>
-        <x>163</x>
+        <x>204</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -420,7 +420,7 @@
      <widget class="QRadioButton" name="e_31">
       <property name="geometry">
        <rect>
-        <x>163</x>
+        <x>204</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -433,7 +433,7 @@
      <widget class="QRadioButton" name="e_17">
       <property name="geometry">
        <rect>
-        <x>153</x>
+        <x>194</x>
         <y>21</y>
         <width>16</width>
         <height>17</height>
@@ -467,7 +467,7 @@
      <widget class="QRadioButton" name="e_19">
       <property name="geometry">
        <rect>
-        <x>163</x>
+        <x>204</x>
         <y>51</y>
         <width>16</width>
         <height>17</height>
@@ -483,7 +483,7 @@
      <widget class="QRadioButton" name="e_25">
       <property name="geometry">
        <rect>
-        <x>163</x>
+        <x>204</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -499,7 +499,7 @@
      <widget class="QRadioButton" name="e_22">
       <property name="geometry">
        <rect>
-        <x>163</x>
+        <x>204</x>
         <y>91</y>
         <width>16</width>
         <height>17</height>
@@ -515,7 +515,7 @@
      <widget class="QRadioButton" name="e_27">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>234</x>
         <y>151</y>
         <width>16</width>
         <height>17</height>
@@ -531,7 +531,7 @@
      <widget class="QRadioButton" name="e_30">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>234</x>
         <y>121</y>
         <width>16</width>
         <height>17</height>
@@ -547,7 +547,7 @@
      <widget class="QRadioButton" name="e_20">
       <property name="geometry">
        <rect>
-        <x>183</x>
+        <x>224</x>
         <y>71</y>
         <width>16</width>
         <height>17</height>
@@ -563,7 +563,7 @@
      <widget class="QRadioButton" name="e_24">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>234</x>
         <y>181</y>
         <width>16</width>
         <height>17</height>
@@ -579,7 +579,7 @@
      <widget class="QFrame" name="frame_3">
       <property name="geometry">
        <rect>
-        <x>33</x>
+        <x>74</x>
         <y>11</y>
         <width>181</width>
         <height>191</height>
@@ -634,7 +634,7 @@
      <widget class="QFrame" name="frame_5">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>72</x>
         <y>12</y>
         <width>181</width>
         <height>191</height>
@@ -704,7 +704,7 @@
      <widget class="QRadioButton" name="et_6">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>202</x>
         <y>92</y>
         <width>16</width>
         <height>17</height>
@@ -723,7 +723,7 @@
      <widget class="QRadioButton" name="et_12">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>112</x>
         <y>182</y>
         <width>16</width>
         <height>17</height>
@@ -739,7 +739,7 @@
      <widget class="QRadioButton" name="et_13">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>112</x>
         <y>92</y>
         <width>16</width>
         <height>17</height>
@@ -755,7 +755,7 @@
      <widget class="QRadioButton" name="et_0">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>202</x>
         <y>122</y>
         <width>16</width>
         <height>17</height>
@@ -771,7 +771,7 @@
      <widget class="QRadioButton" name="et_3">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>202</x>
         <y>52</y>
         <width>16</width>
         <height>17</height>
@@ -790,7 +790,7 @@
      <widget class="QRadioButton" name="et_8">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>142</x>
         <y>22</y>
         <width>16</width>
         <height>17</height>
@@ -809,7 +809,7 @@
      <widget class="QRadioButton" name="et_4">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>202</x>
         <y>152</y>
         <width>16</width>
         <height>17</height>
@@ -828,7 +828,7 @@
      <widget class="QRadioButton" name="et_10">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>112</x>
         <y>52</y>
         <width>16</width>
         <height>17</height>
@@ -844,7 +844,7 @@
      <widget class="QRadioButton" name="et_7">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>112</x>
         <y>122</y>
         <width>16</width>
         <height>17</height>
@@ -860,7 +860,7 @@
      <widget class="QRadioButton" name="et_1">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>172</x>
         <y>22</y>
         <width>16</width>
         <height>17</height>
@@ -879,7 +879,7 @@
      <widget class="QRadioButton" name="et_9">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>142</x>
         <y>52</y>
         <width>16</width>
         <height>17</height>
@@ -895,7 +895,7 @@
      <widget class="QRadioButton" name="et_14">
       <property name="geometry">
        <rect>
-        <x>215</x>
+        <x>257</x>
         <y>182</y>
         <width>16</width>
         <height>17</height>
@@ -914,7 +914,7 @@
      <widget class="QRadioButton" name="et_15">
       <property name="geometry">
        <rect>
-        <x>13</x>
+        <x>55</x>
         <y>183</y>
         <width>16</width>
         <height>17</height>
@@ -922,6 +922,312 @@
       </property>
       <property name="toolTip">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;EMG_Left&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Tetrode</string>
+     </attribute>
+     <widget class="QRadioButton" name="tet_3">
+      <property name="geometry">
+       <rect>
+        <x>86</x>
+        <y>58</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_15">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>182</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;15&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_9">
+      <property name="geometry">
+       <rect>
+        <x>84</x>
+        <y>151</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;9&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_7">
+      <property name="geometry">
+       <rect>
+        <x>212</x>
+        <y>60</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;7&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_13">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>152</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;13&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_11">
+      <property name="geometry">
+       <rect>
+        <x>84</x>
+        <y>181</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;11&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_8">
+      <property name="geometry">
+       <rect>
+        <x>247</x>
+        <y>59</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;8&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_2">
+      <property name="geometry">
+       <rect>
+        <x>116</x>
+        <y>28</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_12">
+      <property name="geometry">
+       <rect>
+        <x>117</x>
+        <y>181</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;12&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_4">
+      <property name="geometry">
+       <rect>
+        <x>116</x>
+        <y>58</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;4&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_5">
+      <property name="geometry">
+       <rect>
+        <x>211</x>
+        <y>29</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_1">
+      <property name="geometry">
+       <rect>
+        <x>86</x>
+        <y>27</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_6">
+      <property name="geometry">
+       <rect>
+        <x>247</x>
+        <y>29</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;6&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_10">
+      <property name="geometry">
+       <rect>
+        <x>117</x>
+        <y>150</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;10&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_14">
+      <property name="geometry">
+       <rect>
+        <x>242</x>
+        <y>152</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;14&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="tet_16">
+      <property name="geometry">
+       <rect>
+        <x>242</x>
+        <y>182</y>
+        <width>16</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;16&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -952,7 +1258,7 @@
       <rect>
        <x>10</x>
        <y>9</y>
-       <width>111</width>
+       <width>131</width>
        <height>31</height>
       </rect>
      </property>
@@ -965,7 +1271,7 @@
       <rect>
        <x>9</x>
        <y>41</y>
-       <width>112</width>
+       <width>131</width>
        <height>31</height>
       </rect>
      </property>
@@ -976,9 +1282,9 @@
     <widget class="QListWidget" name="listWidget_Indiv_recordings">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>140</x>
        <y>10</y>
-       <width>571</width>
+       <width>551</width>
        <height>61</height>
       </rect>
      </property>
@@ -987,9 +1293,9 @@
    <widget class="QPushButton" name="ButtonLoadRecordings">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>40</y>
-      <width>151</width>
+      <x>702</x>
+      <y>39</y>
+      <width>180</width>
       <height>41</height>
      </rect>
     </property>
@@ -1048,9 +1354,9 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>87</x>
-      <y>150</y>
-      <width>151</width>
+      <x>92</x>
+      <y>153</y>
+      <width>331</width>
       <height>16</height>
      </rect>
     </property>
@@ -1077,9 +1383,9 @@
    <widget class="QRadioButton" name="radioSelectLeftHem">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>715</x>
       <y>161</y>
-      <width>91</width>
+      <width>111</width>
       <height>17</height>
      </rect>
     </property>
@@ -1090,10 +1396,10 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>661</x>
-      <y>130</y>
-      <width>151</width>
-      <height>20</height>
+      <x>610</x>
+      <y>122</y>
+      <width>180</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -1106,9 +1412,9 @@
    <widget class="QRadioButton" name="radioSelectNone">
     <property name="geometry">
      <rect>
-      <x>639</x>
+      <x>588</x>
       <y>181</y>
-      <width>111</width>
+      <width>131</width>
       <height>17</height>
      </rect>
     </property>
@@ -1119,9 +1425,9 @@
    <widget class="QRadioButton" name="radioSelectAll">
     <property name="geometry">
      <rect>
-      <x>639</x>
+      <x>588</x>
       <y>161</y>
-      <width>91</width>
+      <width>111</width>
       <height>17</height>
      </rect>
     </property>
@@ -1132,9 +1438,9 @@
    <widget class="QRadioButton" name="radioSelectRightHem">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>715</x>
       <y>181</y>
-      <width>101</width>
+      <width>121</width>
       <height>17</height>
      </rect>
     </property>
@@ -1145,9 +1451,9 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>575</x>
       <y>153</y>
-      <width>250</width>
+      <width>261</width>
       <height>51</height>
      </rect>
     </property>
@@ -1161,20 +1467,20 @@
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
-      <x>792</x>
-      <y>13</y>
-      <width>81</width>
+      <x>785</x>
+      <y>14</y>
+      <width>101</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Sampling R</string>
+     <string>Samp Rate</string>
     </property>
    </widget>
    <widget class="QDoubleSpinBox" name="SpinBoxSamplingRate">
     <property name="geometry">
      <rect>
-      <x>710</x>
+      <x>702</x>
       <y>10</y>
       <width>81</width>
       <height>24</height>
@@ -1231,8 +1537,8 @@
    <widget class="QLCDNumber" name="lcd_brain_state">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>350</y>
+      <x>340</x>
+      <y>328</y>
       <width>51</width>
       <height>51</height>
      </rect>
@@ -1247,9 +1553,9 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>263</x>
-      <y>322</y>
-      <width>71</width>
+      <x>320</x>
+      <y>300</y>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
@@ -1266,9 +1572,9 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>211</x>
-      <y>301</y>
-      <width>91</width>
+      <x>253</x>
+      <y>268</y>
+      <width>131</width>
       <height>31</height>
      </rect>
     </property>
@@ -1287,7 +1593,7 @@
      <rect>
       <x>10</x>
       <y>240</y>
-      <width>101</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1300,7 +1606,7 @@
      <rect>
       <x>10</x>
       <y>290</y>
-      <width>101</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1313,7 +1619,7 @@
      <rect>
       <x>10</x>
       <y>340</y>
-      <width>101</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1326,7 +1632,7 @@
      <rect>
       <x>10</x>
       <y>440</y>
-      <width>101</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1339,7 +1645,7 @@
      <rect>
       <x>10</x>
       <y>390</y>
-      <width>101</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -1350,9 +1656,9 @@
    <widget class="QPushButton" name="Button_ExportExcel">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>350</y>
-      <width>111</width>
+      <x>247</x>
+      <y>418</y>
+      <width>141</width>
       <height>41</height>
      </rect>
     </property>
@@ -1363,9 +1669,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>189</x>
-      <y>320</y>
-      <width>71</width>
+      <x>226</x>
+      <y>298</y>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
@@ -1382,8 +1688,8 @@
    <widget class="QLCDNumber" name="lcd_brain_state_previous">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>350</y>
+      <x>246</x>
+      <y>328</y>
       <width>51</width>
       <height>51</height>
      </rect>
@@ -1430,8 +1736,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>876</width>
-     <height>20</height>
+     <width>884</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -92,6 +92,8 @@ class MyForm(QMainWindow):
       rec_type = 'openeph'
     elif self.ui.tabWidget.currentIndex() == 1:
       rec_type = 'taini'
+    elif self.ui.tabWidget.currentIndex() == 2:
+      rec_type = 'tetrodes'
     # sampling rate of the recordings
     self.sampling_rate = self.ui.SpinBoxSamplingRate.value()
 
@@ -106,11 +108,15 @@ class MyForm(QMainWindow):
         new_recording = indiv_tests(root_dir + "/" + matching_file, i+j, self.sampling_rate)
 
         if rec_type == 'openeph':
-          montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+          montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
           new_recording.load_npy32openephys(montage_name)
         elif rec_type == 'taini':
-          montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
+          montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
           new_recording.load_npy16taini(montage_name)
+        elif rec_type == 'tetrodes':
+          montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16tetrodes.elc'
+          new_recording.load_npy16tetrodes(montage_name)
+
         
         ind_calc.append(new_recording)
         self.recordings.append(root_dir + "/" + matching_file)
@@ -238,7 +244,7 @@ class MyForm(QMainWindow):
     
   def checkElectrodes(self):
     self.electrodes = []
-    if self.ui.tabWidget.currentIndex() == 0:
+    if self.ui.tabWidget.currentIndex() == 0:  # 32 open ephys
       if self.ui.e_0.isChecked(): self.electrodes.append(0)
       if self.ui.e_1.isChecked(): self.electrodes.append(1)
       if self.ui.e_2.isChecked(): self.electrodes.append(2)
@@ -271,7 +277,7 @@ class MyForm(QMainWindow):
       if self.ui.e_29.isChecked(): self.electrodes.append(29)
       if self.ui.e_30.isChecked(): self.electrodes.append(30)
       if self.ui.e_31.isChecked(): self.electrodes.append(31)
-    elif self.ui.tabWidget.currentIndex() == 1:
+    elif self.ui.tabWidget.currentIndex() == 1:  # taini
       if self.ui.et_0.isChecked(): self.electrodes.append(0)
       if self.ui.et_1.isChecked(): self.electrodes.append(1)
       if self.ui.et_2.isChecked(): self.electrodes.append(2)
@@ -288,6 +294,23 @@ class MyForm(QMainWindow):
       if self.ui.et_13.isChecked(): self.electrodes.append(13)
       if self.ui.et_14.isChecked(): self.electrodes.append(14)
       if self.ui.et_15.isChecked(): self.electrodes.append(15)
+    elif self.ui.tabWidget.currentIndex() == 2: # tetrodes
+      if self.ui.tet_1.isChecked(): self.electrodes.append(1)
+      if self.ui.tet_2.isChecked(): self.electrodes.append(2)
+      if self.ui.tet_3.isChecked(): self.electrodes.append(3)
+      if self.ui.tet_4.isChecked(): self.electrodes.append(4)
+      if self.ui.tet_5.isChecked(): self.electrodes.append(5)
+      if self.ui.tet_6.isChecked(): self.electrodes.append(6)
+      if self.ui.tet_7.isChecked(): self.electrodes.append(7)
+      if self.ui.tet_8.isChecked(): self.electrodes.append(8)
+      if self.ui.tet_9.isChecked(): self.electrodes.append(9)
+      if self.ui.tet_10.isChecked(): self.electrodes.append(10)
+      if self.ui.tet_11.isChecked(): self.electrodes.append(11)
+      if self.ui.tet_12.isChecked(): self.electrodes.append(12)
+      if self.ui.tet_13.isChecked(): self.electrodes.append(13)
+      if self.ui.tet_14.isChecked(): self.electrodes.append(14)
+      if self.ui.tet_15.isChecked(): self.electrodes.append(15)
+      if self.ui.tet_16.isChecked(): self.electrodes.append(16)      
 
       # Changing the electrode voltages to plot each time the electrodes change
       self.electrodes_to_plot = ind_calc[self.currentRecording].rawdata._data[self.electrodes]
@@ -356,6 +379,24 @@ class MyForm(QMainWindow):
     self.ui.et_13.setChecked(LeftHem)
     self.ui.et_14.setChecked(RightHem) # emg
     self.ui.et_15.setChecked(LeftHem) # emg
+    # Tetrodes
+    self.ui.tet_1.setChecked(RightHem)
+    self.ui.tet_2.setChecked(RightHem)
+    self.ui.tet_3.setChecked(RightHem)
+    self.ui.tet_4.setChecked(RightHem)
+    self.ui.tet_5.setChecked(RightHem)
+    self.ui.tet_6.setChecked(RightHem)
+    self.ui.tet_7.setChecked(RightHem)
+    self.ui.tet_8.setChecked(RightHem)
+    self.ui.tet_9.setChecked(LeftHem)
+    self.ui.tet_10.setChecked(LeftHem)
+    self.ui.tet_11.setChecked(LeftHem)
+    self.ui.tet_12.setChecked(LeftHem)
+    self.ui.tet_13.setChecked(LeftHem)
+    self.ui.tet_14.setChecked(LeftHem) 
+    self.ui.tet_15.setChecked(LeftHem)
+    self.ui.tet_16.setChecked(LeftHem)
+    
 
   def closeFigures(self):
     plt.close('all')
