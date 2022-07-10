@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -1026,6 +1026,9 @@
       <property name="text">
        <string/>
       </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
+      </property>
      </widget>
      <widget class="QRadioButton" name="tet_11">
       <property name="geometry">
@@ -1215,6 +1218,9 @@
       </property>
       <property name="text">
        <string/>
+      </property>
+      <property name="autoExclusive">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QRadioButton" name="tet_16">

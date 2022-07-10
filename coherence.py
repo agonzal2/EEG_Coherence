@@ -1,4 +1,3 @@
-
 import os
 import glob
 import numpy as np
@@ -37,7 +36,8 @@ from pathlib import Path
 from initial_processes import *
 from data_classes import session_coherence
 
-montage_name = 'standard_32grid_Alfredo'
+#montage_name = 'standard_32grid_Alfredo'
+montage_name = 'standard_32Tcm_Alfredo'
 #montage_name = 'standard_16grid_taini1'
 #montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
 
@@ -60,6 +60,7 @@ class MyForm(QMainWindow):
     self.ui.ButtonClearFigures.clicked.connect(self.closeFigures)
     self.ui.Button2PDF.clicked.connect(self.print2pdf)
     self.ui.Button2PNG.clicked.connect(self.print2png)
+    self.ui.pushButton_new_data.clicked.connect(self.create_new_coherence_data)
     # Tab Individual records
     self.ui.ButtonAdd_IndRecords.clicked.connect(self.add_IndRecords)
     self.ui.ButtonDelete_IndRecords.clicked.connect(self.del_IndRecords)
@@ -96,6 +97,7 @@ class MyForm(QMainWindow):
     self.ui.listWidget_Indiv_recordings.takeItem(self.ui.listWidget_Indiv_recordings.currentRow())
 
   def load_recordings(self):
+    self.ind_calc = [] # list of indiv_tests classes
     print('loading recordings')
     for i in range(self.ui.listWidget_Indiv_recordings.count()):
       root_dir = str(self.ui.listWidget_Indiv_recordings.item(i).text())
@@ -104,7 +106,7 @@ class MyForm(QMainWindow):
       for j, folder in enumerate(recording_folders):
         new_recording = indiv_tests(root_dir + "/" + folder, i+j)
         new_recording.load_recordings(montage_name, self.ui.spinBoxDownsampling_2.value())
-        ind_calc.append(new_recording)
+        self.ind_calc.append(new_recording)
         self.recordings.append(root_dir + "/" + folder)
 
     self.changeRecording()
@@ -113,16 +115,16 @@ class MyForm(QMainWindow):
   def changeRecording(self):
     self.currentRecording = self.ui.ScrollBarCurrentRecord.value()
     self.ui.labelCurrentRecording.setText(self.recordings[self.currentRecording])
-    self.ui.label_Tmax.setText("(" + str(ind_calc[self.currentRecording].raw_data.n_times//1000) + " s)")
-    self.ui.BoxTmax.setValue(ind_calc[self.currentRecording].raw_data.n_times//1000)
+    self.ui.label_Tmax.setText("(" + str(self.ind_calc[self.currentRecording].raw_data.n_times//1000) + " s)")
+    self.ui.BoxTmax.setValue(self.ind_calc[self.currentRecording].raw_data.n_times//1000)
 
   def plotRawData(self):
     self.checkElectrodes()
-    ind_calc[self.currentRecording].plotRawData(self.ui.BoxBinSize.value(), self.ui.BoxTmin.value(), self.electrodes)
+    self.ind_calc[self.currentRecording].plotRawData(self.ui.BoxBinSize.value(), self.ui.BoxTmin.value(), self.electrodes)
 
   def plotPS(self):
     self.checkElectrodes()
-    ind_calc[self.currentRecording].plotPS(self.ui.BoxTmin.value(), self.ui.BoxTmax.value(), self.electrodes)
+    self.ind_calc[self.currentRecording].plotPS(self.ui.BoxTmin.value(), self.ui.BoxTmax.value(), self.electrodes)
 
   def checkElectrodes(self):
     self.electrodes = []
@@ -205,6 +207,15 @@ class MyForm(QMainWindow):
     self.ui.e_30.setChecked(RightHem)
     self.ui.e_31.setChecked(RightHem)
 
+  def create_new_coherence_data(self):
+    self.my_coherence = coherence_eeg()
+    self.ui.frame_Experimental.setEnabled(True)
+    self.ui.frame_Control.setEnabled(True)
+    # delete old data from listWidget_Exp, listWidget_Control and listWidget_dest_folder
+    self.ui.listWidget_Exp.clear()
+    self.ui.listWidget_Control.clear()
+    self.ui.listWidget_destfolder.clear()
+  
   def addExpFolder(self):
     DataFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
     if DataFolder:
@@ -213,9 +224,9 @@ class MyForm(QMainWindow):
       self.error_msg.showMessage("It is necessary to select a folder")
 
   def addResultsFolder(self):
-    my_coherence.ResultsFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-    if my_coherence.ResultsFolder:
-      self.ui.listWidget_destfolder.addItem(my_coherence.ResultsFolder)
+    self.my_coherence.ResultsFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if self.my_coherence.ResultsFolder:
+      self.ui.listWidget_destfolder.addItem(self.my_coherence.ResultsFolder)
     else:
       self.error_msg.showMessage("It is necessary to select a folder")
 
@@ -233,16 +244,37 @@ class MyForm(QMainWindow):
     self.ui.listWidget_Control.takeItem(self.ui.listWidget_Control.currentRow())
 
   def plotShortDistance(self):
-    my_coherence.plot_mean_short_distance()
+    self.my_coherence.plot_mean_short_distance()
 
   def plotLongDistance(self):
-    my_coherence.plot_mean_long_distance()
+    self.my_coherence.plot_mean_long_distance()
 
   def runAll(self):
 
-    my_coherence.srate = self.ui.spinBoxSamplingRate.value()
-    my_coherence.downsamp = self.ui.spinBoxDownsampling.value()
-    my_coherence.final_srate = my_coherence.srate/my_coherence.downsamp
+    self.my_coherence.srate = self.ui.spinBoxSamplingRate.value()
+    self.my_coherence.downsamp = self.ui.spinBoxDownsampling.value()
+    self.my_coherence.final_srate = self.my_coherence.srate/self.my_coherence.downsamp
+    number_id_characters = 5
+    if self.ui.radioButtonOpenEphys.isChecked():
+      #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_32Tcm_Alfredo.elc'
+      self.my_coherence.recording_type = 'openephys'
+      self.my_coherence.n_electrodes = 32
+    elif self.ui.radioButtonOpenEphys_areas.isChecked():
+      #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/six_areas.elc'
+      self.my_coherence.recording_type = 'openephys_areas'
+      self.my_coherence.n_electrodes = 6
+    elif self.ui.radioButtonOpenEphys_lfpareas.isChecked():
+      #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
+      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/coherence_analysis/lfp_9areas.elc'
+      self.my_coherence.recording_type = 'openephys_lfp'
+      self.my_coherence.n_electrodes = 9
+      number_id_characters = 7
+    elif self.ui.radioButtonTaini.isChecked():
+      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
+      self.my_coherence.recording_type = 'taini'
+      self.my_coherence.n_electrodes = 14
 
     # Goes through all the excel files with the brain states
     # If an animal has more than one recording, it store them together
@@ -254,18 +286,18 @@ class MyForm(QMainWindow):
       d = os.getcwd() + "/" # "\\" for Windows
       matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
-        if file_m[0:5] not in my_coherence.l_prefixes_KO:
-          my_coherence.l_prefixes_KO.append(file_m[0:5])
+        if file_m[0:number_id_characters] not in self.my_coherence.l_prefixes_KO:
+          self.my_coherence.l_prefixes_KO.append(file_m[0:5])
 
       # gathering the recordings per animal (they will be analysed together)
-      for pattern in my_coherence.l_prefixes_KO:
+      for pattern in self.my_coherence.l_prefixes_KO:
         matching_files = glob.glob(r'*' + pattern + r'*')
         l_animal_npy_files = []
         for matching_file in matching_files:
             if 'npy' in matching_file:
                 l_animal_npy_files.append(d+matching_file)            
 
-        my_coherence.l_npy_files_KO.append(l_animal_npy_files)
+        self.my_coherence.l_npy_files_KO.append(l_animal_npy_files)
 
     # dividing files by animal (WT)
     for i in range(self.ui.listWidget_Control.count()):
@@ -273,30 +305,23 @@ class MyForm(QMainWindow):
       d = os.getcwd() + "/" # "\\"
       matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
-        if file_m[0:5] not in my_coherence.l_prefixes_WT:
-          my_coherence.l_prefixes_WT.append(file_m[0:5])
+        if file_m[0:number_id_characters] not in self.my_coherence.l_prefixes_WT:
+          self.my_coherence.l_prefixes_WT.append(file_m[0:5])
 
       # gathering the recordings per animal (they will be analysed together)
-      for pattern in my_coherence.l_prefixes_WT:
+      for pattern in self.my_coherence.l_prefixes_WT:
         matching_files = glob.glob(r'*' + pattern + r'*')
         l_animal_npy_files = []
         for matching_file in matching_files:
             if 'npy' in matching_file:
                 l_animal_npy_files.append(d+matching_file)
             
-        my_coherence.l_npy_files_WT.append(l_animal_npy_files)
+        self.my_coherence.l_npy_files_WT.append(l_animal_npy_files)
 
-    if self.ui.radioButtonOpenEphys.isChecked():
-      my_coherence.montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      my_coherence.recording_type = 'openephys'
-      my_coherence.n_electrodes = 32
-    elif self.ui.radioButtonTaini.isChecked():
-      my_coherence.montage_name = '/media/jorge/DATADRIVE0/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
-      my_coherence.recording_type = 'taini'
-      my_coherence.n_electrodes = 14
+    
 
     # First it is called the downsampling
-    my_coherence.loadnpydatatomne()
+    self.my_coherence.loadnpydatatomne()
 
     #Once it finished the load of data, allow to repeat analysis without loading it again.
     self.ui.ButtonRunNewBS.setEnabled(True)
@@ -305,20 +330,24 @@ class MyForm(QMainWindow):
     self.set_brain_state()
     # Esploratory analysis
     if self.ui.checkBoxExploratoryAnalysis.isChecked():
-      my_coherence.coh_type = 'imag'
-      for longD in np.arange(2, 5.5, 1):
+      self.my_coherence.coh_type = 'imag'
+      long_distances = [2, 5, 7, 10]
+      for longD in long_distances:
         self.ui.SpinBoxLongDist.setValue(longD)
         self.runNewBrainState()
-        file_name = my_coherence.coh_type + '_Dist' + str(longD) + '_' + self.brain_state_name
+        file_name = self.my_coherence.coh_type + '_Dist' + str(longD) + '_' + self.brain_state_name
         self.print2pdf(file_name)
         self.closeFigures()
     # Individual analysis
     else:      
       if self.ui.rbcohabs.isChecked():
-        my_coherence.coh_type = 'abs'
+        self.my_coherence.coh_type = 'abs'
       else:
-        my_coherence.coh_type = 'imag'
+        self.my_coherence.coh_type = 'imag'
       self.runNewBrainState()
+    
+    self.ui.frame_Experimental.setEnabled(False)
+    self.ui.frame_Control.setEnabled(False)
 
 
   def set_brain_state(self):
@@ -336,29 +365,32 @@ class MyForm(QMainWindow):
 
   def runNewBrainState(self):
     # calculate combinations depending on the short or long distance criteria
-    my_coherence.calc_combinations(self.ui.SpinBoxNeighborDist.value(), self.ui.SpinBoxLongDist.value())
+    self.my_coherence.calc_combinations(self.ui.SpinBoxNeighborDist.value(), self.ui.SpinBoxLongDist.value())
 
     # calculate coefficients of notch filter at 50 Hz
-    my_coherence.calc_notch(self.ui.spinBoxNotchQ.value(), self.ui.spinBoxDownsampling.value())
+    self.my_coherence.calc_notch(self.ui.spinBoxNotchQ.value(), self.ui.spinBoxDownsampling.value())
 
     frequency_list = []
     frequency_list = self.get_frequency_bands()
 
-    my_coherence.calc_z_coh(frequency_list, self.brain_state_name, self.brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
+    self.my_coherence.calc_z_coh(frequency_list, self.brain_state_name, self.brain_state, self.ui.spinLongProcesses.value(), self.ui.spinLongChunksize.value(),
                             self.ui.spinShortProcesses.value(), self.ui.spinShortChunksize.value())
 
-    self.freq_list_results = my_coherence.return_freq_results()
-    self.write_table_results()
+    
+    if self.my_coherence.recording_type != 'openephys_areas' and self.my_coherence.recording_type != 'openephys_lfp':
+      self.freq_list_results = self.my_coherence.return_freq_results()
+      self.write_table_results()
 
 
   def runNewFreqs(self):
     frequency_list = []
     frequency_list = self.get_frequency_bands()
 
-    my_coherence.calc_zcoh_freq_bands(frequency_list)
+    self.my_coherence.calc_zcoh_freq_bands(frequency_list)
 
-    self.freq_list_results = my_coherence.return_freq_results()
-    self.write_table_results()
+    if self.my_coherence.recording_type != 'openephys_areas' and self.my_coherence.recording_type != 'openephys_lfp':
+      self.freq_list_results = self.my_coherence.return_freq_results()
+      self.write_table_results()
 
 
   def closeFigures(self):
@@ -368,7 +400,7 @@ class MyForm(QMainWindow):
 
     if filename:
       filename2 = '/' + filename + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
-      pdf = matplotlib.backends.backend_pdf.PdfPages(my_coherence.ResultsFolder + filename2)
+      pdf = matplotlib.backends.backend_pdf.PdfPages(self.my_coherence.ResultsFolder + filename2)
       figs = [plt.figure(n) for n in plt.get_fignums()]
       for fig in figs:
         fig.savefig(pdf, format='pdf')
@@ -377,12 +409,12 @@ class MyForm(QMainWindow):
       self.error_msg.showMessage("It is necessary to select a folder")
 
   def print2png(self):
-    my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-    if my_coherence.figFolder:
+    self.my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if self.my_coherence.figFolder:
       prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
       for i in plt.get_fignums():
         plt.figure(i)
-        plt.savefig(my_coherence.figFolder + prefix +'figure%d.png' % i)
+        plt.savefig(self.my_coherence.figFolder + prefix +'figure%d.png' % i)
     else:
       self.error_msg.showMessage("It is necessary to select a folder")
 
@@ -407,43 +439,35 @@ class MyForm(QMainWindow):
 
     for n, freq_interval_results in enumerate(self.freq_list_results):
       self.ui.tableFrequencies.setItem(n+1, 3, QTableWidgetItem(str(freq_interval_results[0])))
-      self.ui.tableFrequencies.setItem(n+1, 4, QTableWidgetItem(str(freq_interval_results[1])))
-      self.ui.tableFrequencies.setItem(n+1, 5, QTableWidgetItem(str(freq_interval_results[2])))
+      if self.my_coherence.recording_type != 'openephys_areas' and self.my_coherence.recording_type != 'openephys_lfp':
+        self.ui.tableFrequencies.setItem(n+1, 4, QTableWidgetItem(str(freq_interval_results[1])))
+        self.ui.tableFrequencies.setItem(n+1, 5, QTableWidgetItem(str(freq_interval_results[2])))
 
 
 class coherence_eeg ():
-  folders_data_KO = []
-  folders_data_WT = []
-  xlsfiles_KO = []
-  xlsfiles_WT = []
-  all_KO_coh_data = [] # list that would contain all the instances for the KO sessions analysed data
-  all_WT_coh_data = [] # list for WT
-  short_d_comb = [] # all the short distance combinations between electrodes
-  long_d_comb = []
-  freq_array = [] #  to plot the frequency axis
-  brain_state_name = ""
-  f_ratio = 1
-  coh_type = 'abs'
-  ResultsFolder = ""
-  b = np.array([0,0,0]) # notch filter parameter
-  a = np.array([0,0,0]) # notch filter parameter
-  l_prefixes_KO = []
-  l_npy_files_KO = []
-  l_prefixes_WT = []
-  l_npy_files_WT = []
-  second_parts_cntrl = [] # to join parts A and B of split recordings
-  second_parts_exp = []
-  n_electrodes = 32
-  n_aux_elec = 3
-  recording_type = ''
-  srate = 1000
-  downsamp = 1
-  final_srate = 1000
-
-
-  def __init__(self, brain_state = 0, montage_name = 'standard_32grid_Alfredo'):
+  
+  def __init__(self, brain_state = 0, montage_name = 'standard_32Tcm_Alfredo'):
     self.brain_state = brain_state
     self.montage_name = montage_name
+    self.all_KO_coh_data = [] # list that would contain all the instances for the KO sessions analysed data
+    self.all_WT_coh_data = [] # list for WT
+    self.short_d_comb = [] # all the short distance combinations between electrodes
+    self.long_d_comb = []
+    self.brain_state_name = ""
+    self.f_ratio = 1
+    self.coh_type = 'abs'
+    self.ResultsFolder = ""
+    self.b = np.array([0,0,0]) # notch filter parameter
+    self.a = np.array([0,0,0]) # notch filter parameter
+    self.l_prefixes_KO = []
+    self.l_npy_files_KO = []
+    self.l_prefixes_WT = []
+    self.l_npy_files_WT = []
+    self.n_electrodes = 32
+    self.recording_type = ''
+    self.srate = 1000
+    self.downsamp = 1
+    self.final_srate = 1000
 
   
   def get_join_data_KO(self, i, animal):
@@ -456,7 +480,11 @@ class coherence_eeg ():
     for npy_file in animal:
       # first we join all the animal times
       if self.recording_type == 'openephys':
-        raw_list = npy32mne(npy_file, self.montage_name)
+        raw_list = npy32mne(npy_file, self.montage_name, self.final_srate)
+      elif self.recording_type == 'openephys_areas':
+        raw_list = npy32to6areas_mne(npy_file, self.montage_name, self.final_srate)
+      elif self.recording_type == 'openephys_lfp':
+        raw_list = npylfp_to9areas_mne(npy_file, self.montage_name, self.final_srate)
       elif self.recording_type == 'taini':
         raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
 
@@ -489,7 +517,11 @@ class coherence_eeg ():
     for npy_file in animal:
       # first we join all the animal times
       if self.recording_type == 'openephys':
-        raw_list = npy32mne(npy_file, self.montage_name)
+        raw_list = npy32mne(npy_file, self.montage_name, self.final_srate)
+      elif self.recording_type == 'openephys_areas':
+        raw_list = npy32to6areas_mne(npy_file, self.montage_name, self.final_srate)
+      elif self.recording_type == 'openephys_lfp':
+        raw_list = npylfp_to9areas_mne(npy_file, self.montage_name, self.final_srate)
       elif self.recording_type == 'taini':
         raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
       
@@ -539,7 +571,15 @@ class coherence_eeg ():
   # calculating the different combinations between electrodes, short and long distance
   def calc_combinations(self, neighbors_dist, long_distance):
     self.long_distance = long_distance
-    self.short_d_comb, self.long_d_comb = electrode_combinations(self.montage_name, neighbors_dist, long_distance, self.recording_type, self.n_electrodes)
+    self.short_d_comb, self.long_d_comb, self.elec_names = electrode_combinations(self.montage_name, neighbors_dist, long_distance, self.recording_type, self.n_electrodes)
+    
+    # Names for the openephys_areas recordings
+    if self.recording_type == 'openephys_areas' or self.recording_type == 'openephys_lfp':
+      self.areas_comb_names = []
+      for area_comb in self.short_d_comb:
+        area1 = self.elec_names[area_comb[0]]
+        area2 = self.elec_names[area_comb[1]]
+        self.areas_comb_names.append(str(area1) + '-' + str(area2))
 
   # It gives the chance to change the brain state every time it is called.
   def calc_z_coh(self, f_l, brain_state_name, brain_state = 0, l_processes = 48, l_chunk = 24, s_processes = 12, s_chunk = 12):
@@ -547,12 +587,17 @@ class coherence_eeg ():
     self.brain_state_name = brain_state_name
     self.freq_list = f_l
     for n, Cxy in enumerate(self.all_KO_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
+      # when calculating the coherence by areas, all combinations are included in the short distance
       Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
+      if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+        Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
+        
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
-      Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
       Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
+      if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+        Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
+        
 
     self.calc_zcoh_freq_bands(f_l)
 
@@ -561,16 +606,104 @@ class coherence_eeg ():
   def calc_zcoh_freq_bands(self, f_l):
     self.freq_list = f_l
     for Cxy in self.all_KO_coh_data:
-      Cxy.calc_zcoh_long(self.freq_list)
-      Cxy.calc_zcoh_short(self.freq_list)
+      if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+        Cxy.calc_zcoh_short(self.freq_list)
+        Cxy.calc_zcoh_long(self.freq_list)
+      else:
+        Cxy.calc_areas_coh(self.freq_list)
 
     for Cxy in self.all_WT_coh_data:
-      Cxy.calc_zcoh_long(self.freq_list)
-      Cxy.calc_zcoh_short(self.freq_list)
+      if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+        Cxy.calc_zcoh_short(self.freq_list)
+        Cxy.calc_zcoh_long(self.freq_list)
+      else:
+        Cxy.calc_areas_coh(self.freq_list)
       if len(Cxy.f_w > 0) : self.f_array = Cxy.f_w
 
     self.f_ratio = Cxy.f_ratio
-    self.calc_mean_coh()
+    if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+      self.calc_mean_coh()
+    else:
+      self.calc_mean_areas_coh()
+
+  def calc_mean_areas_coh(self):
+    allanimals_areas_coh_WT = []
+    allanimals_areas_coh_KO = []
+    sheets_WT = []
+    sheets_KO = []
+    # Preparing list of dataframes. Each dataframe will refer to an area, WT or KO, 
+    # and will contain a column per each animal. 
+    for comb in self.short_d_comb: 
+        data_fWT = pd.DataFrame({'Freqs': self.f_array})
+        sheets_WT.append(data_fWT)
+        data_fKO = pd.DataFrame({'Freqs': self.f_array})
+        sheets_KO.append(data_fKO)
+
+    for n, Cxy in enumerate(self.all_KO_coh_data):
+      allanimals_areas_coh_KO.append(Cxy.coh_areas_animal)
+      for area, coh_area in enumerate(Cxy.coh_areas_animal):
+        sheets_KO[area]['n' + str(n+1)]= Cxy.coh_areas_animal[area]        
+
+    for n, Cxy in enumerate(self.all_WT_coh_data):
+      allanimals_areas_coh_WT.append(Cxy.coh_areas_animal)
+      for area, coh_area in enumerate(Cxy.coh_areas_animal):
+        sheets_WT[area]['n' + str(n+1)]= coh_area
+        
+    
+    self.mean_areas_coh_KO = np.mean(allanimals_areas_coh_KO, axis = 0)
+    self.mean_areas_coh_WT = np.mean(allanimals_areas_coh_WT, axis = 0)
+    #self.mean_areas_coh = np.mean(np.asarray(allanimals_areas_coh_WT), axis = 0) - np.mean(np.asarray(allanimals_areas_coh_KO), axis = 0)
+    self.plot_areas()
+    
+    # Exporting individual coherences to excel
+    # if coh lfp areas is used, the sheets are different
+    if self.recording_type == 'openephys_areas':
+      line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + 'areas' + "_"
+    else:
+      line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + 'lfp_9electrodes' + "_"
+
+    line2 = str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + "_" + self.coh_type + ".xlsx"
+    excel_name = line1 + line2
+
+    writer = pd.ExcelWriter(excel_name, engine='xlsxwriter')
+
+    for area, area_name in enumerate(self.areas_comb_names): 
+      sheets_WT[area].to_excel(writer, sheet_name=area_name + '_WT')
+      sheets_KO[area].to_excel(writer, sheet_name=area_name + '_KO')
+      
+    writer.save()
+
+
+
+  
+  def plot_areas(self):
+    # 15 divided by 5 rows
+    if self.recording_type == 'openephys_areas':
+      n_rows = 5
+      fig_size = (25, 15)
+    # 36 combinations in 6 rows, bigger figure
+    elif  self.recording_type == 'openephys_lfp':
+      n_rows = 6
+      fig_size = (50, 30)
+    
+    n_subs = self.mean_areas_coh_WT.shape[0]
+    n_columns = int(n_subs/n_rows)
+    fig, axs = plt.subplots(n_columns, n_rows, figsize = fig_size)
+    for comb in range(self.mean_areas_coh_WT.shape[0]):
+      x_plot = int(comb/n_rows)
+      y_plot = int(comb%n_rows)
+      axs[x_plot, y_plot].plot(self.f_array, self.mean_areas_coh_KO[comb], label = 'KO', color='#0a1195')
+      #axs[x_plot, y_plot].set_facecolor('#efb7b2')
+      axs[x_plot, y_plot].plot(self.f_array, self.mean_areas_coh_WT[comb], label = 'WT', color='black')
+      axs[x_plot, y_plot].legend()
+      axs[x_plot, y_plot].set_title(self.areas_comb_names[comb])
+      if y_plot == 0:
+        axs[x_plot, y_plot].set(ylabel='Average Imaginary Coherence')
+      if x_plot == n_columns-1:
+        axs[x_plot, y_plot].set(xlabel='Frequency (Hz)')
+
+    plt.savefig(self.ResultsFolder + '/Areas_z_Individual_Coh_' + self.brain_state_name + "_" + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf')
+    
 
 
   def calc_mean_coh(self):
@@ -602,24 +735,29 @@ class coherence_eeg ():
       if Cxy.time_state == 0: continue # sometimes one of the brain state does not occur during a recording
       KO_times.append(Cxy.time_state) # lists of weights to do weighted mean and sem
       KO_all_short_lines_m.append(Cxy.short_line_plot_1rec_m)
-      KO_all_long_lines_m.append(Cxy.long_line_plot_1rec_m)
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        KO_all_long_lines_m.append(Cxy.long_line_plot_1rec_m)
       # for plotting short-range
       KO_short_bands_m = []
       KO_long_bands_m = []
       for n, freq_band in enumerate(self.freq_list):
         KO_short_bands_m.append(Cxy.short_1rec_m[n])
-        KO_long_bands_m.append(Cxy.long_1rec_m[n])
+        if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+          KO_long_bands_m.append(Cxy.long_1rec_m[n])
         if (n>0):
           anova_lst_short.append([Cxy.time_state*Cxy.short_1rec_m[n], freq_band[0], 'KO'])
-          anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'KO'])
-          anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'KO'])
+          if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+            anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'KO'])
+            anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'KO'])
 
       KO_all_short_bands_m_t.append(KO_short_bands_m)
-      KO_all_long_bands_m_t.append(KO_long_bands_m)
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        KO_all_long_bands_m_t.append(KO_long_bands_m)
 
     # Lists of lists need to be transposed so in each list there are the values of a single freq band
     KO_all_short_bands_m = np.array(KO_all_short_bands_m_t).T.tolist()
-    KO_all_long_bands_m = np.array(KO_all_long_bands_m_t).T.tolist()
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      KO_all_long_bands_m = np.array(KO_all_long_bands_m_t).T.tolist()
 
     total_time = np.sum(np.array(KO_times))
     KO_weights = (n+1)*np.array(KO_times)/total_time
@@ -631,10 +769,11 @@ class coherence_eeg ():
       self.mean_KO_sho_plot_line.append(row_mean)
       self.sem_KO_sho_plot_line.append(row_sem)
 
-    for row in np.array(KO_all_long_lines_m).T:
-      row_mean, row_sem = weighted_avg_sem(row, KO_weights, "KOlonglines")
-      self.mean_KO_lon_plot_line.append(row_mean)
-      self.sem_KO_lon_plot_line.append(row_sem)
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      for row in np.array(KO_all_long_lines_m).T:
+        row_mean, row_sem = weighted_avg_sem(row, KO_weights, "KOlonglines")
+        self.mean_KO_lon_plot_line.append(row_mean)
+        self.sem_KO_lon_plot_line.append(row_sem)
 
     # Bar plots and significance tests (a single final value per freq band)
     self.mean_KO_sho = []
@@ -647,13 +786,15 @@ class coherence_eeg ():
       mean_KO_sho, sem_KO_sho = weighted_avg_sem(KO_all_short_bands_m[n], KO_weights, "so")
       self.mean_KO_sho.append(mean_KO_sho)
       self.sem_KO_sho.append(sem_KO_sho)
-      mean_KO_lon, sem_KO_lon = weighted_avg_sem(KO_all_long_bands_m[n], KO_weights, "lo")
-      self.mean_KO_lon.append(mean_KO_lon)
-      self.sem_KO_lon.append(sem_KO_lon)
-      mean_KO_ratio_lon_sho, sem_KO_ratio_lon_sho = weighted_avg_sem(
+      
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        mean_KO_lon, sem_KO_lon = weighted_avg_sem(KO_all_long_bands_m[n], KO_weights, "lo")
+        self.mean_KO_lon.append(mean_KO_lon)
+        self.sem_KO_lon.append(sem_KO_lon)
+        mean_KO_ratio_lon_sho, sem_KO_ratio_lon_sho = weighted_avg_sem(
                   np.divide(KO_all_long_bands_m[n], KO_all_short_bands_m[n]), KO_weights, "ratio")
-      self.mean_ratio_KO.append(mean_KO_ratio_lon_sho)
-      self.sem_ratio_KO.append(sem_KO_ratio_lon_sho)
+        self.mean_ratio_KO.append(mean_KO_ratio_lon_sho)
+        self.sem_ratio_KO.append(sem_KO_ratio_lon_sho)
 
     # Same for WT
     WT_all_short_lines_m = []
@@ -669,28 +810,34 @@ class coherence_eeg ():
     self.sem_WT_lon_plot_line = []
 
     WT_all_short_bands_m_t = []
-    WT_all_long_bands_m_t = []
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      WT_all_long_bands_m_t = []
     for n, Cxy in enumerate(self.all_WT_coh_data):
       if Cxy.time_state == 0: continue
       WT_times.append(Cxy.time_state) # lists of weights to do weighted mean and sem
       WT_all_short_lines_m.append(Cxy.short_line_plot_1rec_m)
-      WT_all_long_lines_m.append(Cxy.long_line_plot_1rec_m)
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        WT_all_long_lines_m.append(Cxy.long_line_plot_1rec_m)
       # for plotting short-range
       WT_short_bands_m = []
       WT_long_bands_m = []
       for n, freq_band in enumerate(self.freq_list):
         WT_short_bands_m.append(Cxy.short_1rec_m[n])
-        WT_long_bands_m.append(Cxy.long_1rec_m[n])
+        if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+          WT_long_bands_m.append(Cxy.long_1rec_m[n])
         if (n>0):
           anova_lst_short.append([Cxy.time_state*Cxy.short_1rec_m[n], freq_band[0], 'WT'])
-          anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'WT'])
-          anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'WT'])
+          if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+            anova_lst_long.append([Cxy.time_state*Cxy.long_1rec_m[n], freq_band[0], 'WT'])
+            anova_lst_ratio.append([(Cxy.long_1rec_m[n]/Cxy.short_1rec_m[n]), freq_band[0], 'WT'])
 
       WT_all_short_bands_m_t.append(WT_short_bands_m)
-      WT_all_long_bands_m_t.append(WT_long_bands_m)
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        WT_all_long_bands_m_t.append(WT_long_bands_m)
 
     WT_all_short_bands_m = np.array(WT_all_short_bands_m_t).T.tolist()
-    WT_all_long_bands_m = np.array(WT_all_long_bands_m_t).T.tolist()
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      WT_all_long_bands_m = np.array(WT_all_long_bands_m_t).T.tolist()
 
     total_time = np.sum(np.array(WT_times))
     WT_weights = (n+1)*np.array(WT_times)/total_time
@@ -702,10 +849,11 @@ class coherence_eeg ():
       self.mean_WT_sho_plot_line.append(row_mean)
       self.sem_WT_sho_plot_line.append(row_sem)
 
-    for row in np.array(WT_all_long_lines_m).T:
-      row_mean, row_sem = weighted_avg_sem(row, WT_weights, "WTlonglines")
-      self.mean_WT_lon_plot_line.append(row_mean)
-      self.sem_WT_lon_plot_line.append(row_sem)
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      for row in np.array(WT_all_long_lines_m).T:
+        row_mean, row_sem = weighted_avg_sem(row, WT_weights, "WTlonglines")
+        self.mean_WT_lon_plot_line.append(row_mean)
+        self.sem_WT_lon_plot_line.append(row_sem)
 
     # Bar plots and significance tests (a single final value per freq band)
     self.mean_WT_sho = []
@@ -718,41 +866,46 @@ class coherence_eeg ():
       mean_WT_sho, sem_WT_sho = weighted_avg_sem(WT_all_short_bands_m[n], WT_weights, "so")
       self.mean_WT_sho.append(mean_WT_sho)
       self.sem_WT_sho.append(sem_WT_sho)
-      mean_WT_lon, sem_WT_lon = weighted_avg_sem(WT_all_long_bands_m[n], WT_weights, "lo")
-      self.mean_WT_lon.append(mean_WT_lon)
-      self.sem_WT_lon.append(sem_WT_lon)
-      mean_WT_ratio_lon_sho, sem_WT_ratio_lon_sho = weighted_avg_sem(
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        mean_WT_lon, sem_WT_lon = weighted_avg_sem(WT_all_long_bands_m[n], WT_weights, "lo")
+        self.mean_WT_lon.append(mean_WT_lon)
+        self.sem_WT_lon.append(sem_WT_lon)
+        mean_WT_ratio_lon_sho, sem_WT_ratio_lon_sho = weighted_avg_sem(
                   np.divide(WT_all_long_bands_m[n], WT_all_short_bands_m[n]), WT_weights, "ratio")
-      self.mean_ratio_WT.append(mean_WT_ratio_lon_sho)
-      self.sem_ratio_WT.append(sem_WT_ratio_lon_sho)
+        self.mean_ratio_WT.append(mean_WT_ratio_lon_sho)
+        self.sem_ratio_WT.append(sem_WT_ratio_lon_sho)
 
     ######################
     # Anova calculations #
     # short-range
     self.df_short = pd.DataFrame(anova_lst_short, columns=cols)
     print('')
-    print('###### Dataframe for Short-range ######')
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      print('###### Dataframe for Short-range ######')
+    else: 
+      print('###### Dataframe for Areas ######')
     print(self.df_short)
     formula = 'band_mean~C(genotype)+C(freq_band)+C(genotype):C(freq_band)'
     model_short = ols(formula, self.df_short).fit()
     aov_table_short = anova_lm(model_short, typ=2)
     print(aov_table_short)
     # long range
-    self.df_long = pd.DataFrame(anova_lst_long, columns=cols)
-    print('')
-    print('###### Dataframe for Long-range ######')
-    print(self.df_long)
-    model_long = ols(formula, self.df_long).fit()
-    aov_table_long = anova_lm(model_long, typ=2)
-    print(aov_table_long)
-    # ratio long/short
-    self.df_ratio = pd.DataFrame(anova_lst_ratio, columns=cols)
-    print('')
-    print('###### Dataframe for Ratio Long/Short ######')
-    print(self.df_ratio)
-    model_ratio = ols(formula, self.df_ratio).fit()
-    aov_table_ratio = anova_lm(model_ratio, typ=2)
-    print(aov_table_ratio)
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      self.df_long = pd.DataFrame(anova_lst_long, columns=cols)
+      print('')
+      print('###### Dataframe for Long-range ######')
+      print(self.df_long)
+      model_long = ols(formula, self.df_long).fit()
+      aov_table_long = anova_lm(model_long, typ=2)
+      print(aov_table_long)
+      # ratio long/short
+      self.df_ratio = pd.DataFrame(anova_lst_ratio, columns=cols)
+      print('')
+      print('###### Dataframe for Ratio Long/Short ######')
+      print(self.df_ratio)
+      model_ratio = ols(formula, self.df_ratio).fit()
+      aov_table_ratio = anova_lm(model_ratio, typ=2)
+      print(aov_table_ratio)
 
     print('')
     print('##########################')
@@ -768,42 +921,52 @@ class coherence_eeg ():
       stat, p, dgf = wttest(np.array(KO_all_short_bands_m[n]),
                                 np.array(WT_all_short_bands_m[n]), alternative='two-sided',
                                 usevar='pooled', weights=(KO_w, WT_w), value=0)
-      print('T-test %s Short-Range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
+      
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        print('T-test %s Short-Range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
+      else:
+        print('T-test %s Areas = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
       band_results.append(p)
-      stat, p, dgf = wttest(np.array(KO_all_long_bands_m[n]),
-                                np.array(WT_all_long_bands_m[n]), alternative='two-sided',
-                                usevar='pooled', weights=(KO_w, WT_w), value=0)
-      print('T-test %s Long-Range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
-      band_results.append(p)
-      stat, p, dgf = wttest(np.array(np.divide(KO_all_long_bands_m[n], KO_all_short_bands_m[n])),
-                              np.array(np.divide(WT_all_long_bands_m[n], WT_all_short_bands_m[n])),
-                              alternative='two-sided', usevar='pooled', weights=(KO_w, WT_w), value=0)
-      print('T-test %s Ratio Long/Short range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
-      band_results.append(p)
+      if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+        stat, p, dgf = wttest(np.array(KO_all_long_bands_m[n]),
+                                  np.array(WT_all_long_bands_m[n]), alternative='two-sided',
+                                  usevar='pooled', weights=(KO_w, WT_w), value=0)
+        print('T-test %s Long-Range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
+        band_results.append(p)
+        stat, p, dgf = wttest(np.array(np.divide(KO_all_long_bands_m[n], KO_all_short_bands_m[n])),
+                                np.array(np.divide(WT_all_long_bands_m[n], WT_all_short_bands_m[n])),
+                                alternative='two-sided', usevar='pooled', weights=(KO_w, WT_w), value=0)
+        print('T-test %s Ratio Long/Short range = %.3f, p = %.3f, dgf=%.3f' % (freq_band[0],stat, p, dgf))
+        band_results.append(p)
       self.list_freq_results.append(band_results)
 
     self.plot_mean_short_distance()
-    self.plot_mean_long_distance()
     self.plot_bars()
-    self.bar_plot_ratio_long_short()
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      self.plot_mean_long_distance()
+      self.bar_plot_ratio_long_short()
 
     # Plotting individual coherences
     self.plot_individual_zCoh_short_WT()
-    self.plot_individual_zCoh_long_KO()
     self.plot_individual_zCoh_short_KO()
-    self.plot_individual_zCoh_long_WT()
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      self.plot_individual_zCoh_long_KO()
+      self.plot_individual_zCoh_long_WT()
 
     # Exporting individual coherences to excel
     line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + str(self.long_distance) + "_"
     line2 = str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + "_" + self.coh_type + ".xlsx"
     excel_name = line1 + line2
-    df_to_excel(excel_name, self.df_shortwt, "ShortWT")
-    df_to_excel(excel_name, self.df_longwt, "LongWT")
-    df_to_excel(excel_name, self.df_shortko, "ShortKO")
-    df_to_excel(excel_name, self.df_longko, "LongKO")
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      df_to_excel(excel_name, self.df_shortwt, "ShortWT")
+      df_to_excel(excel_name, self.df_longwt, "LongWT")
+      df_to_excel(excel_name, self.df_shortko, "ShortKO")
+      df_to_excel(excel_name, self.df_longko, "LongKO")
+      
 
     #self.plot_WT_average_KO_indiv_short()
-    self.plot_WT_average_KO_indiv_long()
+    if self.recording_type != 'openephys_areas' and self.recording_type !='openephys_lfp':
+      self.plot_WT_average_KO_indiv_long()
     #self.plot_corr_convulsions_coh()
 
     # Plotting Power Spectrum of the first channel of every rat recording (per brain state)
@@ -917,19 +1080,20 @@ class coherence_eeg ():
 
     plt.show()
 
-    fig2, ax2 = plt.subplots()
-    rects1 = ax2.bar(x - width/2, self.mean_KO_lon, width, yerr=self.sem_KO_lon,  capsize = 3, label='KO', color='red')
-    rects2 = ax2.bar(x + width/2, self.mean_WT_lon, width, yerr=self.sem_WT_lon,  capsize = 3, label='WT', color='black')
+    if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
+      fig2, ax2 = plt.subplots()
+      rects1 = ax2.bar(x - width/2, self.mean_KO_lon, width, yerr=self.sem_KO_lon,  capsize = 3, label='KO', color='red')
+      rects2 = ax2.bar(x + width/2, self.mean_WT_lon, width, yerr=self.sem_WT_lon,  capsize = 3, label='WT', color='black')
 
-    ## Add some text for labels, title and custom x-axis tick labels, etc.
-    ax2.set_ylabel('Mean $z^{-1}$ Coherence')
-    ax2.set_title('Long-range coherence %s' %self.brain_state_name, fontsize=18)
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(labels)
-    ax2.legend()
-    fig2.tight_layout()
+      ## Add some text for labels, title and custom x-axis tick labels, etc.
+      ax2.set_ylabel('Mean $z^{-1}$ Coherence')
+      ax2.set_title('Long-range coherence %s' %self.brain_state_name, fontsize=18)
+      ax2.set_xticks(x)
+      ax2.set_xticklabels(labels)
+      ax2.legend()
+      fig2.tight_layout()
 
-    plt.show()
+      plt.show()
 
 
   def bar_plot_ratio_long_short(self):
@@ -1101,8 +1265,6 @@ class coherence_eeg ():
     plt.xlabel(x_label, fontsize=18)
     plt.show()
 
-my_coherence = coherence_eeg()
-ind_calc = [] # list of indiv_tests classes
 
 if __name__=="__main__":
      app = QApplication(sys.argv)

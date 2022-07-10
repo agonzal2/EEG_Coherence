@@ -339,6 +339,7 @@ class Ui_window_brain_states_maker(object):
         self.tet_13 = QtWidgets.QRadioButton(self.tab_3)
         self.tet_13.setGeometry(QtCore.QRect(210, 152, 16, 17))
         self.tet_13.setText("")
+        self.tet_13.setAutoExclusive(False)
         self.tet_13.setObjectName("tet_13")
         self.tet_11 = QtWidgets.QRadioButton(self.tab_3)
         self.tet_11.setGeometry(QtCore.QRect(84, 181, 16, 17))
@@ -389,6 +390,7 @@ class Ui_window_brain_states_maker(object):
         self.tet_14 = QtWidgets.QRadioButton(self.tab_3)
         self.tet_14.setGeometry(QtCore.QRect(242, 152, 16, 17))
         self.tet_14.setText("")
+        self.tet_14.setAutoExclusive(False)
         self.tet_14.setObjectName("tet_14")
         self.tet_16 = QtWidgets.QRadioButton(self.tab_3)
         self.tet_16.setGeometry(QtCore.QRect(242, 182, 16, 17))
@@ -557,7 +559,7 @@ class Ui_window_brain_states_maker(object):
         window_brain_states_maker.setMenuBar(self.menubar)
 
         self.retranslateUi(window_brain_states_maker)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(window_brain_states_maker)
 
     def retranslateUi(self, window_brain_states_maker):

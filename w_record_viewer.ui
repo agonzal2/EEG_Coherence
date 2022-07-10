@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>876</width>
+    <width>930</width>
     <height>542</height>
    </rect>
   </property>
@@ -17,7 +17,7 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>611</x>
+      <x>643</x>
       <y>214</y>
       <width>250</width>
       <height>251</height>
@@ -51,6 +51,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1FL_S1DZ_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -90,6 +93,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1DZ_S1Bf_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -105,6 +111,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M1_ant_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -122,6 +131,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1HL_S1FL_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -137,6 +149,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2L_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -154,6 +169,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2L_V1B_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -169,6 +187,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1Tr_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -186,6 +207,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2ML_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -201,6 +225,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_FrA_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -218,6 +245,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_ant_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -233,6 +263,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_post_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -250,6 +283,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M1_post_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -265,6 +301,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2MM_RSA_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -282,6 +321,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V1M_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -297,6 +339,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2MM_LEFT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -314,6 +359,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2MM_RSA_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -329,6 +377,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_ant_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -346,6 +397,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M1_post_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -361,6 +415,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_post_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -378,6 +435,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M2_FrA_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -393,6 +453,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2MM_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -410,6 +473,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2ML_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -426,6 +492,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1Tr_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -440,7 +509,7 @@
        </rect>
       </property>
       <property name="toolTip">
-       <string>M1_FrA_RIGHT</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M1_FrA_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="toolTipDuration">
        <number>10</number>
@@ -473,6 +542,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;M1_ant_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -488,6 +560,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V1M_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -505,6 +580,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1HL_S1FL_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -520,6 +598,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2L_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -537,6 +618,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1DZ_S1Bf_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -553,6 +637,9 @@
         <height>17</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;S1FL_S1DZ_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -568,6 +655,9 @@
         <width>16</width>
         <height>17</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;V2L_V1B_RIGHT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string/>
@@ -1045,7 +1135,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>221</x>
+      <x>233</x>
       <y>240</y>
       <width>91</width>
       <height>41</height>
@@ -1065,7 +1155,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Bin to plot (secs)</string>
+     <string>Bin to plot (s)</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_8">
@@ -1074,7 +1164,7 @@
       <x>98</x>
       <y>184</y>
       <width>47</width>
-      <height>13</height>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
@@ -1107,26 +1197,26 @@
      </rect>
     </property>
     <property name="text">
-     <string>If a single channel is selected</string>
+     <string>If one channel selected</string>
     </property>
    </widget>
    <widget class="QPushButton" name="ButtonPlotRawData">
     <property name="geometry">
      <rect>
-      <x>213</x>
+      <x>223</x>
       <y>140</y>
       <width>101</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Plot RawData</string>
+     <string>Plot Raw</string>
     </property>
    </widget>
    <widget class="QPushButton" name="ButtonPlotPS">
     <property name="geometry">
      <rect>
-      <x>212</x>
+      <x>223</x>
       <y>190</y>
       <width>101</width>
       <height>41</height>
@@ -1141,7 +1231,7 @@
      <rect>
       <x>330</x>
       <y>140</y>
-      <width>101</width>
+      <width>141</width>
       <height>20</height>
      </rect>
     </property>
@@ -1155,7 +1245,7 @@
    <widget class="QPushButton" name="ButtonExportIndPNG">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>415</x>
       <y>170</y>
       <width>40</width>
       <height>31</height>
@@ -1171,7 +1261,7 @@
    <widget class="QPushButton" name="ButtonExportIndPDF">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>355</x>
       <y>170</y>
       <width>40</width>
       <height>31</height>
@@ -1187,9 +1277,9 @@
    <widget class="QPushButton" name="ButtonCloseFigures">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>345</x>
       <y>210</y>
-      <width>100</width>
+      <width>121</width>
       <height>30</height>
      </rect>
     </property>
@@ -1216,9 +1306,9 @@
    <widget class="QRadioButton" name="radioSelectLeftHem">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>770</x>
       <y>161</y>
-      <width>91</width>
+      <width>111</width>
       <height>17</height>
      </rect>
     </property>
@@ -1229,9 +1319,9 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>661</x>
+      <x>678</x>
       <y>130</y>
-      <width>151</width>
+      <width>171</width>
       <height>20</height>
      </rect>
     </property>
@@ -1247,7 +1337,7 @@
      <rect>
       <x>639</x>
       <y>181</y>
-      <width>111</width>
+      <width>131</width>
       <height>17</height>
      </rect>
     </property>
@@ -1260,7 +1350,7 @@
      <rect>
       <x>639</x>
       <y>161</y>
-      <width>91</width>
+      <width>121</width>
       <height>17</height>
      </rect>
     </property>
@@ -1271,9 +1361,9 @@
    <widget class="QRadioButton" name="radioSelectRightHem">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>770</x>
       <y>181</y>
-      <width>101</width>
+      <width>121</width>
       <height>17</height>
      </rect>
     </property>
@@ -1284,9 +1374,9 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>627</x>
       <y>153</y>
-      <width>250</width>
+      <width>281</width>
       <height>51</height>
      </rect>
     </property>
@@ -1302,7 +1392,7 @@
      <rect>
       <x>30</x>
       <y>312</y>
-      <width>101</width>
+      <width>111</width>
       <height>20</height>
      </rect>
     </property>
@@ -1367,7 +1457,7 @@
       <x>100</x>
       <y>380</y>
       <width>151</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -1379,7 +1469,7 @@
      <rect>
       <x>10</x>
       <y>340</y>
-      <width>141</width>
+      <width>151</width>
       <height>110</height>
      </rect>
     </property>
@@ -1406,10 +1496,10 @@
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
-      <x>792</x>
+      <x>807</x>
       <y>13</y>
-      <width>81</width>
-      <height>16</height>
+      <width>111</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -1421,7 +1511,7 @@
      <rect>
       <x>710</x>
       <y>10</y>
-      <width>81</width>
+      <width>91</width>
       <height>24</height>
      </rect>
     </property>
@@ -1438,8 +1528,8 @@
    <widget class="QRadioButton" name="e_32">
     <property name="geometry">
      <rect>
-      <x>448</x>
-      <y>435</y>
+      <x>419</x>
+      <y>434</y>
       <width>16</width>
       <height>17</height>
      </rect>
@@ -1454,8 +1544,8 @@
    <widget class="QRadioButton" name="e_export_amplitude">
     <property name="geometry">
      <rect>
-      <x>448</x>
-      <y>384</y>
+      <x>419</x>
+      <y>383</y>
       <width>16</width>
       <height>17</height>
      </rect>
@@ -1470,8 +1560,8 @@
    <widget class="QRadioButton" name="e_export_bandpass">
     <property name="geometry">
      <rect>
-      <x>448</x>
-      <y>409</y>
+      <x>419</x>
+      <y>408</y>
       <width>16</width>
       <height>17</height>
      </rect>
@@ -1486,9 +1576,9 @@
    <widget class="QFrame" name="frame_4">
     <property name="geometry">
      <rect>
-      <x>431</x>
+      <x>401</x>
       <y>337</y>
-      <width>171</width>
+      <width>201</width>
       <height>171</height>
      </rect>
     </property>
@@ -1506,7 +1596,7 @@
       <rect>
        <x>61</x>
        <y>12</y>
-       <width>111</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -1544,7 +1634,7 @@
       <rect>
        <x>43</x>
        <y>43</y>
-       <width>111</width>
+       <width>151</width>
        <height>20</height>
       </rect>
      </property>
@@ -1560,7 +1650,7 @@
       <rect>
        <x>43</x>
        <y>68</y>
-       <width>111</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -1587,7 +1677,7 @@
      <rect>
       <x>167</x>
       <y>312</y>
-      <width>131</width>
+      <width>171</width>
       <height>20</height>
      </rect>
     </property>
@@ -1601,9 +1691,9 @@
    <widget class="QFrame" name="frame_6">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>166</x>
       <y>340</y>
-      <width>141</width>
+      <width>171</width>
       <height>81</height>
      </rect>
     </property>
@@ -1659,7 +1749,7 @@
    <widget class="QSpinBox" name="BoxFilterCores">
     <property name="geometry">
      <rect>
-      <x>463</x>
+      <x>483</x>
       <y>168</y>
       <width>40</width>
       <height>22</height>
@@ -1678,7 +1768,7 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>513</x>
+      <x>533</x>
       <y>169</y>
       <width>50</width>
       <height>16</height>
@@ -1691,9 +1781,9 @@
    <widget class="QRadioButton" name="radioUseGPUfiltering">
     <property name="geometry">
      <rect>
-      <x>461</x>
+      <x>484</x>
       <y>200</y>
-      <width>82</width>
+      <width>101</width>
       <height>17</height>
      </rect>
     </property>
@@ -1704,9 +1794,9 @@
    <widget class="QLabel" name="label_14">
     <property name="geometry">
      <rect>
-      <x>454</x>
+      <x>474</x>
       <y>140</y>
-      <width>110</width>
+      <width>141</width>
       <height>20</height>
      </rect>
     </property>
@@ -1819,8 +1909,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>876</width>
-     <height>20</height>
+     <width>930</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>

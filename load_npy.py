@@ -39,7 +39,7 @@ prm.set_sampling_rate(125) # data downsampled by 8
 colors=dict(mag='darkblue', grad='b', eeg='k', eog='k', ecg='m', emg='g', ref_meg='steelblue', misc='k', stim='b', resp='k', chpi='k')
 
 montage_name = '/media/jorge/DATADRIVE0/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-npy_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Syngap/KOTest/S7025_D2-A_Down8.npy'
+npy_file = '/media/jorge/DATADRIVE0/Data/Alfredo/Syngap/KOTest/S7025_D2-A_Down8_wake_conv.npy'
 
 raw_data = npy32mne(npy_file, montage_name)
 

@@ -39,9 +39,10 @@ def imag_coherence(x, y, fs=1.0, window='hann', nperseg=None, noverlap=None,
     _, Pxy = csd(x, y, fs=fs, window=window, nperseg=nperseg,
                  noverlap=noverlap, nfft=nfft, detrend=detrend, axis=axis)
 
-    Cxy = np.imag(Pxy)**2 / Pxx / Pyy
+    ImgCxy = np.imag(Pxy)**2 / Pxx / Pyy
+    #Cxy = np.imag(Pxy**2 / Pxx / Pyy)
 
-    return freqs, Cxy
+    return freqs, ImgCxy #Cxy
 
 
 class parallel_coh():
@@ -129,6 +130,12 @@ class session_coherence():
     self.coherence_long = np.asarray(coherences)
 
 
+  def calc_areas_coh(self, f_list = []):
+    k_top_freq = self.set_top_freq()
+    self.f_w=self.f_short[1*self.f_ratio: k_top_freq*self.f_ratio + 1] # 1.5-100 Hz
+    self.coh_areas_animal  = self.coherence_short[:, 1*self.f_ratio: k_top_freq*self.f_ratio + 1]
+    
+  
   def calc_zcoh_short(self, f_list = []):
     k_top_freq = self.set_top_freq()
     self.f_w=self.f_short[1*self.f_ratio: k_top_freq*self.f_ratio + 1] # 1.5-100 Hz

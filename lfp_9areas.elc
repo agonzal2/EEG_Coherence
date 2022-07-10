@@ -1,0 +1,24 @@
+# 9 areas from the 16 lfp electrode
+ReferenceLabel	avg
+UnitPosition	mm
+NumberPositions=	9
+Positions
+0	0	0
+0	2	0
+0	4	0
+3	0	0
+3	2	0
+3	4	0
+6 0 0
+6 2 0
+6 4 0
+Labels
+Visual_C
+Auditory_C
+Infralimb_C
+Lat_Amygd
+Olf_Bulb
+Motor_C
+Pariet_C
+Cerebellum
+Sup_Collic

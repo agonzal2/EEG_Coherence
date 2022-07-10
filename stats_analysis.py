@@ -10,6 +10,8 @@ from statistics import mean
 import matplotlib.pyplot as plt
 import xlsxwriter
 
+from initial_processes import electrode_combinations
+
 from w_perm_analysis import *
 
 from PyQt5.QtWidgets import QMainWindow, QDialog, QApplication, QFileDialog, QTableWidgetItem
@@ -21,6 +23,9 @@ import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 
 from datetime import datetime
+
+#montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/six_areas.elc'
+montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/coherence_analysis/lfp_9areas.elc'
 
 
 def calc_perm_test(perm_averages):
@@ -43,22 +48,44 @@ def get_metadata(filename):
     returns three strings: brain state, long_distance and kind of coherence, absolute or imaginary
 
   '''
+  
   if "_REM" in filename:
         brain_state = "REM"
   elif "NonREM" in filename:
         brain_state = "NonREM"
+  elif "Wake" in filename:
+        brain_state = "Wake"
+  elif "Active" in filename:
+        brain_state = "Active"
+  elif "Rest" in filename:
+        brain_state = "Rest"
+  else:
+        brain_state = "Unknown_brain_state"
 
-  for distance in np.arange(1, 6, 0.5):
-    if str(distance)[:3] in filename:
+  for distance in np.arange(1, 14, 0.5):
+    code_name = brain_state + "_" + str(distance)[:3]
+    if code_name in filename:
       long_distance = str(distance)[:3]
       break
+  
+  if "lfp_9electrodes" in filename:
+    lfp_area = True
+    area_coh = False
+    long_distance = ""
+  elif "area" in filename:
+    area_coh = True
+    lfp_area = False
+    long_distance = ""
+  else:
+    lfp_area = False
+    area_coh = False
 
   if "abs" in filename:
     coh_type = "abs"
   else:
     coh_type = "imag"
 
-  return brain_state, long_distance, coh_type
+  return brain_state, long_distance, coh_type, area_coh, lfp_area
 
 
 
@@ -74,6 +101,7 @@ class MyForm(QMainWindow):
     self.ui.ButtonClearFigures.clicked.connect(self.closeFigures)
     self.ui.Button2PDF.clicked.connect(self.print2pdf)
     self.ui.Button2PNG.clicked.connect(self.print2png)
+    self.ui.buttonExtra.clicked.connect(self.plotExtra)
 
     self.freq_list_results = []
 
@@ -92,8 +120,78 @@ class MyForm(QMainWindow):
 
   def delFile(self):
     self.ui.labelFileSelected.clear()
+  
+  def plotExtra(self):
+
+    #plotting single figure with normalised means
+    # plotting the means along frequency
+    """ fig_norm = plt.figure()
+    short_x = fig_norm.add_subplot(211)
+    long_x = fig_norm.add_subplot(212)
+
+    for i, norm_mean in enumerate(self.l_means_norm):
+      if i % 2 != 0:
+        short_x.plot(self.freq_samples, norm_mean, label = self.l_labels[i] +'$Syngap^{+/-\u0394 GAP}$')
+        short_x.fill_between(self.freq_samples, np.array(norm_mean) - np.array(self.l_sem_norm[i]), np.array(norm_mean) + np.array(self.l_sem_norm[i]),
+                        edgecolor='#b4cdec', facecolor= '#b4cdec', linewidth=1, antialiased=False) #linestyle='dashed',    
+      else:
+        long_x.plot(self.freq_samples, norm_mean, label = self.l_labels[i] +'$Syngap^{+/-\u0394 GAP}$')
+        long_x.fill_between(self.freq_samples, np.array(norm_mean) - np.array(self.l_sem_norm[i]), np.array(norm_mean) + np.array(self.l_sem_norm[i]),
+                        edgecolor='#b4cdec', facecolor= '#b4cdec', linewidth=1, antialiased=False) #linestyle='dashed',    
+    #if 'abs' in self.coh_type:
+    #  dx.set_ylim(0,1)
+    #else:
+    #  maxko = np.amax(norm_mean_ko + sem_ko)
+    #  maxwt = np.amax(mean_wt + sem_wt)
+    #  dx.set_ylim(0,max(maxko, maxwt))
+    short_x.set_xlabel('Frequency (Hz)')
+    short_x.set_ylabel('Mean $z^{-1}$ ' + self.coh_type + ' Coherence')
+    short_x.legend(loc='best')
+    long_x.set_xlabel('Frequency (Hz)')
+    long_x.set_ylabel('Mean $z^{-1}$ ' + self.coh_type + ' Coherence')
+    long_x.legend(loc='best')
+    #plt.title(' Normalised coherences')
+    plt.show() """   
+
+    # plotting permutation pvalues
+    fig_pv = plt.figure()
+    blong_x = fig_pv.add_subplot(211)
+    bshort_x = fig_pv.add_subplot(212)
+
+    for i, p_values in enumerate(self.l_pvalues):
+      if i % 2 != 0:
+        bshort_x.plot(self.freq_samples,p_values, label = self.l_labels[i])
+      else:
+        blong_x.plot(self.freq_samples,p_values, label = self.l_labels[i])
+
+    title = "p-values "
+    plt.title(title)
+    
+    thresh_min = 0.025*np.ones(len(self.freq_samples))
+    thresh_max = 0.975*np.ones(len(self.freq_samples))
+
+    blong_x.set_ylabel('pvalue')
+    blong_x.set_xlabel('frequency (Hz)')
+    blong_x.plot(self.freq_samples, thresh_min, color = 'red', linewidth=1, linestyle='dashed')
+    blong_x.plot(self.freq_samples, thresh_max, color = 'red', linewidth=1, linestyle='dashed')    
+    blong_x.set_ylim(self.ui.SpinBoxMinVertAxes.value(),1)
+    blong_x.legend(loc='best')
+    
+    bshort_x.set_ylabel('pvalue')
+    bshort_x.set_xlabel('frequency (Hz)')
+    bshort_x.plot(self.freq_samples, thresh_min, color = 'red', linewidth=1, linestyle='dashed')
+    bshort_x.plot(self.freq_samples, thresh_max, color = 'red', linewidth=1, linestyle='dashed')    
+    bshort_x.set_ylim(self.ui.SpinBoxMinVertAxes.value(),1)
+    bshort_x.legend(loc='best') 
+    
+    plt.show
+
 
   def runAll(self):
+    self.l_means_norm = []
+    self.l_sem_norm = []
+    self.l_pvalues = []
+    self.l_labels = []
     os.chdir(str(self.ui.labelFileSelected.text()))
     d = os.getcwd() + "/" # "\\" for Windows
     matching_files = glob.glob(r'*xlsx')
@@ -102,24 +200,57 @@ class MyForm(QMainWindow):
     for matching_file in matching_files:
       file_n = re.sub('.xlsx', '', matching_file)
       file_name = 'perm_analysis_' + file_n
-      self.brain_state, self.longD, self.coh_type = get_metadata(file_n)
-      sheet_n = self.brain_state + self.longD + self.coh_type
+      self.brain_state, self.longD, self.coh_type, self.area, self.lfp_area = get_metadata(file_n)
+      if self.area:
+        self.workbook.close()
+        sheet_n = self.brain_state + self.coh_type
+        # for the areas analysis we create a different book for every brain state
+        self.workbook = xlsxwriter.Workbook('permutation_stats_' + '_' + sheet_n + '.xlsx')        
+      else:
+        sheet_n = self.brain_state + self.longD + self.coh_type
       file_route = d + matching_file
       l_xlsx_files.append(file_route)
 
       self.dfs = pd.read_excel(file_route, sheet_name=None)
-      self.sheet_name = sheet_n + "Short"
-      self.pvalue_position = 3
-      self.compareGroups('ShortKO', 'ShortWT')
-      self.sheet_name = sheet_n + "Long"
-      self.pvalue_position = 4
-      self.compareGroups('LongKO', 'LongWT')
-      self.print2pdf(file_name)
-      self.closeFigures()
+      
+      if self.area:
+        areas_comb, lcomb, areas_names = electrode_combinations(montage_name, 0.5, 30, 'openephys_areas', 6)
+        for area_comb in areas_comb:
+          sheet_sufix = areas_names[area_comb[0]] + "-" + areas_names[area_comb[1]]
+          self.sheet_name = sheet_sufix
+          self.compareGroups(sheet_sufix + '_WT', sheet_sufix + '_KO')                    
+          self.print2pdf(sheet_sufix + '_' + file_name)
+          self.closeFigures()
+        self.workbook.close()
+      
+      elif self.lfp_area:
+        areas_comb, lcomb, areas_names = electrode_combinations(montage_name, 0.5, 30, 'openephys_lfp', 9)
+        for area_comb in areas_comb:
+          sheet_sufix = areas_names[area_comb[0]] + "-" + areas_names[area_comb[1]]
+          self.sheet_name = sheet_sufix
+          self.compareGroups(sheet_sufix + '_WT', sheet_sufix + '_KO')                    
+          self.print2pdf(sheet_sufix + '_' + file_name)
+          self.closeFigures()
+        self.workbook.close()
+
+      else:
+        self.sheet_name = sheet_n + "Short"
+        self.pvalue_position = 3
+        self.compareGroups('ShortKO', 'ShortWT')
+        self.sheet_name = sheet_n + "Long"
+        self.pvalue_position = 4
+        self.compareGroups('LongKO', 'LongWT')
+        self.print2pdf(file_name)
+        self.closeFigures()
+        self.freq_list_results = []
+        self.get_frequency_bands()
 
     self.workbook.close()
     print ("Data and figures correctly exported to excel")
-
+      
+    
+    
+    
   def compareGroups(self, group1, group2):
 
     df_g1 = self.dfs[group1] # KO
@@ -169,6 +300,14 @@ class MyForm(QMainWindow):
     plt.title(self.sheet_name)
     plt.show()
 
+    # preparing all the normalised plotting 
+    mean_norm = mean_ko*(np.sum(mean_wt)/np.sum(mean_ko))
+    sem_norm = sem_ko*(np.sum(sem_wt)/np.sum(sem_ko))
+    self.l_means_norm.append(mean_norm)
+    self.l_sem_norm.append(sem_norm)
+    self.l_labels.append(self.sheet_name)
+    self.freq_samples = freq_samples
+
     # permutation analysis
     matrix_coh = df_to_suff.to_numpy() # dataframe to numpy to make it faster
     matrix_coh_t = np.transpose(matrix_coh) # traspose to average per frequencies
@@ -190,6 +329,7 @@ class MyForm(QMainWindow):
       pvalues = pvalues + np.ceil(real_diferences - perm_diffs)
 
     pvalues = pvalues/self.ui.BoxNumberShuffles.value() # final pvalues for that comparison
+    self.l_pvalues.append(pvalues)
 
     # plotting permutation pvalues
     fig1 = plt.figure()
@@ -245,7 +385,8 @@ class MyForm(QMainWindow):
       pvalue = pvalue/self.ui.BoxNumberShuffles.value() # final pvalues for that comparison
       self.freq_list_results.append(pvalue)
 
-    self.write_table_results()
+    if not self.area and not self.lfp_area:
+      self.write_table_results()
 
 
     # plotting bars graph

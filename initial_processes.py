@@ -396,6 +396,74 @@ def load_32_EEG_downsampled_sleep(foldername, montage_name, source_number, brain
     return volt_NoREM, volt_REM
 
 
+
+def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selected_electrodes, d_brain_states):
+    """
+    Load open ephys 16 electrode LFP data to a numpy array
+    reducing it to a 9 electrode montage, being one electrode showing data for (in that order): 
+        visual cortex, auditory cortex, infralimbic cortex, lateral amygdala, 
+        olfactory bulb, motor cortex, parietal cortex, cerebellum and superior colliculus
+    then downsampling it. 
+    then it creates numpy arrays for the brain states
+
+    Inputs:
+    - foldername: folder where the recordings are
+    - source number: prefix of the electrode recordings files
+    - sr: sampling rate (integer)
+    - downsampling: integer with the number the sampling is going to be reduced by
+    - selected_electrodes: list of the 9 selected electrodes to be loaded as the 
+                            representative of the different brain areas
+    - d_brain_states: dictionary of dataframes with the brain states (Active, Rest, NonREM, REM) as keys. 
+                    Each dataframe has the initial and final times of the brain state ocurrences
+    
+    Returns:
+    - volt_active: numpy array with the voltage of the selected electrodes in the active state
+    - volt_rest: numpy array with the voltage of the selected electrodes in the rest state
+    - volt_NoREM: numpy array with the voltage of the selected electrodes in the NoREM state
+    - volt_REM: numpy array with the voltage of the selected electrodes in the REM state
+    
+    """
+
+    'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
+    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+    data = np.vstack([np.transpose(data), np.transpose(data_aux)])
+
+    data_electrodes = data[selected_electrodes, :] # keeping only the selected electrodes
+
+    # creating a time array with the same length as the data and a sampling rate of 1/downsampling
+    #time_array = np.arange(0, np.size(data_electrodes, 1))/downsampling
+    brain_states = (np.ones(np.size(data_electrodes, 1))*5).astype(int)
+
+    # Filling the brain states with the data of the different brain states
+    for state, df in d_brain_states.items():
+        for index, row in df.iterrows():
+            brain_states[int(row['Start']*sr):int(row['Stop']*sr)] = int(state)
+
+    # 10 rows array. First brain states row, then 9 chosen electrodes
+    state_voltage_array = np.vstack([brain_states, data_electrodes[:, 0:np.size(brain_states)]])
+    
+    # split the recording into the different brain states
+    volt_active = state_voltage_array[1:, state_voltage_array[0,:] == 0] # :1 because we do not want the brain_states raw anymore
+    volt_rest = state_voltage_array[1:, state_voltage_array[0,:] == 1]    
+    volt_NoREM = state_voltage_array[1:, state_voltage_array[0,:] == 2]
+    volt_REM = state_voltage_array[1:, state_voltage_array[0,:] == 3]    
+
+    # Doing the downsampling now, the decimate function filtering will smooth the edging we have
+    # produced in the split by brain state
+    volt_active = decimate(volt_active, downsampling, axis = 1)
+    volt_rest = decimate(volt_rest, downsampling, axis = 1)
+    volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
+    volt_REM = decimate(volt_REM, downsampling, axis = 1)    
+
+    # deleted big arrays of unused data
+    del data
+    del data_aux
+    del brain_states
+    del state_voltage_array   
+    
+    return volt_active, volt_rest, volt_NoREM, volt_REM, 
+
 def load_32_EEG_downsampled_wake_conv(foldername, montage_name, source_number, brain_states, downsampling, amp_filter = 750):
     """
     Load open only wake and convulsion data 
@@ -629,6 +697,86 @@ def npy32mne(filename, montage_name, sampling_rate):
     return custom_raw
 
 
+
+def npy32to6areas_mne(filename, montage_name, sampling_rate):
+    """
+    Load numpy array file of 32 electrodes + 3 aux
+    and converts it to mne format in a montage with 6 areas
+
+    filename: route to the .npy file
+    montage_name: route to the mne montage file with 6 areas
+
+    returns: mne raw object with the 6 areas average voltages
+    
+    """
+    l_custom_raw = []
+    l_areas_positions = []
+    l_voltages = []
+    voltage_array = np.load(filename) # load
+    
+    l_areas_positions.append([0, 1, 8, 9, 10]) # middle_left
+    l_areas_positions.append([2, 3, 4, 5, 6, 7]) # caudal_left
+    l_areas_positions.append([11, 12, 13, 14, 15]) # frontal_left
+    l_areas_positions.append([16, 17, 18, 19, 20]) # frontal_right
+    l_areas_positions.append([24, 25, 26, 27, 28, 29]) # caudal_right
+    l_areas_positions.append([21, 22, 23, 30, 31]) # middle_right
+
+    areas_va = np.zeros(voltage_array[:len(l_areas_positions)].shape)
+    for a, area in enumerate(l_areas_positions):
+        area_va = np.zeros(voltage_array[:len(area)].shape)
+        for pos, electrode in enumerate(area):
+            area_va[pos] = voltage_array[electrode]
+        areas_va[a] = area_va.mean(axis=0)
+
+
+    if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
+    else:
+        print("The montage name is not valid")
+
+    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg']
+    
+    info = mne.create_info(montage.ch_names, sampling_rate, ch_types=channel_types)
+
+    'This makes the object that contains all the data and info about the channels.'
+    'Computations like plotting, averaging, power spectrums can be performed on this object'
+
+    custom_raw = mne.io.RawArray(areas_va, info)
+    del areas_va
+    del area_va
+    del voltage_array
+    return custom_raw
+
+def npylfp_to9areas_mne(filename, montage_name, sampling_rate):
+    """
+    Load numpy array file of 9 electrodes 
+    and converts it to mne format in a montage with 9 areas
+
+    filename: route to the .npy file
+    montage_name: route to the mne montage file with 6 areas
+
+    returns: mne raw object with the 9 areas average voltages
+    
+    """
+    voltage_array = np.load(filename)
+
+    if isinstance('montage_name', str):
+        montage = mne.channels.read_custom_montage(montage_name)
+    else:
+        print("The montage name is not valid")
+
+    channel_types=['eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg','eeg']
+    
+    info = mne.create_info(montage.ch_names, sampling_rate, ch_types=channel_types)
+
+    'This makes the object that contains all the data and info about the channels.'
+    'Computations like plotting, averaging, power spectrums can be performed on this object'
+
+    custom_raw = mne.io.RawArray(voltage_array, info)
+    del voltage_array
+    return custom_raw
+
+
 def taininumpy2mne(npy_file, montage_name, sample_rate):
   ''' converts a .npy files containing 16 eeg electrodes data
       into mne format. 
@@ -721,12 +869,28 @@ def taininumpy2mnechannels(npy_file, montage_name, sample_rate, channels_list):
 
 
 def electrode_combinations(montage_name, neighbors_dist, long_distance, recording, n_elect = 32):
+  '''
+  calculate all the combinatios without repetition of a list of electrodes, 
+  dividing it in groups belonging to a short distance or long distance
+  Inputs:
+    montage_name: MNE elc montage name
+    neighbors_dist: distance below which combinations should be excluded for being to close to each other
+    long_distance: threshold to split between short and long distance
+    recording: kind of recording = 'taini', 'openephys' or 'openephys_areas'
+    n_elect = number of electrodes, from the montage, to make the combinations from
+  Returns:
+    comb_short_distance: list of tuples with the numeric combinations of electrodes at a short distance
+    comb_long_distance: list of tuples with the numeric combinations of electrodes at a long distance
+    electrode_names: list of the electrode names, which indexes correspond to the numeric values in the combinations
+  '''
   montage = mne.channels.read_custom_montage(montage_name)
   electrode_names = montage.ch_names[0:n_elect]
   
   electrode_pos = np.zeros((n_elect,2))
   for i in np.arange(n_elect):
     if recording == 'taini':
+        electrode_pos[i] = montage.dig[i].get('r')[0:2].round(3)*50 # in mm
+    elif recording == 'openephys_areas' or recording == 'openephys_lfp':
         electrode_pos[i] = montage.dig[i].get('r')[0:2].round(3)*50 # in mm
     else:
         electrode_pos[i] = montage.dig[i+3].get('r')[0:2].round(3)*50 # in mm
@@ -776,7 +940,7 @@ def electrode_combinations(montage_name, neighbors_dist, long_distance, recordin
       del comb_short_distance[indexes_to_delete_in_short_distance[i] - indexes_already_del]
       indexes_already_del += 1
 
-  return comb_short_distance, comb_long_distance
+  return comb_short_distance, comb_long_distance, electrode_names
 
 
 def create_epochs(analysis_times, sampling_rate): #Makes epoch file for MNE of stimulation times.
@@ -984,6 +1148,8 @@ def df_to_excel(filename, data_frame, sheet_n):
     If the file already exists, it is not overwritten
 
     """
+  start_time = time.time()
+  
   file = pathlib.Path(filename)
   if file.exists ():
     book = load_workbook(filename)
@@ -995,7 +1161,9 @@ def df_to_excel(filename, data_frame, sheet_n):
 
   data_frame.to_excel(writer, sheet_name=sheet_n)
   writer.save()
-  writer.close()
+  #writer.close()
+
+  print(f'time to write {sheet_n} to excel: {time.time() - start_time}')
 
 # Calculates the closest below power of 2 to a target. Useful fur n_fft in Power spectrum
 def power_of_two(target):

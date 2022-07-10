@@ -208,11 +208,14 @@
       </property>
      </widget>
      <widget class="QFrame" name="frame_Control">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>90</x>
         <y>130</y>
-        <width>901</width>
+        <width>821</width>
         <height>101</height>
        </rect>
       </property>
@@ -225,9 +228,9 @@
       <widget class="QListWidget" name="listWidget_Control">
        <property name="geometry">
         <rect>
-         <x>170</x>
+         <x>164</x>
          <y>20</y>
-         <width>691</width>
+         <width>641</width>
          <height>61</height>
         </rect>
        </property>
@@ -235,7 +238,7 @@
       <widget class="QPushButton" name="ButtonAddControlFolder">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>54</x>
          <y>19</y>
          <width>111</width>
          <height>31</height>
@@ -248,7 +251,7 @@
       <widget class="QPushButton" name="ButtonDeleteControlFolder">
        <property name="geometry">
         <rect>
-         <x>59</x>
+         <x>53</x>
          <y>51</y>
          <width>112</width>
          <height>31</height>
@@ -325,7 +328,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>No REM</string>
+        <string>NonREM</string>
        </property>
        <property name="autoExclusive">
         <bool>true</bool>
@@ -439,11 +442,14 @@
       </property>
      </widget>
      <widget class="QFrame" name="frame_Experimental">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>90</x>
         <y>20</y>
-        <width>901</width>
+        <width>821</width>
         <height>101</height>
        </rect>
       </property>
@@ -456,7 +462,7 @@
       <widget class="QPushButton" name="ButtonAddExpFolder">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>54</x>
          <y>19</y>
          <width>111</width>
          <height>31</height>
@@ -469,7 +475,7 @@
       <widget class="QPushButton" name="ButtonDeleteExpFolder">
        <property name="geometry">
         <rect>
-         <x>59</x>
+         <x>53</x>
          <y>51</y>
          <width>112</width>
          <height>31</height>
@@ -482,9 +488,9 @@
       <widget class="QListWidget" name="listWidget_Exp">
        <property name="geometry">
         <rect>
-         <x>170</x>
+         <x>164</x>
          <y>20</y>
-         <width>691</width>
+         <width>641</width>
          <height>61</height>
         </rect>
        </property>
@@ -1356,7 +1362,7 @@
        <rect>
         <x>19</x>
         <y>451</y>
-        <width>251</width>
+        <width>561</width>
         <height>21</height>
        </rect>
       </property>
@@ -1395,7 +1401,7 @@
       <widget class="QRadioButton" name="radioButtonTaini">
        <property name="geometry">
         <rect>
-         <x>176</x>
+         <x>441</x>
          <y>0</y>
          <width>61</width>
          <height>23</height>
@@ -1406,6 +1412,32 @@
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButtonOpenEphys_areas">
+       <property name="geometry">
+        <rect>
+         <x>175</x>
+         <y>0</y>
+         <width>121</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Ephys_6areas</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="radioButtonOpenEphys_lfpareas">
+       <property name="geometry">
+        <rect>
+         <x>293</x>
+         <y>0</y>
+         <width>141</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Ephys_lfp_9areas</string>
        </property>
       </widget>
      </widget>
@@ -1426,6 +1458,22 @@
       </property>
       <property name="value">
        <double>254.409999999999997</double>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_new_data">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>71</width>
+        <height>211</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);</string>
+      </property>
+      <property name="text">
+       <string>NEW</string>
       </property>
      </widget>
      <zorder>frame_coherence</zorder>
@@ -1469,6 +1517,7 @@
      <zorder>pbdestfolder</zorder>
      <zorder>frame_montage_3</zorder>
      <zorder>spinBoxSamplingRate</zorder>
+     <zorder>pushButton_new_data</zorder>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">

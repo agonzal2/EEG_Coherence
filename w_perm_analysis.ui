@@ -33,10 +33,10 @@
      <widget class="QLabel" name="label_24">
       <property name="geometry">
        <rect>
-        <x>480</x>
-        <y>101</y>
-        <width>47</width>
-        <height>13</height>
+        <x>461</x>
+        <y>93</y>
+        <width>81</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -46,8 +46,8 @@
      <widget class="QPushButton" name="ButtonRunAll">
       <property name="geometry">
        <rect>
-        <x>220</x>
-        <y>116</y>
+        <x>290</x>
+        <y>115</y>
         <width>70</width>
         <height>51</height>
        </rect>
@@ -62,10 +62,10 @@
      <widget class="QLabel" name="label_18">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>527</x>
         <y>117</y>
-        <width>41</width>
-        <height>16</height>
+        <width>71</width>
+        <height>20</height>
        </rect>
       </property>
       <property name="text">
@@ -93,7 +93,7 @@
        <rect>
         <x>10</x>
         <y>20</y>
-        <width>611</width>
+        <width>621</width>
         <height>71</height>
        </rect>
       </property>
@@ -108,7 +108,7 @@
         <rect>
          <x>9</x>
          <y>19</y>
-         <width>81</width>
+         <width>141</width>
          <height>31</height>
         </rect>
        </property>
@@ -119,9 +119,9 @@
       <widget class="QPushButton" name="ButDelFile">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>540</x>
          <y>20</y>
-         <width>51</width>
+         <width>71</width>
          <height>31</height>
         </rect>
        </property>
@@ -132,9 +132,9 @@
       <widget class="QLabel" name="labelFileSelected">
        <property name="geometry">
         <rect>
-         <x>100</x>
+         <x>160</x>
          <y>19</y>
-         <width>441</width>
+         <width>371</width>
          <height>31</height>
         </rect>
        </property>
@@ -164,7 +164,7 @@
        <rect>
         <x>380</x>
         <y>120</y>
-        <width>81</width>
+        <width>91</width>
         <height>41</height>
        </rect>
       </property>
@@ -287,7 +287,7 @@
        <rect>
         <x>12</x>
         <y>197</y>
-        <width>171</width>
+        <width>211</width>
         <height>16</height>
        </rect>
       </property>
@@ -1284,7 +1284,7 @@
        <rect>
         <x>20</x>
         <y>131</y>
-        <width>121</width>
+        <width>171</width>
         <height>16</height>
        </rect>
       </property>
@@ -1295,9 +1295,9 @@
      <widget class="QSpinBox" name="BoxNumberShuffles">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>193</x>
         <y>128</y>
-        <width>61</width>
+        <width>91</width>
         <height>22</height>
        </rect>
       </property>
@@ -1309,6 +1309,42 @@
       </property>
       <property name="value">
        <number>50</number>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="buttonExtra">
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>180</y>
+        <width>106</width>
+        <height>29</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Plot Extra</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="SpinBoxMinVertAxes">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>180</y>
+        <width>82</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>329</x>
+        <y>185</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Min Y axis</string>
       </property>
      </widget>
      <zorder>frame_2</zorder>
@@ -1323,6 +1359,9 @@
      <zorder>tableFrequencies</zorder>
      <zorder>label_2</zorder>
      <zorder>BoxNumberShuffles</zorder>
+     <zorder>buttonExtra</zorder>
+     <zorder>SpinBoxMinVertAxes</zorder>
+     <zorder>label</zorder>
     </widget>
    </widget>
   </widget>
@@ -1332,7 +1371,7 @@
      <x>0</x>
      <y>0</y>
      <width>643</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

@@ -60,8 +60,8 @@ class MyForm(QMainWindow):
     self.ui.ButtonApplyBandFilter.clicked.connect(self.apply_band_filter)
     
     self.ui.ButtonCloseFigures.clicked.connect(self.closeFigures)
-    #self.ui.ButtonExportIndPDF.clicked.connect(self.print2pdf)
-    #self.ui.ButtonExportIndPNG.clicked.connect(self.print2png)
+    self.ui.ButtonExportIndPDF.clicked.connect(self.print2pdf)
+    self.ui.ButtonExportIndPNG.clicked.connect(self.print2png)
     # Recordings scroll
     self.ui.ScrollBarCurrentRecord.valueChanged.connect(self.changeRecording)
     # Variables
@@ -96,13 +96,13 @@ class MyForm(QMainWindow):
 
     print('loading recordings')
     for i in range(self.ui.listWidget_Indiv_recordings.count()):
-      root_dir = str(self.ui.listWidget_Indiv_recordings.item(i).text())
-      os.chdir(root_dir)
+      self.root_dir = str(self.ui.listWidget_Indiv_recordings.item(i).text())
+      os.chdir(self.root_dir)
       # getting all the npy files in the folder
       d = os.getcwd() + '/'
       matching_files = glob.glob(r'*npy')
       for j, matching_file in enumerate(matching_files):
-        new_recording = indiv_tests(root_dir + "/" + matching_file, i+j, self.sampling_rate)
+        new_recording = indiv_tests(self.root_dir + "/" + matching_file, i+j, self.sampling_rate)
 
         if rec_type == 'openeph':
           montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
@@ -112,7 +112,7 @@ class MyForm(QMainWindow):
           new_recording.load_npy16taini(montage_name)
         
         ind_calc.append(new_recording)
-        self.recordings.append(root_dir + "/" + matching_file)
+        self.recordings.append(self.root_dir + "/" + matching_file)
         self.recording_files.append(matching_file)
 
     self.changeRecording()
@@ -264,27 +264,28 @@ class MyForm(QMainWindow):
   def closeFigures(self):
     plt.close('all')
 
-  #def print2pdf(self, filename=""):
-#
-  #  if filename:
-  #    filename2 = '/' + filename + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
-  #    pdf = matplotlib.backends.backend_pdf.PdfPages(my_coherence.ResultsFolder + filename2)
-  #    figs = [plt.figure(n) for n in plt.get_fignums()]
-  #    for fig in figs:
-  #      fig.savefig(pdf, format='pdf')
-  #    pdf.close()
-  #  else:
-  #    self.error_msg.showMessage("It is necessary to select a folder")
-#
-  #def print2png(self):
-  #  my_coherence.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-  #  if my_coherence.figFolder:
-  #    prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
-  #    for i in plt.get_fignums():
-  #      plt.figure(i)
-  #      plt.savefig(my_coherence.figFolder + prefix +'figure%d.png' % i)
-  #  else:
-  #    self.error_msg.showMessage("It is necessary to select a folder")
+  def print2pdf(self, filename=""):
+
+    self.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if self.figFolder:
+      filename2 = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf'
+      pdf = matplotlib.backends.backend_pdf.PdfPages(self.figFolder + filename2)
+      figs = [plt.figure(n) for n in plt.get_fignums()]
+      for fig in figs:
+        fig.savefig(pdf, format='pdf')
+      pdf.close()
+    else:
+      self.error_msg.showMessage("It is necessary to select a folder")
+
+  def print2png(self):
+    self.figFolder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    if self.figFolder:
+      prefix = '/' + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
+      for i in plt.get_fignums():
+        plt.figure(i)
+        plt.savefig(self.figFolder + prefix +'figure%d.png' % i)
+    else:
+      self.error_msg.showMessage("It is necessary to select a folder")
 
 
 
