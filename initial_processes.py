@@ -425,8 +425,8 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     """
 
     'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
-    data=loadFolderToArray(foldername, channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
-    data_aux=loadFolderToArray(foldername, channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
+    data=loadFolderToArray(foldername + '/session1/all_channels/', channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
+    data_aux=loadFolderToArray(foldername + '/session1/all_channels/', channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
     data = np.vstack([np.transpose(data), np.transpose(data_aux)])
 
     data_electrodes = data[selected_electrodes, :] # keeping only the selected electrodes
@@ -438,7 +438,7 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     # Filling the brain states with the data of the different brain states
     for state, df in d_brain_states.items():
         for index, row in df.iterrows():
-            brain_states[int(row['Start']*sr):int(row['Stop']*sr)] = int(state)
+            brain_states[int(row['onset']*sr):int(row['offset']*sr)] = int(state)
 
     # 10 rows array. First brain states row, then 9 chosen electrodes
     state_voltage_array = np.vstack([brain_states, data_electrodes[:, 0:np.size(brain_states)]])
@@ -448,13 +448,20 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     volt_rest = state_voltage_array[1:, state_voltage_array[0,:] == 1]    
     volt_NoREM = state_voltage_array[1:, state_voltage_array[0,:] == 2]
     volt_REM = state_voltage_array[1:, state_voltage_array[0,:] == 3]    
+    volt_seizures = state_voltage_array[1:, state_voltage_array[0,:] == 4]
 
     # Doing the downsampling now, the decimate function filtering will smooth the edging we have
-    # produced in the split by brain state
-    volt_active = decimate(volt_active, downsampling, axis = 1)
-    volt_rest = decimate(volt_rest, downsampling, axis = 1)
-    volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
-    volt_REM = decimate(volt_REM, downsampling, axis = 1)    
+    # produced in the split by brain state, ifs in case of no data for some states
+    if volt_active.any():
+        volt_active = decimate(volt_active, downsampling, axis = 1)
+    if volt_rest.any() :
+        volt_rest = decimate(volt_rest, downsampling, axis = 1)
+    if volt_NoREM.any() :
+        volt_NoREM = decimate(volt_NoREM, downsampling, axis = 1)
+    if volt_REM.any():
+        volt_REM = decimate(volt_REM, downsampling, axis = 1)
+    if volt_seizures.any():
+        volt_seizures = decimate(volt_seizures, downsampling, axis = 1)
 
     # deleted big arrays of unused data
     del data
@@ -462,7 +469,8 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     del brain_states
     del state_voltage_array   
     
-    return volt_active, volt_rest, volt_NoREM, volt_REM, 
+    return volt_active, volt_rest, volt_NoREM, volt_REM, volt_seizures
+
 
 def load_32_EEG_downsampled_wake_conv(foldername, montage_name, source_number, brain_states, downsampling, amp_filter = 750):
     """

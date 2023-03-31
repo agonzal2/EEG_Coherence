@@ -1,6 +1,7 @@
 import os
 import glob
 import numpy as np
+import pandas
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
@@ -27,7 +28,7 @@ from PyQt5.QtCore import pyqtSlot
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_pdf
 from datetime import datetime
-
+import seaborn as sns
 import mne
 #import xlrd
 
@@ -257,22 +258,22 @@ class MyForm(QMainWindow):
     number_id_characters = 5
     if self.ui.radioButtonOpenEphys.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_32Tcm_Alfredo.elc'
+      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/standard_32Tcm_Alfredo.elc'
       self.my_coherence.recording_type = 'openephys'
       self.my_coherence.n_electrodes = 32
     elif self.ui.radioButtonOpenEphys_areas.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/six_areas.elc'
+      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/six_areas.elc'
       self.my_coherence.recording_type = 'openephys_areas'
       self.my_coherence.n_electrodes = 6
     elif self.ui.radioButtonOpenEphys_lfpareas.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/coherence_analysis/lfp_9areas.elc'
+      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/lfp_9areas.elc'
       self.my_coherence.recording_type = 'openephys_lfp'
       self.my_coherence.n_electrodes = 9
       number_id_characters = 7
     elif self.ui.radioButtonTaini.isChecked():
-      self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/coherence/EEG_Coherence/standard_16grid_taini1.elc'
+      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/standard_16grid_taini1.elc'
       self.my_coherence.recording_type = 'taini'
       self.my_coherence.n_electrodes = 14
 
@@ -488,7 +489,7 @@ class coherence_eeg ():
       elif self.recording_type == 'taini':
         raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
 
-      l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
+      l_raw_times = l_raw_times + np.ndarray.tolist(raw_list.times)
       # and now the data, electrode by electrode
       # joining all the data across all the electrode recordings belonging to an animal
       for elect in range(self.n_electrodes):
@@ -525,7 +526,7 @@ class coherence_eeg ():
       elif self.recording_type == 'taini':
         raw_list = taininumpy2mne(npy_file, self.montage_name, self.final_srate)
       
-      l_raw_times = l_raw_times + np.ndarray.tolist(raw_list._times)
+      l_raw_times = l_raw_times + np.ndarray.tolist(raw_list.times)
       # and now the data, electrode by electrode
       # joining all the data across all the electrode recordings belonging to an animal
       for elect in range(self.n_electrodes):
@@ -591,16 +592,13 @@ class coherence_eeg ():
       Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
       if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
         Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
-        
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
       Cxy.calc_cohe_short(self.short_d_comb, s_processes, s_chunk, self.b, self.a, self.coh_type)
       if self.recording_type != 'openephys_areas' and self.recording_type != 'openephys_lfp':
         Cxy.calc_cohe_long(self.long_d_comb, l_processes, l_chunk, self.b, self.a, self.coh_type)
-        
 
     self.calc_zcoh_freq_bands(f_l)
-
 
   # Once the coherence is calculated, we split the spectrum in frequency bands.
   def calc_zcoh_freq_bands(self, f_l):
@@ -642,16 +640,24 @@ class coherence_eeg ():
     for n, Cxy in enumerate(self.all_KO_coh_data):
       allanimals_areas_coh_KO.append(Cxy.coh_areas_animal)
       for area, coh_area in enumerate(Cxy.coh_areas_animal):
-        sheets_KO[area]['n' + str(n+1)]= Cxy.coh_areas_animal[area]        
+
+        if Cxy.coh_areas_animal[area] != []:
+          sheets_KO[area]['n' + str(n+1)] = Cxy.coh_areas_animal[area]
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
       allanimals_areas_coh_WT.append(Cxy.coh_areas_animal)
       for area, coh_area in enumerate(Cxy.coh_areas_animal):
-        sheets_WT[area]['n' + str(n+1)]= coh_area
-        
-    
-    self.mean_areas_coh_KO = np.mean(allanimals_areas_coh_KO, axis = 0)
-    self.mean_areas_coh_WT = np.mean(allanimals_areas_coh_WT, axis = 0)
+        if Cxy.coh_areas_animal[area] != []:
+          sheets_WT[area]['n' + str(n+1)] = coh_area
+
+    allanimals_areas_coh_KO = [i for i in allanimals_areas_coh_KO if i.size !=0]
+    allanimals_areas_coh_WT = [i for i in allanimals_areas_coh_WT if i.size !=0]
+
+    self.areas_coh_KO = allanimals_areas_coh_KO
+    self.areas_coh_WT = allanimals_areas_coh_WT
+
+    self.mean_areas_coh_KO = np.mean(allanimals_areas_coh_KO, axis=0)
+    self.mean_areas_coh_WT = np.mean(allanimals_areas_coh_WT, axis=0)
     #self.mean_areas_coh = np.mean(np.asarray(allanimals_areas_coh_WT), axis = 0) - np.mean(np.asarray(allanimals_areas_coh_KO), axis = 0)
     self.plot_areas()
     
@@ -673,9 +679,6 @@ class coherence_eeg ():
       
     writer.save()
 
-
-
-  
   def plot_areas(self):
     # 15 divided by 5 rows
     if self.recording_type == 'openephys_areas':
@@ -690,21 +693,34 @@ class coherence_eeg ():
     n_columns = int(n_subs/n_rows)
     fig, axs = plt.subplots(n_columns, n_rows, figsize = fig_size)
     for comb in range(self.mean_areas_coh_WT.shape[0]):
+
+      to_plot_KO = pd.DataFrame([i[comb] for i in self.areas_coh_KO])
+      to_plot_WT = pd.DataFrame([i[comb] for i in self.areas_coh_WT])
+
+      to_plot_KO.columns = self.f_array
+      to_plot_WT.columns = self.f_array
+
+      to_plot_KO = pd.melt(to_plot_KO)
+      to_plot_WT = pd.melt(to_plot_WT)
+
       x_plot = int(comb/n_rows)
       y_plot = int(comb%n_rows)
-      axs[x_plot, y_plot].plot(self.f_array, self.mean_areas_coh_KO[comb], label = 'KO', color='#0a1195')
+
+      sns.lineplot(x='variable', y='value', data=to_plot_KO, ax=axs[y_plot], label='KO', color='#0a1195')
+      sns.lineplot(x='variable', y='value', data=to_plot_WT, ax=axs[y_plot], label='WT', color='black')
+
+      # axs[y_plot].plot(self.f_array, self.mean_areas_coh_KO[comb], label='KO', color='#0a1195')
       #axs[x_plot, y_plot].set_facecolor('#efb7b2')
-      axs[x_plot, y_plot].plot(self.f_array, self.mean_areas_coh_WT[comb], label = 'WT', color='black')
-      axs[x_plot, y_plot].legend()
-      axs[x_plot, y_plot].set_title(self.areas_comb_names[comb])
+      # axs[y_plot].plot(self.f_array, self.mean_areas_coh_WT[comb], label='WT', color='black')
+      axs[y_plot].legend()
+      axs[y_plot].set_title(self.areas_comb_names[comb])
+
       if y_plot == 0:
-        axs[x_plot, y_plot].set(ylabel='Average Imaginary Coherence')
+        axs[y_plot].set(ylabel='Average Imaginary Coherence')
       if x_plot == n_columns-1:
-        axs[x_plot, y_plot].set(xlabel='Frequency (Hz)')
+        axs[y_plot].set(xlabel='Frequency (Hz)')
 
     plt.savefig(self.ResultsFolder + '/Areas_z_Individual_Coh_' + self.brain_state_name + "_" + str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + '.pdf')
-    
-
 
   def calc_mean_coh(self):
     # Two ways Anova Dataframe
