@@ -64,6 +64,7 @@ class parallel_coh():
     filtered_second = lfilter(self.b, self.a, second_voltages)
     if self.coh_type == 'abs':
       f_loop, Cxy_loop = coherence(filtered_first, filtered_second, self.sampling_r, nperseg=self.frequency_r)
+
     else:
       f_loop, Cxy_loop = imag_coherence(filtered_first, filtered_second, self.sampling_r, nperseg=self.frequency_r)
     return f_loop, Cxy_loop

@@ -7,11 +7,11 @@ import glob
 from initial_processes import *
 
 # Parameters
-prm.set_sampling_rate(2000)
+prm.set_sampling_rate(5000)
 sr=prm.get_sampling_rate()
-downsampling = 8
+downsampling = 5
 
-recordings_folder = '/media/prignane/T7/Sleep_Data_For_Jorge/Raw_data/'  #/Rat688/session1/all_channels/'
+recordings_folder = '/home/vanesa/Desktop/vanesa/vane_allSGHRB/Raw_Data/'  #/Rat688/session1/all_channels/'
 path_info_file = recordings_folder + 'sleep_channel_info.xlsx'
 
 # create a subfolder for the npy data

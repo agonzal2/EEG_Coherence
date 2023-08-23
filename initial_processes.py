@@ -418,18 +418,22 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     
     Returns:
     - volt_active: numpy array with the voltage of the selected electrodes in the active state
-    - volt_rest: numpy array with the voltage of the selected electrodes in the rest state
+    - volt_rest: numpy array with the voltage of the selected electrodes in the rest stateS
     - volt_NoREM: numpy array with the voltage of the selected electrodes in the NoREM state
     - volt_REM: numpy array with the voltage of the selected electrodes in the REM state
     
     """
 
     'Below are 2 functions from OpenEphys to load data channels and auxilary (accelerometer) channels'
-    data=loadFolderToArray(foldername + '/session1/all_channels/', channels = 'all', chprefix = 'CH', dtype = float, session = '0', source = source_number)
-    data_aux=loadFolderToArray(foldername + '/session1/all_channels/', channels = 'all', chprefix = 'AUX', dtype = float, session = '0', source = source_number)
-    data = np.vstack([np.transpose(data), np.transpose(data_aux)])
 
-    data_electrodes = data[selected_electrodes, :] # keeping only the selected electrodes
+    # changed to handle NeuroLogger data
+    data=np.load(foldername + '/session1/all_channels/LFP_CH.npy')  # FIXME hard coded
+
+    data_electrodes = data.transpose()[selected_electrodes, :] # keeping only the selected electrodes
+
+    for i, e in enumerate(selected_electrodes):  # filtering bad electrodes = nan arrays
+        if e == 0:
+            data_electrodes[i] = np.nan
 
     # creating a time array with the same length as the data and a sampling rate of 1/downsampling
     #time_array = np.arange(0, np.size(data_electrodes, 1))/downsampling
@@ -465,7 +469,7 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
 
     # deleted big arrays of unused data
     del data
-    del data_aux
+    # del data_aux
     del brain_states
     del state_voltage_array   
     
@@ -911,42 +915,41 @@ def electrode_combinations(montage_name, neighbors_dist, long_distance, recordin
   # working with the combination element is difficult and it can only be assigned once -> it is transformed into a list
   comb_long_distance = list(comb)
 
-  comb = combinations(nums, 2)
-  comb_short_distance = list(comb)
-
-  # indexes for the elements to delete
-  indexes_to_delete_in_short_distance = []
-  indexes_to_delete_in_long_distance = []
-
-  nei = 0
-  s_d = 0
-  l_d = 0
-
-  for i in range(len(distances_btw_electrodes)):
-      if distances_btw_electrodes[i] <= neighbors_dist:
-          indexes_to_delete_in_long_distance.append(i)
-          indexes_to_delete_in_short_distance.append(i)
-          nei += 1
-      elif distances_btw_electrodes[i] <long_distance:
-          indexes_to_delete_in_long_distance.append(i)
-          s_d += 1
-      else:
-          indexes_to_delete_in_short_distance.append(i)
-          l_d += 1
-
-  long_dist_electrodes = np.delete(distances_btw_electrodes, indexes_to_delete_in_long_distance)
-  short_dist_electrodes = np.delete(distances_btw_electrodes, indexes_to_delete_in_short_distance)
-
-  # when it deletes an element, it is necessary to update the indexes substracting one to the total of them the list has.
-  indexes_already_del = 0
-  for i in range(len(indexes_to_delete_in_long_distance)):
-      del comb_long_distance[indexes_to_delete_in_long_distance[i] - indexes_already_del]
-      indexes_already_del += 1
-
-  indexes_already_del = 0
-  for i in range(len(indexes_to_delete_in_short_distance)):
-      del comb_short_distance[indexes_to_delete_in_short_distance[i] - indexes_already_del]
-      indexes_already_del += 1
+  comb_short_distance = comb_long_distance
+  #
+  # # indexes for the elements to delete
+  # indexes_to_delete_in_short_distance = []
+  # indexes_to_delete_in_long_distance = []
+  #
+  # nei = 0
+  # s_d = 0
+  # l_d = 0
+  #
+  # for i in range(len(distances_btw_electrodes)):
+  #     if distances_btw_electrodes[i] <= neighbors_dist:
+  #         indexes_to_delete_in_long_distance.append(i)
+  #         indexes_to_delete_in_short_distance.append(i)
+  #         nei += 1
+  #     elif distances_btw_electrodes[i] <long_distance:
+  #         indexes_to_delete_in_long_distance.append(i)
+  #         s_d += 1
+  #     else:
+  #         indexes_to_delete_in_short_distance.append(i)
+  #         l_d += 1
+  #
+  # long_dist_electrodes = np.delete(distances_btw_electrodes, indexes_to_delete_in_long_distance)
+  # short_dist_electrodes = np.delete(distances_btw_electrodes, indexes_to_delete_in_short_distance)
+  #
+  # # when it deletes an element, it is necessary to update the indexes substracting one to the total of them the list has.
+  # indexes_already_del = 0
+  # for i in range(len(indexes_to_delete_in_long_distance)):
+  #     del comb_long_distance[indexes_to_delete_in_long_distance[i] - indexes_already_del]
+  #     indexes_already_del += 1
+  #
+  # indexes_already_del = 0
+  # for i in range(len(indexes_to_delete_in_short_distance)):
+  #     del comb_short_distance[indexes_to_delete_in_short_distance[i] - indexes_already_del]
+  #     indexes_already_del += 1
 
   return comb_short_distance, comb_long_distance, electrode_names
 

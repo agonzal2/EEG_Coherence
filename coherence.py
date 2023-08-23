@@ -4,17 +4,22 @@ import numpy as np
 import pandas
 import pandas as pd
 import statsmodels.api as sm
+from numpy import ndarray
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from statsmodels.stats.weightstats import ttest_ind as wttest
 import scipy.signal
 import scipy.io
 from scipy.signal import iirnotch
+from scipy.signal import welch
 from scipy import spatial
 from scipy import stats
 import time
 import struct
 from copy import deepcopy
+
+from tqdm import tqdm
+
 from indiv_calculations import *
 import xlsxwriter
 
@@ -44,7 +49,7 @@ montage_name = 'standard_32Tcm_Alfredo'
 
 #sampling_rate = 1000
 source_name = '100' # how do the name of the recording files begin
-
+# matplotlib.use('TkAgg')
 class MyForm(QMainWindow):
   def __init__(self):
     super().__init__()
@@ -258,22 +263,22 @@ class MyForm(QMainWindow):
     number_id_characters = 5
     if self.ui.radioButtonOpenEphys.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/standard_32Tcm_Alfredo.elc'
+      self.my_coherence.montage_name = '/mnt/datafast/vanesa/Coherencetest/Coherenece_vane_corrected/standard_32Tcm_Alfredo.elc'
       self.my_coherence.recording_type = 'openephys'
       self.my_coherence.n_electrodes = 32
     elif self.ui.radioButtonOpenEphys_areas.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/six_areas.elc'
+      self.my_coherence.montage_name = '/mnt/datafast/vanesa/Coherencetest/Coherenece_vane_corrected/six_areas.elc'
       self.my_coherence.recording_type = 'openephys_areas'
       self.my_coherence.n_electrodes = 6
     elif self.ui.radioButtonOpenEphys_lfpareas.isChecked():
       #self.my_coherence.montage_name = '/media/jorge/otherprojects/Code/MNE_Alfredo/standard_32grid_Alfredo.elc'
-      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/lfp_9areas.elc'
+      self.my_coherence.montage_name = '/mnt/datafast/vanesa/Coherencetest/Coherenece_vane_corrected/lfp_9areas.elc'
       self.my_coherence.recording_type = 'openephys_lfp'
       self.my_coherence.n_electrodes = 9
       number_id_characters = 7
     elif self.ui.radioButtonTaini.isChecked():
-      self.my_coherence.montage_name = '/home/prignane/code/EEG_Coherence/standard_16grid_taini1.elc'
+      self.my_coherence.montage_name = '/mnt/datafast/vanesa/Coherencetest/Coherenece_vane_corrected/standard_16grid_taini1.elc'
       self.my_coherence.recording_type = 'taini'
       self.my_coherence.n_electrodes = 14
 
@@ -288,7 +293,7 @@ class MyForm(QMainWindow):
       matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
         if file_m[0:number_id_characters] not in self.my_coherence.l_prefixes_KO:
-          self.my_coherence.l_prefixes_KO.append(file_m[0:5])
+          self.my_coherence.l_prefixes_KO.append(file_m[0:7])
 
       # gathering the recordings per animal (they will be analysed together)
       for pattern in self.my_coherence.l_prefixes_KO:
@@ -307,7 +312,7 @@ class MyForm(QMainWindow):
       matching_files = glob.glob(r'*npy')
       for file_m in matching_files:
         if file_m[0:number_id_characters] not in self.my_coherence.l_prefixes_WT:
-          self.my_coherence.l_prefixes_WT.append(file_m[0:5])
+          self.my_coherence.l_prefixes_WT.append(file_m[0:7])
 
       # gathering the recordings per animal (they will be analysed together)
       for pattern in self.my_coherence.l_prefixes_WT:
@@ -473,7 +478,7 @@ class coherence_eeg ():
   
   def get_join_data_KO(self, i, animal):
 
-    print(f"loading recordings for the KO animal: {self.l_prefixes_KO[i]}")
+    # print(f"loading recordings for the KO animal: {self.l_prefixes_KO[i]}")
     l_raw_data = []
     l_raw_times = []
     l_raw_data = []
@@ -510,7 +515,7 @@ class coherence_eeg ():
 
 
   def get_join_data_WT(self, i, animal):
-    print(f"loading recordings for the WT animal: {self.l_prefixes_WT[i]}")
+    # print(f"loading recordings for the WT animal: {self.l_prefixes_WT[i]}")
     l_raw_data = []
     l_raw_times = []
     l_raw_data = []
@@ -567,7 +572,7 @@ class coherence_eeg ():
   # So the notch filter, the distance range or the brain state can be modified without loading
   # again all the data
   def calc_notch(self, Q, downsampling):
-    self.b, self.a = iirnotch(50.0, Q, self.final_srate)
+    self.b, self.a = iirnotch(50.0, Q, self.final_srate)  # FIXME : hard coded
 
   # calculating the different combinations between electrodes, short and long distance
   def calc_combinations(self, neighbors_dist, long_distance):
@@ -641,14 +646,15 @@ class coherence_eeg ():
       allanimals_areas_coh_KO.append(Cxy.coh_areas_animal)
       for area, coh_area in enumerate(Cxy.coh_areas_animal):
 
-        if Cxy.coh_areas_animal[area] != []:
+        if len(Cxy.coh_areas_animal[area]) != 0:
           sheets_KO[area]['n' + str(n+1)] = Cxy.coh_areas_animal[area]
 
     for n, Cxy in enumerate(self.all_WT_coh_data):
       allanimals_areas_coh_WT.append(Cxy.coh_areas_animal)
       for area, coh_area in enumerate(Cxy.coh_areas_animal):
-        if Cxy.coh_areas_animal[area] != []:
+        if len(Cxy.coh_areas_animal[area]) != 0:
           sheets_WT[area]['n' + str(n+1)] = coh_area
+
 
     allanimals_areas_coh_KO = [i for i in allanimals_areas_coh_KO if i.size !=0]
     allanimals_areas_coh_WT = [i for i in allanimals_areas_coh_WT if i.size !=0]
@@ -656,8 +662,8 @@ class coherence_eeg ():
     self.areas_coh_KO = allanimals_areas_coh_KO
     self.areas_coh_WT = allanimals_areas_coh_WT
 
-    self.mean_areas_coh_KO = np.mean(allanimals_areas_coh_KO, axis=0)
-    self.mean_areas_coh_WT = np.mean(allanimals_areas_coh_WT, axis=0)
+    self.mean_areas_coh_KO = np.nanmean(allanimals_areas_coh_KO, axis=0)  # to ignore nan values due to bad probes
+    self.mean_areas_coh_WT = np.nanmean(allanimals_areas_coh_WT, axis=0)
     #self.mean_areas_coh = np.mean(np.asarray(allanimals_areas_coh_WT), axis = 0) - np.mean(np.asarray(allanimals_areas_coh_KO), axis = 0)
     self.plot_areas()
     
@@ -673,26 +679,85 @@ class coherence_eeg ():
 
     writer = pd.ExcelWriter(excel_name, engine='xlsxwriter')
 
-    for area, area_name in enumerate(self.areas_comb_names): 
+    for area, area_name in enumerate(self.areas_comb_names):
       sheets_WT[area].to_excel(writer, sheet_name=area_name + '_WT')
       sheets_KO[area].to_excel(writer, sheet_name=area_name + '_KO')
-      
-    writer.save()
+    #self.plot_power_spectrums()
+    self.calc_power()
+    writer._save()
+
+
+  #Calculate power
+  def calc_power(self):
+    # Create a Pandas DataFrame to store the power data
+    df_WTpower = [] # list to store DataFrames
+    df_KOpower = []
+
+    # Iterate over each column of Cxy.volt_state and calculate power
+    for col_index in range(self.n_electrodes):
+        power_WTdata = []  # List to store power values for each column
+        freq_WTdata = []  # List to store corresponding frequency values
+        power_KOdata = []
+        freq_KOdata = []
+
+        for Cxy in self.all_WT_coh_data:
+            freq, power = welch(Cxy.volt_state[:, col_index], fs=Cxy.final_srate, nperseg=2000) #
+            freq_WTdata.append(freq)
+            power_WTdata.append(power)
+            # Create dataframe
+            df_WTpower_area = pd.DataFrame(power_WTdata).T  # a column per animal
+            df_WTpower_area.insert(0, "Freqs", freq_WTdata[0])  # add frequency range as the first column
+
+        # Add the power data for the current column to the list
+        df_WTpower.append(df_WTpower_area)
+
+        #KO data
+        for Cxy in self.all_KO_coh_data:
+            freq, power = welch(Cxy.volt_state[:, col_index], fs=Cxy.final_srate, nperseg=2000) #
+            freq_KOdata.append(freq)
+            power_KOdata.append(power)
+            # Create dataframe
+            df_KOpower_area = pd.DataFrame(power_KOdata).T  # a column per animal
+            df_KOpower_area.insert(0, "Freqs", freq_KOdata[0])  # add frequency range as the first column
+
+        # Add the power data for the current column to the list
+        df_KOpower.append(df_KOpower_area)
+
+    # Export the DataFrames to Excel
+    if self.recording_type == 'openephys_areas':
+      line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + 'areas' + "_"
+    else:
+      line1 = self.ResultsFolder + '/z_Individual_Coh_' + self.brain_state_name + "_" + 'lfp_9electrodes' + "_"
+
+    line2 = str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + "_" + 'power' + ".xlsx"
+    excel_name = line1 + line2
+
+    writer = pd.ExcelWriter(excel_name, engine='xlsxwriter')
+
+    for columns, area_name in enumerate(self.elec_names):
+       df_WTpower[columns].to_excel(writer, sheet_name=area_name + '_WT')
+       df_KOpower[columns].to_excel(writer, sheet_name=area_name + '_KO')
+
+    writer._save()
+
+
+
 
   def plot_areas(self):
     # 15 divided by 5 rows
     if self.recording_type == 'openephys_areas':
-      n_rows = 5
+      n_rows = 6
       fig_size = (25, 15)
     # 36 combinations in 6 rows, bigger figure
     elif  self.recording_type == 'openephys_lfp':
-      n_rows = 6
+      n_rows = 36
       fig_size = (50, 30)
     
     n_subs = self.mean_areas_coh_WT.shape[0]
     n_columns = int(n_subs/n_rows)
-    fig, axs = plt.subplots(n_columns, n_rows, figsize = fig_size)
-    for comb in range(self.mean_areas_coh_WT.shape[0]):
+    fig, axs = plt.subplots(n_columns, n_rows, figsize=fig_size)
+
+    for comb in tqdm(range(self.mean_areas_coh_WT.shape[0])):
 
       to_plot_KO = pd.DataFrame([i[comb] for i in self.areas_coh_KO])
       to_plot_WT = pd.DataFrame([i[comb] for i in self.areas_coh_WT])
@@ -706,8 +771,10 @@ class coherence_eeg ():
       x_plot = int(comb/n_rows)
       y_plot = int(comb%n_rows)
 
-      sns.lineplot(x='variable', y='value', data=to_plot_KO, ax=axs[y_plot], label='KO', color='#0a1195')
-      sns.lineplot(x='variable', y='value', data=to_plot_WT, ax=axs[y_plot], label='WT', color='black')
+      if not to_plot_KO.isnull().any().any():
+        sns.lineplot(x='variable', y='value', data=to_plot_KO, ax=axs[y_plot], label='KO', color='#0a1195')
+      if not to_plot_WT.isnull().any().any():
+        sns.lineplot(x='variable', y='value', data=to_plot_WT, ax=axs[y_plot], label='WT', color='black')
 
       # axs[y_plot].plot(self.f_array, self.mean_areas_coh_KO[comb], label='KO', color='#0a1195')
       #axs[x_plot, y_plot].set_facecolor('#efb7b2')
@@ -990,6 +1057,8 @@ class coherence_eeg ():
 
   def return_freq_results(self):
     return self.list_freq_results
+
+
 
   def plot_power_spectrums(self):
     ax = self.indiv_fig()
