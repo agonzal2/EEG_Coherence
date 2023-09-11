@@ -12,6 +12,7 @@ import scipy.signal
 import scipy.io
 from scipy.signal import iirnotch
 from scipy.signal import welch
+from scipy.signal import lfilter
 from scipy import spatial
 from scipy import stats
 import time
@@ -700,12 +701,29 @@ class coherence_eeg ():
         power_KOdata = []
         freq_KOdata = []
 
+      # Preprocess, calculate power and norm data
+        #WT data
         for Cxy in self.all_WT_coh_data:
-            freq, power = welch(Cxy.volt_state[:, col_index], fs=Cxy.final_srate, nperseg=2000) #
+
+            # I am not sure this goes here Apply notch filer to each row (axis=1) of the DataFrame
+            Cxy.volt_state_nfilt = np.apply_along_axis(lambda column: lfilter(self.b, self.a, column), axis=0, arr=Cxy.volt_state)
+            # Normalize zscore
+            Cxy.volt_state_norm = stats.zscore(Cxy.volt_state_nfilt, axis=0)
+            #Normalize minmax
+            #Cxy.volt_state_nfilt_min = np.min(Cxy.volt_state_nfilt, axis = 0)
+            #Cxy.volt_state_nfilt_max = np.max(Cxy.volt_state_nfilt, axis=0)
+            #Cxy.volt_state_norm = (Cxy.volt_state_nfilt -Cxy.volt_state_nfilt_min)/ (Cxy.volt_state_nfilt_max-Cxy.volt_state_nfilt_min)
+
+
+            # Calculate power
+            freq, power = welch(Cxy.volt_state_norm[:, col_index], fs=Cxy.final_srate, nperseg=2000) #calculatepower
             freq_WTdata.append(freq)
             power_WTdata.append(power)
+            # Log norm power data
+            powerlog_WTdata = 10*np.log10(power_WTdata)
+
             # Create dataframe
-            df_WTpower_area = pd.DataFrame(power_WTdata).T  # a column per animal
+            df_WTpower_area = pd.DataFrame(powerlog_WTdata).T  # a column per animal
             df_WTpower_area.insert(0, "Freqs", freq_WTdata[0])  # add frequency range as the first column
 
         # Add the power data for the current column to the list
@@ -713,11 +731,26 @@ class coherence_eeg ():
 
         #KO data
         for Cxy in self.all_KO_coh_data:
-            freq, power = welch(Cxy.volt_state[:, col_index], fs=Cxy.final_srate, nperseg=2000) #
+
+            # I am not sure this goes here Apply notch filer to each row (axis=1) of the DataFrame
+            Cxy.volt_state_nfilt = np.apply_along_axis(lambda column: lfilter(self.b, self.a, column), axis=0, arr=Cxy.volt_state)
+            # Normalize copy Paul thingy
+            Cxy.volt_state_norm = stats.zscore(Cxy.volt_state_nfilt, axis=0)
+            # Normalize minmax
+            #Cxy.volt_state_nfilt_min = np.min(Cxy.volt_state_nfilt, axis=0)
+            #Cxy.volt_state_nfilt_max = np.max(Cxy.volt_state_nfilt, axis=0)
+            #Cxy.volt_state_norm = (Cxy.volt_state_nfilt - Cxy.volt_state_nfilt_min) / (
+                      Cxy.volt_state_nfilt_max - Cxy.volt_state_nfilt_min)
+
+            #Calculate power
+            freq, power = welch(Cxy.volt_state_norm[:, col_index], fs=Cxy.final_srate, nperseg=2000) #
             freq_KOdata.append(freq)
             power_KOdata.append(power)
+            # Log norm power data
+            powerlog_KOdata = 10 * np.log10(power_KOdata)
+
             # Create dataframe
-            df_KOpower_area = pd.DataFrame(power_KOdata).T  # a column per animal
+            df_KOpower_area = pd.DataFrame(powerlog_KOdata).T  # a column per animal
             df_KOpower_area.insert(0, "Freqs", freq_KOdata[0])  # add frequency range as the first column
 
         # Add the power data for the current column to the list
