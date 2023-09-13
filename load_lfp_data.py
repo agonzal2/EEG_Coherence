@@ -11,7 +11,7 @@ prm.set_sampling_rate(5000)
 sr=prm.get_sampling_rate()
 downsampling = 5
 
-recordings_folder = '/home/vanesa/Desktop/vanesa/vane_allSGHRB/Raw_Data/'  #/Rat688/session1/all_channels/'
+recordings_folder = '/home/paul/Desktop/vane_example_mockdata/Raw_Data/'  #/Rat688/session1/all_channels/'
 path_info_file = recordings_folder + 'sleep_channel_info.xlsx'
 
 # create a subfolder for the npy data

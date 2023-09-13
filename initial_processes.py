@@ -429,10 +429,12 @@ def load_16_lfp_downsampled(foldername, source_number, sr, downsampling, selecte
     # changed to handle NeuroLogger data
     data=np.load(foldername + '/session1/all_channels/LFP_CH.npy')  # FIXME hard coded
 
+    selected_electrodes = [x - 1 for x in selected_electrodes] # because xls file is 1 based indexed, to signal bad electrodes with 0, substract one to realign to data file starting at 0
+
     data_electrodes = data.transpose()[selected_electrodes, :] # keeping only the selected electrodes
 
     for i, e in enumerate(selected_electrodes):  # filtering bad electrodes = nan arrays
-        if e == 0:
+        if e == -1: # Since we substract 1, the bad electrodes 0 in the xls are now -1
             data_electrodes[i] = np.nan
 
     # creating a time array with the same length as the data and a sampling rate of 1/downsampling
